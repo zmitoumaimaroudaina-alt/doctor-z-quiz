@@ -1,0 +1,52 @@
+30. L'examen clinique se fait appareil par appareil selon l'ordre précis suivant : 1RJ
+A. Inspection, auscultation, palpation, percussion
+B. Inspection, percussion, palpation, auscultation
+C. Percussion, palpation, auscultation, inspection
+D. Inspection, palpation, percussion, auscultation
+E. Auscultation, inspection, palpation, percussion
+31. L'examen clinique du patient débute toujours par : 1RJ
+A. L'examen cardiovasculaire
+B. L'examen pleuropulmonaire
+C. L'examen digestif
+D. L'examen neurologique
+E. La zone d'appel
+32. Activation du cœur : 1RF
+A. La dépolarisation d'une cellule cardiaque se fait de l'épicarde vers l'endocarde
+B. L'impulsion électrique nait au niveau du nœud de Keith et Flack
+C. Le nœud sino-auriculaire est situé au niveau de l'auricule droite
+D. Le tissu nodal est responsable de la conduction de l'influx électrique
+E. La dépolarisation des ventricules se fait grâce au réseau de Purkinje
+33. Quelle est la réponse fausse ?
+A. Le segment ST et l'onde T correspondent à la repolarisation des ventricules
+B. Un indice de SOKOLOW à 30 mm est considéré comme normal
+C. L'espace PQ correspond à la repolarisation des oreillettes
+D. Le complexe QRS à l'ECG traduit la contraction des ventricules
+E. L'indice de Cornell est égale à l'amplitude de R aVL+ S V3
+34. A l'ECG normal : 1RJ
+A. La fréquence sinusale est comprise entre 60-80/mn
+B. L'axe du QRS est entre +30 et +90°
+C. La durée de l'onde P est < 0.12 sec
+D. Les QRS ont un aspect rS en V6
+E. L'onde T est positive en aVR
+35. Concernant la respiration normale : 1RF
+1. Les gaz s'écoulent des zones de haute pression, vers les plus basses pressions
+2. L'expiration est un temps passif
+3. Ses cycles se succèdent à la fréquence de 14 à 22/min chez l'adulte
+4. Voies centripètes cheminent dans le tronc du pneumogastrique
+5. Le pneumogastrique est le principal nerf qui innerve le diaphragme
+A=2+4
+B=2
+C=3+4
+D=2+3
+E=1+5
+36. Concernant la dyspnée : 1RJ
+1. Sa fréquence est mesurée sur un minimum de dix secondes en évitant que le patient ne parle
+2. L'œdème de Quincke et le cancer du larynx sont les deux principales causes de bardypnée inspiratoire
+3. La dyspnée aigue est d'emblée à son maximum
+4. L'orthopnée est déclenchée par la position debout
+5. La bradypnée est une dyspnée avec une fréquence respiratoire > 14 cycles/min
+A=2+3
+B=2+4+5
+C=1+2
+D=4
+E=4+5

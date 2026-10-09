@@ -1,0 +1,21 @@
+E. Une biopsie pleurale
+R: D
+Commentaire:
+Exploration fonctionnelle respiratoire (EFR) :Faux
+Les explorations fonctionnelles respiratoires ne sont pas un examen de première ligne dans le diagnostic de l'épanchement pleural. Elles sont plutôt utilisées pour évaluer la fonction pulmonaire en général, mais ne permettent pas d'apporter des informations directes sur la nature et la cause de l'épanchement. Elles peuvent être envisagées après la résolution de l'épanchement pour évaluer les séquelles fonctionnelles, mais pas en phase aiguë pour le diagnostic initial.
+## Cas clinique 02 :
+CAS: Madame âgée de 80 ans, consulte pour diarrhée évoluant depuis une semaine, elle signale une perte de poids de 4 kg, l'examen clinique retrouve un pli cutané, la fréquence cardiaque est à 135/minute
+1/ A quoi correspond le tableau clinique ? (cochez la réponse juste)
+A. Déshydratation extracellulaire
+B. Une surcharge pondérale
+C. Déshydratation intracellulaire
+D. Surcharge hydrique
+E. Anorexie mentale
+R: A
+Commentaire :
+La déshydratation extracellulaire se reconnaît sur les signes suivants :
+• La peau perd son élasticité normale, lorsqu'on pince la peau entre le pouce et l'index elle garde le pli ; ce signe se recherche à la face interne des cuisses et dans la région sous-claviculaire.
+• Hypotonie des globes oculaire qui paraissent enfoncés dans les orbites; les yeux sont cernés.
+• Hypotension artérielle et tachycardie.
+• Oligurie.
+• Perte de poids.

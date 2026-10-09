@@ -1,0 +1,21 @@
+4/ Quelle est l'étiologie de ce tableau clinique ? (cochez la réponse juste)
+A. Pertes digestives par diarrhée
+B. Une hyperthermie
+C. Un coup de chaleur
+D. Une fuite rénale
+E. Des vomissements
+R: A
+Commentaire :
+L'étiologie la plus probable dans ce tableau clinique est les pertes digestives par diarrhée.
+En effet, une diarrhée prolongée peut entraîner une perte importante de liquides et d'électrolytes, ce qui peut provoquer une déshydratation, des signes d'hypovolémie comme la tachycardie et l'hypotension, ainsi que des altérations cliniques telles qu'un pli cutané.
+## Cas clinique 03:
+CAS: Une patiente âgée de 28 ans, diabétique, post accouchée de 15 jours, consulte pour douleur thoracique vive basithoracique et dyspnée. L'examen objective une patiente angoissée. La température est chiffrée à 38,2 °C, FC = 120 b/min, FR = 30 cycles/min
+1/ Quel diagnostic doit être évoqué en première intention ? (RJ)
+A. Infarctus du myocarde
+B. Dissection de l'aorte
+C. Péricardite aigue
+D. Embolie pulmonaire
+E. Pneumothorax
+R: D
+Commentaire :
+~Symptomatologie : Les symptômes présentés par la patiente sont évocateurs d'une embolie pulmonaire :

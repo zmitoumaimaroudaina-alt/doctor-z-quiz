@@ -1,0 +1,45 @@
+A. Dans les structures liquidiennes
+B. Dans l'os
+C. Dans l'air
+D. Les réponses A et C sont justes
+E. Aucune réponse n'est juste
+R : A
+15/ L'échographie est une technique d'imagerie médicale : (2021)
+A. N'est pas dangereuse pour les cellules du corps humain
+B. Utilise des ultrasons
+C. Utilisée surtout pour l'exploration de l'abdomen et du pelvis
+D. Utilise 02 sondes : une réceptrice et une émettrice
+R : D
+16/ En échographie pour l'étude des structures : (2021)
+A. La sonde à plus faible fréquence pour les structures profondes
+B. La sonde à plus haute fréquence pour les structures superficielles
+C. Les faisceaux obliques à la sonde sont détectés et transformés en image
+D. La réflexion de l'ultrason est proportionnelle à la différence d'impédance du tissu
+R : C
+## III ➢ le scanner
+1/ Avantages des scanner de dernière génération: (2024)
+a. Temps d'acquisition plus court.
+b. Diminue la quantité de produit de contraste inject.
+c. Limite les artefacts cinétiques.
+d. Couvrir un volume plus important.
+e. La réponse B est fausse.
+R: e
+2/ Les plans proposés sur un scanner multi planaire: (2024)
+a. Sagittal.
+b. Coronal.
+c. Horizontal.
+d. Frontal.
+e. Axial.
+R: c
+3/ Concernant le scanner: (2024)
+a. Le tube à rayons X est à émission continue.
+b. Les détecteurs tournes autours de l'objet a examiné.
+c. Une dissipation thermique élevée.
+d. Le lit est à hauteur fixe et se déplace l'or de la rotation de tube.
+e. le nombre de détecteurs est signalé sous le terme de « BARETTE ».
+R: d
+4/ Le scanner: (2021)
+a. Utilise un tube à rayons X et un ensemble de détecteurs disposés en cadre.
+b. Chaque pixel de la matrice de reconstruction correspond une valeur d'atténuation.
+c. Permettent la réalisation des coupes infra millimétriques.
+d. Le lit d'examen est mobil pendant la rotation du tube.

@@ -1,0 +1,14 @@
+Commentaire :
+Les signes retrouvés à l'examen des membres inférieurs (douleur à la dorsiflexion du pied, œdème, chaleur locale, etc.) traduisent une thrombose veineuse profonde (TVP) des membres inférieurs.
+La TVP est souvent la source d'une embolie pulmonaire, car un thrombus formé dans une veine profonde des jambes peut se détacher et migrer vers les poumons, provoquant une embolie pulmonaire. Les signes cliniques observés sont typiquement associés à cette pathologie, et l'examen des membres inférieurs est essentiel dans le cadre de la recherche d'une TVP.
+Les autres propositions (ischémie aiguë, érysipèle, arthrite, hématome) ne correspondent pas à l'ensemble des signes observés dans ce contexte.
+CAS: 6/ 48 heures après son admission, la patiente signale une toux avec crachats hémoptoïques. Quel syndrome est à rechercher lors de l'examen physique thoracique : (RJ)
+A. Syndrome d'épanchement pleural liquidien
+B. Syndrome d'épanchement pleural aérien
+C. Syndrome de Claude Bernard Horner
+D. Syndrome bronchique
+E. Syndrome de condensation pulmonaire non rétractile
+R: E
+Commentaire :
+Dans ce contexte, le syndrome à rechercher lors de l'examen physique thoracique est le syndrome de condensation pulmonaire non rétractile.
+La toux avec crachats hémoptoïques, associée à une embolie pulmonaire (diagnostic probable dans ce cas), peut entraîner une zone de condensation pulmonaire due à l'infarctus pulmonaire. Cela se manifeste par une diminution du murmure vésiculaire, une matité à la percussion et des râles crépitants dans les zones atteintes. Ce syndrome correspond à une atteinte alvéolaire sans collapsus pulmonaire, ce qui est caractéristique de la condensation secondaire à une embolie.

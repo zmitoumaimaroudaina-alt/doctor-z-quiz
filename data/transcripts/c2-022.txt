@@ -1,0 +1,45 @@
+## radiologie
+## I ➢ radiographie standard
+1. Dans le tube à rayons X : cochez la réponse juste (2025)
+A. La cathode est la pièce métallique qui freine les électrons accélérés n
+B. L'anode est le filament porté à l'incandescence
+C. L'anode est la pièce métallique qui freine les électrons accélérés et produit les rayons X
+D. Les réponses A et B sont justes
+E. Les réponses B et E sont justes
+R : C
+2. Le tube à rayons X : cochez la réponse fausse (2025)
+A. Comprend une ampoule en verre où règne un vide
+B. Est recouvert d'une gaine plombée
+C. Contient une anode et une cathode
+D. Est recouvert d'une gaine en plastique
+E. Est responsable de générer un rayonnement
+R : D
+3. Dans le tube à rayons X : cochez la réponse fausse (2025)
+A. Le courant de chauffage de la cathode se mesure en milliampère
+B. La force qui accélère les électrons de la cathode vers l'anode se mesure en KV
+C. La quantité de rayons X dépend du nombre de KV
+D. La qualité des rayons X dépend du nombre de KV
+E. Les réponses A et B sont justes
+R : C
+4. Propriétés des rayons X : cochez la réponse fausse (2025)
+A. Traversent le corps humain
+B. Ils provoquent une illumination des émulsions photographiques
+C. Utilisés en radiothérapie
+D. Ils se propagent en ligne droite
+E. Provoquent l'illumination de certains sels minéraux
+R : B
+5. Propriétés des rayons X : cochez la RF (2024)
+A. Traversent le corps humain
+B. Ils provoquent une illumination des émulsions photographiques
+C. Utilisés en radiothérapie
+D. Ils se propagent en ligne droite
+E. Provoquent l'illumination de certains sels minéraux
+R : B
+6. Les propriétés des rayons X : RF (2023)
+A. Traversent le corps humain
+B. Provoquent une illumination des émulsions photographiques
+C. Sont utilisés en radiothérapie
+D. Se propagent en ligne droite
+E. Provoquent l'illumination de certains sels minéraux
+R : C
+7. Dans le tube à rayons X : cochez la réponse juste (2022)

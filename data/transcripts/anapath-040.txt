@@ -1,0 +1,52 @@
+C. Tumeurs mésenchymateuses malignes
+D. Tumeurs mésenchymateuses bénignes
+E. Tumeurs d'origine embryonnaire.
+R: C
+2/La mise en évidence d'une sécrétion colorée par le bleu Alcian par des cellules tumorales permet d'affirmer qu'il s'agit: (2024)
+A. D'une tumeur bénigne
+B. D'une tumeur maligne
+C. D'une pseudotumeur inflammatoire
+D. D'une tumeur muco-sécrétante
+E.D'un carcinome épidermoide
+R: D
+3/néoplasie est un terme qui : (RF) (2024)
+A. désigne aussi bien les tumeurs bénignes que malignes
+B. est synonyme de tumeur
+C. est synonyme de cancer
+D. désigne toute prolifération cellulaire excessive aboutissant à une masse tissulaire
+E.exclut les lésions pazudo tumorales et malformatives
+R: C
+4/La classification histogénétique des tumeurs est basée sur : (cocher la ou les RJ) (2022)
+A.L'origine cellulaire
+B.L'aspect histopathologique
+C.Le comportement de la tumeur
+D.Le niveau d'invasion de la tumeur
+E.L'infiltration des ganglions
+R: A,B,C
+5/Le grade nucléaire de Furhman : (Résidanat Blida |2021)
+A.N'est appliqué que pour les carcinomes à cellules claires et carcinomes papillaires
+B.Ne prend pas en compte le type cellulaire
+C.Se base sur les atypies cytonucléaires
+D.A une valeur pronostique
+E.Est évalué sur les zones les plus atypiques
+R: C
+6/Le score de Gleason dans le cancer de la prostate est basé sur : ( RJ )
+(Résidanat Blida |2021)
+A.La désorganisation architecturale
+B.Le grade histologique le plus élevé
+C.Les atypies cytonucléaires
+D.L'index mitotique
+E.La disparition de l'assise basale
+R: A
+7/Le grade histopronostic des tumeurs mésenchymateuses malignes repose sur: (Résidanat Blida |2019)(Cocher la réponse juste)
+1. Le degré de différenciation tumorale
+2. L'activité mitotique
+3. La nécrose tumorale
+4. La localisation de la tumeur
+5. La taille de la tumeur
+A.1+2+5
+B.3+4+5
+C.1+2+3
+D.2+3+4
+E.2+4+5
+R: C

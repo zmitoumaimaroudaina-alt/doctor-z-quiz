@@ -1,0 +1,24 @@
+Commentaire :
+-La réponse correcte est : Souffle d'éjection mésosystolique, râpeux, irradiant vers la pointe du cœur et les carotides.
+-Souffle d'éjection -mésosystolique : Il s'agit d'un souffle qui commence après le premier bruit cardiaque (B1) et se termine avant le second bruit (B2), typique du rétrécissement aortique.
+-Râpeux : Le souffle a un timbre rugueux dû au flux turbulent à travers l'orifice aortique rétréci.
+-Irradiation vers les carotides : L'irradiation du souffle vers les carotides est une caractéristique importante du rétrécissement aortique, en raison de la transmission des vibrations du flux turbulent dans les grandes artères.
+## Cas clinique 05 :
+CAS: Monsieur A.M. âgé de 54 ans, fumeur depuis 10 ans, opéré il y à 15 jours pour
+fracture du fémur suite à un accident de la circulation, vient consulter pour une
+dyspnée avec douleur vive basithoracique. La température est de 38.2°C
+1/ Quel diagnostic doit être évoqué en première intention ? (RJ)
+A. Infarctus du myocarde
+B. Dissection aortique
+C. Péricardite aiguë
+D. Embolie pulmonaire
+E. Pneumothorax
+R: D
+Commentaire :
+Embolie pulmonaire : Vrai
+-Le contexte post-opératoire avec une immobilisation prolongée suite à une
+fracture du fémur est un facteur de risque important pour une embolie
+pulmonaire. La dyspnée aiguë, la douleur thoracique basithoracique, la tachypnée,
+la tachycardie et la fièvre modérée sont des signes classiques d'embolie
+pulmonaire. L'embolie pulmonaire est donc le diagnostic le plus probable.
+2/ Quels sont les éléments (cités dans l'énoncé) en faveur de ce diagnostic ? (RF)

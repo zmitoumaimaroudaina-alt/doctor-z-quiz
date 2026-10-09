@@ -1,0 +1,25 @@
+C. 1,2,5
+D. 2,3,5
+E. 3,4,5
+R: A
+Commentaire :
+Les signes cliniques accompagnateurs de la matité franche de bois et l'abolition du murmure vésiculaire sont :
+- La diminution de l'ampliation thoracique ;
+- L'abolition des vibrations vocales ;
+- Parfois un souffle pleurétique.
+Tous ces signes sont en faveur d'un épanchement pleural liquidien de moyenne abondance.
+-Diminution de l'ampliation thoracique :Vrai
+Dans un épanchement pleural liquidien, le liquide limite l'expansion pulmonaire du côté atteint, ce qui réduit l'ampliation thoracique.
+-Abolition des vibrations vocales :Vrai
+L'épanchement pleural liquidien empêche la transmission des vibrations sonores, ce qui conduit à l'abolition des vibrations vocales sur la zone d'épanchement.
+-Tympanisme :Faux
+Le tympanisme est caractéristique d'un pneumothorax (présence d'air dans la cavité pleurale), alors que dans un épanchement liquidien, on observe une matité.
+-Parfois un souffle pleurétique :Vrai
+Un souffle pleurétique peut être entendu au-dessus de l'épanchement, lié à la compression du poumon par le liquide.
+-Parfois un souffle -amphorique :Faux
+Le souffle amphorique est entendu dans des cas de pneumothorax ou de grandes cavités pulmonaires, mais il n'est pas typique d'un épanchement pleural liquidien.
+3/ Vous réalisez les examens complémentaires suivants : (réponse fausse)
+A. Un téléthorax face
+B. Une ponction pleurale avec étude biochimique et cytologique
+C. Une IDR à la tuberculine
+D. Une exploration fonctionnelle respiratoire

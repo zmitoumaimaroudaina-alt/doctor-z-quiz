@@ -1,0 +1,42 @@
+R: d
+5/ Les types d'artefact existant au scanner: (2021)
+a. Artéfacts en rapport avec des objets métalliques.
+b. Une opacité osseuse très dense.
+c. Les mouvements du malade.
+d. Cône d'ombre postérieure pour les structures calciques.
+R: d
+6/ Concernant le principe de la TDM: (alger)
+a. La TDM est basée sur l'atténuation des rayons X a travers les tissus.
+b. L'acquisition du volume de l'objet à explorer de fait tranche par tranche.
+c. La projection du volume de l'objet se fait en deux dimensions.
+d. La TDM localise avec précision chaque élément de la coupe et mesure sa densité.
+e. Les rayons X produits par un générateur, balayent le tissu, puis recueillis et analysés par un processeur informatique puis visualisés en image.
+R: c
+7/ Concernant le principe de la TDM: (alger)
+a. La TDM est basée sur l'atténuation des rayons X à travers les tissus.
+b. L'acquisition du volume de l'objet à explorer se fait tranche par tranche.
+c. La projection du volume de l'objet se fait en deux dimensions.
+d. La TDM localise avec précision chaque élément de la coupe et mesure sa densité.
+e. Les rayons X produits par un générateur, balayent le tissu, puis recueillis et analysés par un processeur informatique puis visualisés en image.
+R: c
+8/ Concernant La TDM, quelle est la proposition fausse ? (alger)
+a. C'est une technique d'imagerie médicale en coupe.
+b. Permet une analyse morphologique.
+c. Permet une analyse fonctionnelle.
+d. Permet une analyse métabolique.
+e. Permet une analyse multi planaire (sagittale, axiale et coronale).
+R: d
+9/ Concernant la densité des matières en TDM par unité Hounsfield, quelle est la proposition fausse: (alger)
+a. Air: -1000 UH.
+b. Eau : 0 UH.
+c. Graisse : -80 UH.
+d. Os : 1000 UH.
+e. Sang : 0 UH.
+R: e
+10/ La scannographie: (alger)
+a. Utilise les ondes magnétiques.
+b. Se compose de trois systèmes : acquisition, traitement, visualisation.
+c. Un photomultiplicateur qui amplifie les cristaux de sodium.
+d. Utilise les ultrasons.
+e. Utilise les ions H+.
+R: b

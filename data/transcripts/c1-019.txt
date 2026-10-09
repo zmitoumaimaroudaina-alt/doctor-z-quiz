@@ -1,0 +1,47 @@
+E. Rassurer le patient en lui parlant
+R: E
+15/ L'examen du patient retrouve une PA à 160/85 mm Hg, un poids à 97 kg et une taille de 1.67 m. De quel type d'hypertension s'agit-il? 1RJ (2021)
+A. Une HTA systolo-diastolique
+B. Une HTA systolique
+C. Une HTA diastolique
+D. Ce n'est pas une HTA, la PA est normale
+E. C'est une urgence hypertensive
+R: B
+16/ Quels sont les organes cibles de l'HTA? 1RJ
+A. Les reins
+B. Le cerveau
+C. La rétine
+D. L'appareil neurovégétatif
+E. Le cœur et les vaisseaux
+R: A+B+C+E
+17/ Comment classer la PA et le poids de ce patient? 1RJ
+A. Hypertension grade 2 et obésité grade 1
+B. Hypertension grade 1 et obésité grade 1
+C. PA normale et obésité grade 1
+D. Hypertension grade 3 et obésité grade 2
+E. Obésité sévère et hypertension grade 2
+R: A
+18/ Parmi ces maladies, une ou plusieurs peuvent être des causes secondaires d'HTA?
+A. L'insuffisance aortique
+B. Maladie de Takayasu
+C. La polyarthrite rhumatoïde
+D. L'infarctus du myocarde
+E. L'hyperaldostéronisme primaire
+R: A+B+E
+## XI ► sémiologie vasculaire
+1. Cochez la réponse juste (RJ) (2025)
+a) L'artériopathie oblitérante des membres inférieurs (AOMI) est une atteinte athéromateuse des membres
+b) La claudication intermittente des membres inférieurs est le maître symptôme
+c) L'AOMI peut se compliquer d'ischémie aiguë des membres inférieurs
+d) L'IPS est l'outil de dépistage de l'AOMI
+e) Toutes ces réponses sont justes
+A. (a+b+c)
+B. (c+d)
+C. (a+d+e)
+D. (b+c+d+e)
+E. (a+b+c+d+e)
+R : E
+2. L'indice de pression systolique. Cochez la réponse fausse (2025)
+A. Est un outil de dépistage de l'artériopathie oblitérante des membres inférieurs
+B. Il est le rapport de la pression systolique à la cheville sur la pression systolique humérale
+C. Il est utilisé également pour poser le diagnostic d'un lymphœdème des membres inférieurs

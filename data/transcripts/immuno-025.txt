@@ -1,0 +1,73 @@
+16/ La maladie de Waldenström :
+(Proposition inexacte) (2022)
+1. Est caractérisée par une prolifération lympho-plasmocytaire
+2. Peut être révélée par un syndrome hémorragique
+3. Est caractérisée par la présence d’une immunoglobuline de classe M monoclonale
+4. Le myélogramme montre une infiltration plasmocytaire
+5. L'hyperviscosité sanguine est en rapport avec une forte concentration du composant monoclonal
+A. (4,5)
+B. (2,3,4)
+C. (1,5)
+D. (5)
+E. (4)
+R. E
+17/ L’évaluation et le typage d’un composant monoclonal nécessite : (Inexacte) (2021)
+A. Une électrophorèse des protéines sériques à la recherche d’une étroite ou une hypogammaglobulinémie.
+B. Un typage du composant monoclonal par les techniques d’identification.
+C. Un électrophorèse des protéines urinaires à la recherche d’une protéine de Bence Jones.
+D. Un dosage des chaines légères libres sériques et le calcul du rapport kappa/lambda.
+E. Aucune réponse n’est juste.
+R. E
+18/ Les signes suivants peuvent être révélateurs d’un myélome multiple : (Inexacte) (2021)
+A. La protéinurie
+B. L’anémie
+C. L’hypogammaglobulinémie
+D. L’hypocalcémie
+E. Les fractures spontanées
+R. D
+19/ Les protéines de Bence Jones (PBJ) : (Exacte) (2021)
+A. Des molécules d’immunoglobulines complètes de structure anormale
+B. Des chaines lourdes d’immunoglobulines libres d’un seul type sériques ou urinaires
+C. Des protéines dont le taux sérique est augmenté dans les états inflammatoires
+D. Des chaines légères kappa ou lambda monoclonales détectées dans les urines
+E. Un constituant des antigènes d’histocompatibilité de classe 1
+R. D
+20/ Le myélome multiple : (Exacte) (2021)
+A. Se traduit généralement par la présence d’un composant oligo-monoclonal à l’électrophorèse des protéines sériques
+B. L’absence des protéines de Bence Jones élimine le diagnostic
+C. Se définit comme une prolifération plasmocytaire maligne au niveau de la rate
+D. Touche généralement les sujets de sexe féminin âgés de plus de 25 ans
+E. Se manifeste souvent par des infections à répétition
+R. E
+21/ Les signes suivants peuvent être révélateurs d’un myélome multiple : (Inexacte) EMD-03 (2020)
+A. La protéinurie
+B. Anémie
+C. L’hypergammaglobulinémie polyclonale
+D. Les fractures spontanées
+E. Les lombalgies
+R. C
+22/ Les protéines de Bence Jones (PBJ) : (Exacte) EMD-03 (2020)
+A. Des molécules d’immunoglobulines complètes de structure anormale
+B. Des chaines lourdes d’immunoglobulines libres d’un seul type, sériques ou urinaires
+C. Des protéines dont le taux sérique est augmenté dans les états inflammatoires
+D. Des chaines légères kappa ou lambda monoclonales détectées dans les urines
+E. Un constituant des antigènes d’histocompatibilité de classe I
+R. D
+23/ Le myélome multiple : (Inexacte) EMD-03 (2020)
+A. Se traduit généralement par la présence d’un composant monoclonal à l’électrophorèse des protéines sériques
+B. L’absence des protéines de Bence Jones élimine le diagnostic
+C. Se définit comme une prolifération plasmocytaire maligne au niveau de la moelle osseuse
+D. Touche généralement les sujets âgés de plus de 50 ans
+E. Se manifeste souvent par des infections à répétition
+R. B
+24/ Dans la maladie de KAHLER : (Exacte) EMD-03 (2020)
+A. La plasmocytose médullaire est inférieure à 10%
+B. Il y a production, en quantité importante d’un composant monoclonal de structure anormale
+C. On note la présence dans le sérum du patient, d’une immunoglobuline monoclonale de type protéine de Bence Jones
+D. Le taux des immunoglobulines polyclonales sériques est augmenté
+E. L’ostéolyse est due à une hyper production d’IL6 qui active les ostéoclastes
+R. E
+25/ La maladie de Waldenström : (Inexacte) EMD-03 (2020)
+A. Est caractérisée par une prolifération lymphoplasmocytaire
+B. Peut être révélée par un syndrome hémorragique
+C. Est caractérisée par la présence d’une immunoglobuline de classe M monoclonale pentamérique dont le taux dépasse le plus souvent 5g/l

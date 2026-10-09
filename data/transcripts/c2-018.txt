@@ -1,0 +1,41 @@
+B. A forte concentration, le zinc est pro-oxydant
+C. A concentration physiologique, le cuivre et le zinc sont antioxydants
+D. A forte dose le fer est pro-oxydant
+E. Le sélénium est cofacteur de la catalase
+R : B, C, D
+8/ Le stress oxydant ? (alger)
+A. Est une accumulation excessive de radicaux libres dans la cellule
+B. Provoque des dommages des macromolécules via les ROS (espèces réactives oxygénées) et les RNS (espèces réactives nitrogénées)
+C. Joue un rôle dans le vieillissement
+D. Joue un rôle dans la genèse de la plaque athéromateuse
+E. Toutes les propositions sont justes
+R : E
+9/ Les radicaux libres oxygénés ? (alger)
+A. Ne sont pas produits en permanence dans les mitochondries
+B. Sont formés uniquement sous l'action des UV
+C. Le radical OH est moins dangereux que l'anion superoxyde
+D. Le peroxyde d'hydrogène est une espèce radicalaire
+E. Le peroxynitrite est une espèce non radicalaire
+R : E
+10/ Les défenses anti-oxydantes ? (alger)
+A. Le Glutathion interagit avec la vitamine D pour permettre sa régénération
+B. Au niveau membranaire, l'alpha-tocophérol est régénéré grâce à la vitamine C
+C. L'acide urique est un oxydant des bases puriques
+D. La Superoxyde dismutase permet de neutraliser le peroxyde d'hydrogène
+E. La SOD à Mn cytosolique catalyse la dismutation de H₂O₂
+R : B
+11/ Les principaux antioxydants biologiques sont (Cocher la réponse fausse) ? (alger)
+A. La superoxyde dismutase (SOD)
+B. La ferritine
+C. Le glucose
+D. La vitamine E
+E. La glutathion réductase
+R : C
+12/ Les dommages causés par l'accumulation des RLO ? (alger)
+A. Formation de Malondialdéhyde à partir des lipides membranaires (peroxydation lipidique)
+B. Une réduction des phospholipides membranaires
+C. Une carbonylation des sucres simples
+D. Une dimérisation du désoxyribose de l'ADN
+E. Toutes les propositions sont fausses
+R : A
+## VI ➢ dislipoprotéinemies

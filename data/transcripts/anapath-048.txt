@@ -1,0 +1,37 @@
+E. Une surexpression de bcl-2 induit une immortalisation par inhibition de l'apoptose
+R : C
+16/ Les caractéristiques de la cellule cancéreuse : (2020)
+A. Perte de la dépendance à l'ancrage
+B. Perte de l'inhibition de contact
+C. Perte de l'orientation cellulaire
+D. Dépendance aux facteurs de croissance
+E. Acquisition de fonctions nouvelles
+R : D
+17/ La carcinogenèse : (2020)
+A. Est l'ensemble de processus aboutissant à la transformation d'une cellule normale en une cellule cancéreuse
+B. Est déterminée par la survenue d'altérations purement génétiques
+C. Peut faire intervenir une surexpression d'oncogènes
+D. Peut faire intervenir l'inactivation de gènes suppresseurs de tumeur
+E. Est un processus complexe multifactoriel
+R : B
+18/ Les étapes de la carcinogenèse : (2020)
+A. On en distingue trois : initiation, promotion et progression
+B. L'initiation correspond à l'acquisition par mutation ou délétion des propriétés de multiplication non contrôlée, l'acquisition de l'indépendance, la perte de la différenciation, l'invasion locale et métastatique
+C. La promotion correspond à une lésion rapide non létale et irréversible du DNA après exposition à un facteur carcinogène
+D. La progression correspond à une exposition prolongée, répétée ou continue, à une substance qui entretient et stabilise la lésion initiée
+E. Toutes ces réponses sont justes
+R : A
+19/ Laquelle de ces propositions est fausse ? (2020)
+A. Les agents promoteurs favorisent l'expression d'une lésion génétique, préalablement induite
+B. Les agents promoteurs n'induisent pas de lésions de l'ADN
+C. Les agents promoteurs réduisent le temps écoulé entre l'initiation et l'apparition des tumeurs
+D. Les agents initiateurs induisent une lésion définitive de l'ADN
+E. Les capacités réparatrices et régulatrices de la cellule augmentent avec l'âge
+R : E
+20/ Les mécanismes génétiques intervenant dans la carcinogenèse sont : (2020)
+A. L'expression de gènes appelés ONCOGENES
+B. La perte d'activité de gènes suppresseurs
+C. Les anomalies des gènes de réparation de l'ADN
+D. Les télomérases
+E. La méthylation de l'ADN
+R : E

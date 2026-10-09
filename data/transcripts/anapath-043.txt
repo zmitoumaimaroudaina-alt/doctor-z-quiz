@@ -1,0 +1,39 @@
+R :C
+5/ Parmi ces mécanismes d'activation des proto-oncogènes en oncogènes, lequel correspond à un mécanisme épigénétique ? (2022)
+A. Réarrangement génique par translocation avec fusion entre 2 gènes
+B. Hyperexpression par transposition de la région codante
+C. Hyperméthylation d'une séquence régulatrice
+D. Amplification génique
+E. Mutation somatique
+R :C
+6/ Les propriétés de la cellule cancéreuse sont : (Cocher la RF) (2021)
+A. Déclenchement autonome du signal de multiplication.
+B. Potentiel métastatique.
+C. Capacité à induire une néo-angiogenèse.
+D. Capacité d'envahissement locorégional.
+E. Capacité de récupérer ses fonctions normales et homéostatiques après traitement spécifique.
+R :E
+7/ L'apoptose : (RF) EMD-02 (2020)
+A. Est un processus intervenant dans la destruction des cellules porteuses de mutations de l'ADN.
+B. Est induite par la transmission d'un signal de mort ou des lésions de l'ADN.
+C. Si les lésions de l'ADN sont irréversibles, la protéine P53 stimule le passage en phase S.
+D. Les protéines bcl-2/bax activent les caspases induisant l'apoptose.
+E. Une surexpression de bcl-2 induit une immortalisation par inhibition de l'apoptose.
+R :C
+8/ Les caractéristiques de la cellule cancéreuse : (RF) EMD-02 (2020)
+A. Perte de la dépendance à l'ancrage.
+B. Perte de l'inhibition de contact.
+C. Perte de l'orientation cellulaire.
+D. Dépendance aux facteurs de croissance.
+E. Acquisition de fonctions nouvelles.
+R :D
+9/ La carcinogenèse : (RF) EMD-02 (2020)
+A. Est l'ensemble de processus aboutissant à la transformation d'une cellule normale en une cellule cancéreuse
+B. Est déterminée par la survenue d'altérations purement génétiques.
+C. Peut faire intervenir une surexpression d'oncogènes.
+D. Peut faire intervenir l'inactivation de gènes suppresseurs de tumeur.
+E. Est un processus complexe multifactoriel.
+R :B
+10/Les étapes de la carcinogenèse: (RJ) EMD-02 (2020).
+A. On en distingue trois : initiation, promotion et progression.
+B. L'initiation correspond a l'acquisition par mutation ou délétion des propriétés de multiplication non contrôlée, l'acquisition de l'indépendance, la perte de

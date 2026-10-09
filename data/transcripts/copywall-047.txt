@@ -1,0 +1,75 @@
+## Unite-01 : appareil cardio resp/Vasc , Sémio, Psycho 2023
+CAS: 59. Une femme obèse de 54 ans avec un diabète type 2, est hospitalisée pour une glycémie à 5.8g/1.
+Un prélèvement sanguin est réalisé à Jeun, le sérum est fortement lactescent.l'échantillon été conservé au frais pendant toute une nuit, il présente un surnageant crémeux, la partie inférieure demeure trouble. Cet aspect du sérum est-t-Il évocateur de:
+A. Hypercholestérolémie
+B. taux élevé d'LDL cholestérol.
+C. Un taux élevé de chylomicron et de VLDL
+D. Un taux élevé d'HDL cholestérol
+E. Une hypertriglycéridémie endogène
+CAS: 60. Une patiente est admise aux urgences médico-chirurgicales pour une pancréatite aigü Le diagnostic étiologique montre qu'il S'agit d'une dyslipidémie à l'origine de cette pancréatite, laquelle:
+A. Hypercholestérolémie familiale
+B. Hypertriglycéridémie majeure
+C. HypoHDLémie
+D. HyperLDLémie
+E. Présence d'LDL oxydées.
+## CT Examen Unite-01 : appareil cardio resp / Vasc , Sémio, Psycho 2023
+Q1=A
+Q2=D
+Q3=B
+Q4=C
+Q5=A
+Q6=B
+Q7=E
+Q8=E
+Q9=D
+Q10=C
+Q11=B
+Q12=E
+Q13=B
+Q14=E
+Q15=C
+Q16=E
+Q17=C
+Q18=D
+Q19=E
+Q20=D
+Q21=C
+Q22=B
+Q23=D
+Q24=C
+Q25=A
+Q26=B
+Q27=B
+Q28=A
+Q29=E
+Q30=E
+Q31=E
+Q32=C
+Q33=A
+Q34=D
+Q35=E
+Q36=C
+Q37=D
+Q38=B
+Q39=D
+Q40=B
+Q41=E
+Q42=D
+Q43=C
+Q44=C
+Q45=A
+Q46=C
+Q47=C
+Q48=B
+Q49=B
+Q50=B
+Q51=A
+Q52=D
+Q53=D
+Q54=E
+Q55=B
+Q56=B
+Q57=D
+Q58=B
+Q59=C
+Q60=B

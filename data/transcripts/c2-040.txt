@@ -1,0 +1,19 @@
+A. Tabac
+B. Chirurgie récente
+C. Dyspnée
+D. Type de la douleur
+E. Fièvre
+R: A
+Commentaire :
+-Tabac : Faux
+Bien que le tabagisme soit un facteur de risque pour de nombreuses maladies cardiovasculaires et pulmonaires, il n'est pas spécifiquement un facteur de risque direct pour une embolie pulmonaire. Ce facteur seul n'explique pas la survenue de l'embolie.
+-Chirurgie récente : Vrai
+La chirurgie récente, notamment orthopédique (fracture du fémur), est un facteur de risque majeur de thrombose veineuse profonde (TVP) et donc d'embolie pulmonaire. L'immobilisation prolongée post-opératoire favorise la formation de thrombus qui peuvent migrer vers les poumons.
+-Dyspnée : Vrai
+La dyspnée aiguë est un symptôme typique de l'embolie pulmonaire. Dans ce contexte, elle est probablement due à l'obstruction partielle des artères pulmonaires par un thrombus, réduisant l'oxygénation du sang.
+-Type de la douleur : Vrai
+La douleur basithoracique vive évoque une atteinte pleurale, qui est un signe classique de l'embolie pulmonaire. Cette douleur est souvent exacerbée par la respiration profonde, un signe suggestif d'irritation pleurale secondaire à l'embolie.
+-Fièvre : Vrai
+Bien qu'elle ne soit pas spécifique, une fièvre modérée peut être présente dans l'embolie pulmonaire, notamment en raison d'une réaction inflammatoire secondaire à l'infarctus pulmonaire. La température de 38,2°C pourrait correspondre à cette réponse inflammatoire.
+3/ Un syndrome doit être recherché à l'examen physique thoracique, lequel ? (RJ)
+A. Syndrome d'épanchement pleural liquidien
