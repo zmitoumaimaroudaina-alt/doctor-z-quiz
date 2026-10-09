@@ -1,0 +1,47 @@
+C. La tonalité aérique apparait en blanc sur la radiographie
+D. C'est une représentation en 2D (bi-dimensionnelle) de l'objet radiographié
+E. Dont le contraste dépend de l'intensité des rayons X émis
+R : C
+## II ➢ l'échographie
+1/ Parmi ces propositions, laquelle représente l'impédance la plus élevée : (2025)
+A. Eau
+B. Foie
+C. Os
+D. Urine
+E. Sang
+R : C
+2/ Les sondes échographiques à basse fréquence sont caractérisées par : (2025)
+A. Utilisent une fréquence de 10 MHz ou plus
+B. Faible pénétration et bonne résolution
+C. Bonne résolution et bonne pénétration
+D. Bonne pénétration et moins bonne résolution
+E. Moins bonne résolution et faible pénétration
+R : D
+3/ Une structure liquidienne en échographie donne : (2025)
+A. Une image anéchogène noire ou transonore
+B. Une image hyperéchogène avec cône d'ombre
+C. Une image échogène hétérogène
+D. Une clarté homogène
+E. Une image hypoéchogène hétérogène
+R : A
+4/ Une structure liquidienne en échographie donne : (2024)
+A. Une image anéchogène noire sans renforcement postérieur
+B. Une image hyperéchogène avec cône d'ombre
+C. Une image échogène hétérogène
+D. Une image anéchogène noire avec renforcement postérieur
+E. Une image hypoéchogène hétérogène
+R : D
+5/ Les ultrasons : (2023,2024)
+A. Sont produites par effet paléomagnétique
+B. Sont des ondes acoustiques
+C. Ont une fréquence supérieure à 20 000 Hz
+D. Ne comportent pas de risque pour la santé
+E. Leur formation est basée sur la déformation de la matière
+R : A
+6/ En échographie les faisceaux perpendiculaires seront : (2023,2024)
+A. Atténués
+B. Réfléchis
+C. Détectés par la sonde d'échographie
+D. Perdus mais continuent à être atténués
+E. Se propagent en ligne droite
+R : D

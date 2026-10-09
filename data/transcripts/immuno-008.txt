@@ -1,0 +1,153 @@
+5. Test de libération de l'histamine par
+mastocytes
+A : 1,2,4
+B : 2,3,5
+C : 2,3
+D : 2
+E : 3,5
+R : B
+17/ Lors des états d'hypersensibilité type
+I, la désensibilisation (INEXACTE) : (2022)
+1. Contre-indiquée en cas de grossesse
+2. Associée à ↑ neutrophiles et ↓
+basophiles
+3. Associée à ↓ IgG
+4. Normalisation Th0/Th1
+5. Indiquée en cas d'allergie aux venins
+d'hyménoptères
+A : 1,3,4
+B : 2,3
+C : 1,3,5
+D : 2,3,4
+E :
+3,4
+R : D
+18/ L'atopie se caractérise par (INEXACTE)
+: (2022)
+1. Intervention d'un facteur de
+l'environnement et prédisposition
+génétique
+2. Implication de l'IL4 et de l'IFNy vers
+synthèse IgE
+3. Déséquilibre lymphocytaire Th en
+faveur de Th...
+4. Implication des mastocytes et
+basophiles
+5. Phase retardée avec rôle important de
+l'éosinophile
+A : 2,3,5
+B : 2,3,4
+C : 1,3,4
+D : 3,4
+E :
+2,3
+R : E
+19/ L'atopie se caractérise par (INEXACTE)
+: (2021)
+A. Facteur environnement + prédisposition
+génétique
+B. IL4 et IL13 orientent vers IgE
+C. Déséquilibre TH en faveur de Th17
+D. Mastocytes et basophiles
+E. Phase retardée avec éosinophile
+R : C
+20/ La désensibilisation (EXACTE) : (2021)
+A. Doses décroissantes d'allergène
+B. Indiquée en cas d'asthme sévère
+C. Indiquée en cas de grossesse
+D. Indiquée en cas d'allergie aux venins
+d'hyménoptères
+E. Indiquée en cas de pneumonies
+allergiques extrinsèques
+R : D
+21/ L'identification des allergènes en
+cause lors d'un phénomène atopique :
+(2021)
+A. Test de libération des anaphylatoxines
+par les Th2
+B. Dosage des IgE totales
+nasales/bronchiques
+C. Dosage de l'IL4
+D. Dosage des récepteurs FceRI
+E. Test de dégranulation
+R : E
+22/ Lors de la prise en charge d'un
+asthme allergique (EXACTE) : (2021)
+A. Tests cutanés souvent indispensables
+B. Recherche d'IgE spécifiques sans
+importance
+C. Désensibilisation = principal traitement
+curatif
+D. Hyper-éosinophilie pathognomonique
+E. Mise en évidence d'hyper-éosinophilie
+pathognomonique
+R : A
+23/ Lors de la prise en charge d'un
+asthme allergique (INEXACTE) : (2020)
+1. Recherche IgE totales bronchiques =
+sans importance
+2. Désensibilisation = traitement curatif
+3. Éviction de l'allergène suffit
+4. Hyperéosinophilie pathognomonique
+5. Tests cutanés indispensables
+A: 2+4+5
+B : 1+2+4
+C : 1+2+3
+D :
+2+3+4
+E : 3+4+4
+R : E
+24/ Tests pour identification
+pneumallergènes (INEXACTE) : (2020)
+1. Test de libération de l'histamine
+2. Recherche d'éosinophiles nasaux
+3. Tests cutanés
+4. Dosage IgE spécifiques sur mastocytes
+5. Test de dégranulation mastocytes
+humains
+A : 1+2+3
+B : 1+4+5
+C : 4+5
+D : 2+4+5
+E : 3+4+5
+R : B
+25/ L'atopie se caractérise par (INEXACTE)
+: (2020)
+1. Facteur environnement + génétique
+2. IL4 et IL13 → IgE
+3. Déséquilibre Th2 en faveur de Th17
+4. Mastocytes et basophiles
+5. Médiateurs préformés : histamine +
+leucotriènes
+A : 1+5
+B : 3+5
+C : 2+3+5
+D : 2+3
+E :
+3+4+5
+R : C
+26/ La désensibilisation (INEXACTE) :
+(2020)
+1. Doses décroissantes allergène
+2. Contre-indiquée en cas d'asthme sévère
+3. Contre-indiquée en cas de grossesse
+4. Contre-indiquée en cas d'allergie aux
+venins d'hyménoptères
+5. Indiquée en cas de pneumonies
+allergiques extrinsèques
+A : 1+2
+B : 4+5
+C : 1+3+4+5
+D : 1+4+5
+E : 2+4+5
+R : D
+27/ Identification des allergènes en cause
+(INEXACTE) : (2020)
+1. Test de libération histamine par
+mastocytes
+2. Dosage IgE totales nasales/bronchiques
+3. Tests cutanés
+4. Dosage des récepteurs IgE haute
+affinité
+5. Test de dégranulation basophiles
+humains

@@ -1,0 +1,29 @@
+## Cas clinique 04 :
+CAS: âgé de 68 ans, présente des syncopes d'efforts, l'examen clinique note un souffle
+de 4/6 à l'extrémité interne du 2ème espace intercostal droit
+1/ Quelle valvulopathie doit être évoquée (Réponse juste) :
+A. Insuffisance mitrale
+B. Insuffisance tricuspidienne
+C. Rétrécissement aortique
+D. Rétrécissement mitral
+E. Rétrécissement mitral
+R: C
+Commentaire :
+-La valvulopathie la plus probable dans ce cas est le rétrécissement aortique.
+-Explication : Le rétrécissement aortique (RA) est fréquemment associé aux
+syncopes d'effort chez les patients âgés. Ce phénomène survient parce que l'orifice
+aortique rétréci limite la capacité du cœur à augmenter son débit cardiaque lors
+d'un effort, entraînant une diminution de la perfusion cérébrale. Le souffle du RA
+est souvent mésosystolique, et est maximal à l'extrémité interne du 2ème espace
+intercostal droit, correspondant au foyer aortique. Ce souffle a un caractère râpeux
+et irradie souvent vers les carotides.
+2/ Quelles sont les caractères du souffle de cette valvulopathie (Réponse juste) :
+A. Souffle d'éjection mésosystolique, râpeux irradiant vers la pointe du cœur et les
+carotides
+B. Irradie vers l'aisselle gauche, le dos, parfois l'appendice xyphoïde, avec un timbre
+rude en jet de vapeur
+C. Il est le plus souvent intense et irradie en rayons de roue
+D. Il est maximal au voisinage de l'appendice xyphoïde, mieux entendu en apnée
+inspiratoire
+E. Un frottement péricardique mieux perçu en position penchée en avant
+R: A

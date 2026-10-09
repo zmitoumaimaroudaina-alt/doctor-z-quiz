@@ -1,0 +1,152 @@
+d) Jouent un rôle important dans la
+fixation du virus et la fusion des
+membranes virus-cellule cible.
+e) Permettent de distinguer le VIH I du VIH
+2.
+R: A, E
+2/ Le stade de SIDA est caractérisé par:
+(réponse fausse) (2025)
+a) La présence de symptômes cliniques :
+sarcome de KAPOSI
+b) Une forte prolifération des LT CD8+
+c) Un nombre de LT CD4+ < 200 éléments
+/mm³.
+d) Une augmentation de la charge virale.
+e) L'absence d'infections opportunistes.
+R: E
+3/ Le diagnostic de l'infection par le VIH
+repose sur: (réponse fausse) (2025)
+a) La sérologie VIH (ELISA).
+b) La numération des LT CD4+.
+c) La RT-PCR.
+d) Le Western Blot (HIV-1).
+e) Le dosage des IgG sériques.
+R: E
+4/ Modes de transmissions du VIH:
+(réponse fausse) (2024)
+a) Liquide séminal, sperme et sécrétions
+cervico-vaginales.
+b) UDI (Utilisateurs de Drogues Injectable)
+par échange de seringues ou aiguilles non
+stérilisées.
+c) La salive et les urines.
+d) Transfusions sanguines et accidents
+d'exposition au sang (AES).
+e) Avant et pendant l'accouchement
+(placenta), et l'allaitement.
+R: C
+5/ Le stade SIDA est caractérisé par:
+(réponse exacte) (2024)
+1. La survenue d'infections à germes
+opportunistes graves (Cryptococcose, CMV
+disséminée, Tuberculose, Zona...).
+2. La survenue de néoplasies (sarcome de
+Kaposi) et de manifestations
+neurologiques (encéphalites
+opportunistes).
+3. Une réplication virale active et un
+déficit immunitaire profond (Taux de
+lymphocytes T CD4+ < 200/mm³).
+4. La survenue d'un syndrome d'allure
+grippale.
+5. La survenue d'infections banales
+(candidoses pharyngées).
+A: 3+4+5
+B: 1+2+3
+C: 1+3+4
+D: 2+3+4
+E: Toutes les propositions
+R: B
+6/ Mécanismes d'échappement du virus
+VIH au système immunitaire (réponse
+exacte) (2024)
+1. Diminution de l'expression des
+molécules du CMH I.
+2. Diminution de l'expression du CD4.
+3. Augmentation de l'apoptose des CTL.
+4. Diminution de l'apoptose de la cellule
+infectée.
+5. Internalisation et dégradation du CD4.
+A: 3+4
+B: 1+2
+C: 2+3
+D: 4+5
+E: Toutes les propositions
+R: B
+7/ Les corécepteurs du VIH (réponse
+exacte) (2023)
+1. Sont représentés par le CXCR4 (fusine)
+sur les LT CD4+.
+2. Sont aussi représentés par le CCR5 sur
+les macrophages.
+3. Interagissent avec la gp120 après sa
+liaison avec le CD4.
+4. Sont des récepteurs des chimiokines
+permettant la fusion des membranes
+virale et cellulaire.
+5. Ne sont pas indispensables à l'infection
+de la cellule.
+A: 1+2+5
+B: 4
+C: 1+3+4
+D: 1+2+3+4
+E: 1+2+3+4+5
+R: C
+8/ Au cours de l'infection par le VIH, la
+déplétion des LT CD4+ est la conséquence
+de: (réponse exacte) (2023)
+1. Leur élimination par apoptose.
+2. L'effet pathogénique direct du virus.
+3. Leur phagocytose par les macrophages.
+4. Leur élimination par les cellules
+cytotoxiques.
+5. Leur destruction par ADCC.
+A: 1+2+4
+B: 1+3+4
+C: 1+3+4
+D: 4+5
+E: 1+2+5
+R: A
+9/ Au cours de l'infection par le VIH on
+retrouve: (réponse exacte) (2023)
+1. Une réponse cytotoxique (T CD8+).
+2. Des auto-anticorps par activation
+polyclonale des LB.
+3. Une hypergammaglobulinémie
+polyclonale par synthèse accrue d'IL6.
+4. Une diminution du nombre des LB.
+5. Des anticorps anti-VIH dès les
+premières semaines.
+A: 1+2+5
+B: 1+4
+C: 1+3+5
+D: 4+5
+E: 3+5
+R: C
+10/ Le stade SIDA est caractérisé par:
+(réponse exacte) (2023)
+1. Infections graves opportunistes.
+2. Taux LT CD4+ < 200/mm³.
+3. Augmentation de la réponse T
+cytotoxique anti-VIH.
+4. Effondrement des anticorps anti-VIH.
+5. Augmentation de la charge virale.
+A: 1+2+5
+B: 4
+C: 1+3+4
+D: 4+5
+E: 1+5
+R: A
+11/ Le suivi biologique de l'infection par
+le VIH peut être réalisé par: (réponse
+exacte) (2023)
+1. Numération des LT CD4+.
+2. Dosage des Ig sériques.
+3. Rapport T CD4+/T CD8+.
+4. Dosage de la protéine virale P24.
+5. Nombre de copies d'ARN viral.
+A: 1+2+3
+B: 4
+C: 1+3+4
+D: 4+5
+E: 3+4+5

@@ -1,0 +1,74 @@
+E (1,2)
+R. A
+9/ Dans la transplantation rénale : Cocher la proposition INEXACTE (2022)
+1- La compatibilité rhésus est obligatoire
+2- Un HLA identique entre le receveur et le donneur est obligatoire
+3- L'incompatibilité ABO contre indique la transplantation
+4- Un auto cross math positif ne contre indique pas la transplantation
+5- La présence d'allo - anticorps anti HLA chez le receveur contre indique obligatoirement la transplantation
+A (1,2,3,5)
+B (2,3,5)
+C (1,2,5)
+D (4,5)
+E (2,5)
+R. C
+10/ Concernant la transplantation : Cocher la proposition INEXACTE (2022)
+1- Le cross match consiste à faire agir le sérum du donneur sur des cellules de receveur
+2- Le rejet hyper aigu est la conséquence de la présence d'allo Anticorps cytotoxiques préformés chez le receveur dirigés contre les molécules HLA du donneur
+3- Le suivi sérologique en allo anticorps du donne est nécessaire avant et après la transplantation.
+4- L'Allogreffe survient entre des individus génétiquement différents et issus d'une même espèce
+5- La compatibilité du système ABO entre le donneur et le receveur n'est que facultative
+A (1,3,5)
+B (2,3,4)
+C (1,4,5)
+D (3,4,5)
+E (1,3)
+R. A
+11/ En ce qui concerne la greffe de la moelle osseuse : Cocher la proposition INEXACTE (2022)
+1- Peut être indiquée en cas de déficits immunitaires primitifs sévères
+2- Nécessite un HLA identique (classe 1, classe II) entre le receveur et le donneur
+3- La réaction de rejet des cellules greffées représente l'une des complications
+4- Les infections peuvent être évitées par une bonne sélection vis à vis des allo anticorps anti HLA
+5- La réaction du RGVH est une réaction des cellules immunocompétentes de l'hôte contre le greffon
+A (3,5)
+B (2,3,4)
+C (1,3,4,5)
+D (4,5)
+E (2,3)
+R. D
+## XIV ► immunothérapie et immunosuppresseurs
+1/ La sérothérapie: (Indiquer la réponse EXACTE) (2024)
+A. Consiste à administrer des antigènes vaccinaux inactivés.
+B. Est indiquée dans le traitement des déficits immunitaires à prédominance cellulaire.
+C. Est indiquée dans le traitement du déficit en IgA...
+D. Est indiquée dans le traitement spécifique de la rage et du
+E. Renferme des adjuvants pour assurer une bonne protection.
+R. D
+2/ Les substances utilisées en immuno-intervention comprennent: (Indiquer la réponse INEXACTE) (Thérapeutiques immunologiques) (2024)
+A. Les adjuvants et immunostimulants,
+B. Les anticorps et les immunosuppresseurs.
+C. Les thérapeutiques ciblant les cytokines,
+D. Les antigènes du soi et les antigènes tumoraux
+E. Les extraits allergéniques et les antigènes vaccinaux,
+R. D
+3/ Le mécanisme d'action de l'adjuvant: (Indiquer la réponse INEXACTE) (2024)
+A. Réaction inflammatoire par mécanisme Ag-indépendant.
+B. Libération [?]
+C. Afflux de cellules inflammatoires.
+D. Initialisation d'une bonne réponse immunitaire spécifique.
+E. Inhibition de la réponse immunitaire spécifique.
+R. E
+4/ Certains vaccins sont contre-indiqués chez les personnes atteintes d'un déficit immunitaire: (Indiquer la réponse EXACTE) (Thérapeutiques immunologiques) (2024)
+1. Vaccination antitétanique (vaccin inactivé)
+2. Anti-diphtérique et Anti-coqueluche (vaccins inactivés)
+3. vaccin oral contre la poliomyélite (vaccin vivant atténué)
+4. vaccin injectable contre la poliomyélite (vaccin inactivé)
+5. Le BCG (bacille de Calmette-Guerin); (vaccin vivant atténué)
+A: 1+2+4
+B: 3+5
+C: 1+2
+D: 2+4
+E: Toutes les propositions.
+R. B
+5/ Les caractéristiques des Anticorps bi-spécifiques sont: (Indiquer la réponse EXACTE) (2024)
+1. Permettent le rapprochement entre effecteurs et cellules cibles.

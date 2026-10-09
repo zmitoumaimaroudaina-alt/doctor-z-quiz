@@ -1,0 +1,43 @@
+A. La cathode est la pièce métallique qui freine les électrons accélérés
+B. L'anode est le filament porté à l'incandescence
+C. L'anode est la pièce métallique qui freine les électrons accélérés et produit les rayons X
+D. Les réponses A et B sont justes
+E. Les réponses B et D sont justes
+R : C
+8. Le tube à rayons X : cochez la réponse fausse (2022)
+A. Comprend une ampoule en verre où règne un vide
+B. Est recouvert d'une gaine plombée
+C. Contient une anode et une cathode
+D. Est recouvert d'une gaine en plastique
+E. Les réponses A, B et C sont justes
+R : D
+9. Dans le tube à rayons X : 1RJ (2021)
+A. La cathode est la pièce métallique qui freine les électrons accélérés
+B. L'anode est le filament porté à l'incandescence
+C. L'anode est la pièce métallique qui freine les électrons accélérés et produit les rayons X
+D. Les réponses A et B sont justes
+R : D
+10/ La production des rayons X obeit aux règles suivantes : (cochez la réponse fausse) (alger)
+A. Le filament de tungstène est chauffé par un courant électrique.
+B. Le faisceau d'électron est accéléré dans le vide par une forte différence de potentiel (d.d.p).
+C. L'émission de rayons X est assurée par la cathode.
+D. L'émission de rayons X est assurée par l'anode.
+E. Le rayonnement X produit s'accompagne d'une émission de chaleur.
+R : C
+11/ Le rayonnement diffusé : (cochez la réponse fausse) (alger)
+A. Est formé suite à l'interaction du rayonnement incident avec le corps humain imagé.
+B. Est émis dans toutes les directions.
+C. Dégrade l'image radiante.
+D. Est plus souvent dû à l'effet Compton.
+E. Est monodirectionnel.
+R : E
+12/ Les densités radiologiques principales sont représentées par (cochez la réponse fausse) (alger)
+A. Le métal
+B. La graisse
+C. L'air
+D. L'eau
+E. Toutes les réponses sont fausses
+R : E
+13/ L'image radiologique peut être : (cochez la réponse fausse) (alger)
+A. Analogique ou numérique
+B. Doit remplir des critères de qualité de l'image

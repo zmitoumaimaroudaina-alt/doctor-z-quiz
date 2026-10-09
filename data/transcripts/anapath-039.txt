@@ -1,0 +1,47 @@
+R : AD
+14. Une néoplasie est : (RF) (2020)
+A. Une prolifération cellulaire excessive
+B. Est une masse tissulaire ressemblant plus ou moins au tissu normal
+C. A tendance à persister et à croître
+D. Désigne une tumeur maligne
+E. Résulte d'une succession d'événements génétiques
+R : D
+15. Les tumeurs bénignes : (RJ) (2020)
+A. Sont toujours de petite taille
+B. Peuvent infiltrer les tissus à partir desquels elles prennent naissance
+C. Ne récidivent pas après exérèse chirurgicale complète
+D. Donnent des métastases
+E. Sont faites de cellules qui peuvent présenter des caractères de malignité
+R : C
+16. Les tumeurs malignes : (RF) (2020)
+A. Sont de croissance rapide
+B. Sont toujours peu différenciées
+C. Sont mal limitées aux contours irréguliers
+D. Donnent des métastases
+E. Évoluent spontanément, en absence de traitement, vers la mort
+R : B
+17. Le terme sarcome désigne : (2020)
+A. Les tumeurs épithéliales bénignes
+B. Les tumeurs épithéliales malignes
+C. Les tumeurs mésenchymateuses bénignes
+D. Les tumeurs mésenchymateuses malignes
+E. Les tumeurs lymphoïdes
+R : B
+18/Dans l'adénocarcinome exocrine du pancréas: (1RF) (Résidanat Blida (2017)
+A.Les remaniements nécrotico-hémorragiques sont très importants
+B.Le stroma est desmoplastique
+C.Les engainements périnerveux sont fréquents
+D.Le stroma est riche en polynucléaires neutrophiles et éosinophiles
+E.Une dilatation du Wirsung est fréquente
+R:D
+19/Le cancer du sein (1RF): (résidanat 2016)
+A.Est dominé par le carcinome lobulaire chez la femme
+B.Est un cancer hormono-dépendant
+C.Est rare chez l'homme
+D.Impose au pathologiste l'étude des facteurs histo-pronostiques
+E.Peut se manifester par une opacité nodulaire bien limitée à la mammographie.
+R: A
+## XIV ► bases de classification des et moyen diagnostique des tumeurs
+1/Le suffixe sarcome désigne (RJ) (2024)
+A. Tumeurs épithéliales bénignes.
+B. Tumeurs épithéliales malignes

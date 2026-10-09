@@ -1,0 +1,69 @@
+4. Incoercible aux ATB.
+5. L'issue souvent fatale en l'absence de traitement.
+A: 1+2
+B: 3+4
+C: 4+5
+D: 2+5
+E: Toutes les propositions
+R: E
+3/ Parmi les indications thérapeutiques des gammaglobulines humaines par voie parentérale, on obtiendra: (Indiquer la réponse EXACTE) (2023)
+1. La maladie de Bruton
+2. Les déficits sélectifs en IgA
+3. Les morsures faciales par chien suspect
+4. Les thrombopénies auto-immunes
+5. L'hypogammaglobulinémie physiologique et transitoire du nourrisson
+A: 1+2+5
+B: 4
+C: 1+3+4
+D: 1+2+3+4
+E: 1+2+3+4+5
+R: C
+4/ Les déficits immunitaires combinés sévères (DICS) sont: (Cocher la proposition INEXACTE) (2021)
+A. De révélation précoce vu les manifestations cliniques patentes.
+B. Une BCGite est souvent rencontrée après vaccination.
+C. Concernant l'immunité cellulaire et humorale.
+D. Soit précoces soit tardifs selon les cellules touchées (T, B, NK).
+E. Une consanguinité ainsi qu'un défaut génétique prédisposant sont fortement impliqués.
+R: D
+5/ Les déficits immunitaires humoraux: (Cocher la proposition EXACTE) (2021)
+A. Concernent tous les isotypes des immunoglobulines simultanément.
+B. Sont de révélation aussi précoce que les déficits immunitaires combinés sévères.
+C. Se caractérisent par des infections par des germes à développement intracellulaire.
+D. Se caractérisent par des infections par des germes à développement intracellulaire.
+E. L'agammaglobulinémie est le plus fréquent déficit dans ce groupe.
+R: C
+6/ Les DICS (déficits immunitaires combinés sévères): (Cocher la proposition EXACTE) (2021)
+A. Ont en commun une absence quasi-complète des lymphocytes B.
+B. La greffe des cellules souches hématopoïétiques constitue le seul traitement curatif.
+C. Sont tous à transmission autosomique récessive.
+D. Sont la conséquence d'anomalies génétiques touchant les étapes tardives de différenciation des lymphocytes T.
+E. Les manifestations cliniques apparaissent après l'âge de 6 mois.
+R: B
+7/ L'agammaglobulinémie: (Cocher la proposition INEXACTE) (2021)
+A. Est un déficit souvent lié au chromosome X.
+B. Peut-être autosomique ou gonosomique selon la molécule non exprimée.
+C. Se caractérise par un défaut d'expression du CD40L sur les lymphocytes B.
+D. Le taux des immunoglobulines est effondré ainsi que le taux des lymphocytes B circulants.
+E. Se caractérise par un défaut d'expression de BTK dans 85%.
+R: C
+8/ Les signes d'appels d'un déficit immunitaire sont: (Cocher la proposition INEXACTE) (2021)
+A. Des infections persistantes et récidivantes.
+B. Une mauvaise réponse aux traitements antibiotiques.
+C. Retard du développement staturo-pondéral.
+D. Des signes d'auto [?] âge.
+E. Des signes en relation avec l'état hypersensibilité type II.
+R: E
+9/ Les DICS (déficits immunitaires combinés sévères): (Cocher la proposition EXACTE) (2020)
+A. Ont en commun une absence quasi-complète des lymphocytes.
+B. Sont tous à transmission autosomique récessive.
+C. Sont la conséquence d'anomalies génétiques touchant les étapes tardives de différenciation des lymphocytes T.
+D. Les manifestations cliniques apparaissent après l'âge de 6 mois.
+E. La greffe des cellules souches hématopoïétiques constitue le seul traitement curatif.
+R: E
+10/ Les déficits immunitaires primitifs (DIP) suivants ont une transmission liée au chromosome X: (Cocher la proposition INEXACTE) (2020)
+A. Le syndrome de Wiskott-Aldrich.
+B. La maladie de Bruton.
+C. La granulomatose septique chronique.
+D. Le syndrome d'hyper IgM par mutation du gène codant la molécule CD40.
+E. Le déficit immunitaire combiné sévère (DICS) par déficit de la chaîne CD132.
+R: D

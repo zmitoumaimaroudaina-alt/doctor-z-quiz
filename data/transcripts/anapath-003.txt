@@ -1,0 +1,43 @@
+## I ➢ Place de l'Anatomie et Cytologie Pathologiques en médecine
+1/L'Anatomie et Cytologie Pathologiques: (RF) (2025)
+A.Est une spécialité médicale qui étudie les lésions provoquées par les maladies
+B.Repose sur l'analyse des cellules et des tissus par diverses méthodes
+C.A un but purement diagnostique
+D.Les lésions sont analysées en intégrant les données cliniques et paracliniques
+E.Eet en constante évolution
+R : C
+2/Le prélèvement cytologique: (RF) (2025)
+A.Consiste à analyser des cellules isolées hors de leur tissu d'origine
+B.Est une technique rapide
+C.Est une technique de dépistage des cancers
+D.Est une méthode de suivi post thérapeutique
+E.Permet de poser un diagnostic de certitude
+R : E
+3/L'examen extemporané: (RF)
+A.Est demandé par un chirurgien lors d'un acte chirurgical
+B.A pour but d'orienter le geste thérapeutique chirurgical
+C.Le résultat doit être rapide
+D.Est réalisé sur un prélèvement fixé par l'alcool
+E.Nécessite toujours une confirmation du diagnostic après techniques de routine
+R : D
+4/Comment doit parvenir un prélèvement biopsique mesurant 02 mm de grand axe au service : (RJ) (2024)
+A.Dans un liquide de Bouin à 10 %
+B.Dans un tube stérile
+C.Dans du formol tamponné à 20 %
+D.Congelé dans du liquide d'azote
+E.Dans 10 fois le volume du prélèvement de formol tamponné à 10 %
+R : E
+5/Comment doit parvenir une biopsie cutanée mesurant 10 mm de grand axe au service d'anatomie pathologique : (RJ) (2024)
+A.Dans du liquide de Bouin à 10 %
+B.Dans un tube stérile
+C.Dans du formol tamponné à 20 %
+D.Congelé dans du liquide d'azote
+E.Dans 10 fois le volume du prélèvement de formol tamponné à 10 %
+R : E
+6/La mise en évidence d'une sécrétion colorée par le bleu Alcian par des cellules tumorales permet d'affirmer qu'il s'agit : (2024)
+A.D'une tumeur bénigne
+B.D'une tumeur maligne
+C.D'une pseudotumeur inflammatoire
+D.D'une tumeur muco-sécrétante
+E.D'un carcinome épidermoïde
+R : D

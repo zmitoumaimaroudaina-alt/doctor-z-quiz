@@ -1,0 +1,119 @@
+A: 1+2+4
+B: 1+2+3
+C: 3+4+5
+D: 1+4+5
+E: 1+4
+R: E
+7/ Les médiateurs préformés libérés au cours de l'hypersensibilité de type I sont : (2024)
+1. Histamine
+2. Facteurs chimiotactiques comme ECP-A pour les éosinophiles
+3. Prostaglandines et thromboxanes
+4. Enzymes protéolytiques comme la tryptase et la carboxypeptidase
+5. Leucotriènes et PAF
+A: 1+2+3
+B: 2+3+4
+C: 3+4+5
+D: 1+2+4
+E: Toutes les propositions
+R: D
+8/ Les médiateurs néoformés libérés au cours de l'hypersensibilité de type I sont : (2024)
+1. Prostaglandines et thromboxanes
+2. Enzymes protéolytiques comme la tryptase et la carboxypeptidase
+3. Facteurs chimiotactiques comme ECP-A pour les éosinophiles
+4. Leucotriènes et PAF
+5. Histamine
+A: 4+5
+B: 1+4
+C: 3+5
+D: 2+4
+E: Toutes les propositions
+R: B
+9/ La ou les molécules libérées lors d'une réaction anaphylactique sont : (2023)
+1. Histamine
+2. IgE
+3. C3
+4. Leucotriènes
+5. Foeto-protéine
+A: 1+4
+B: 3+5
+C: 3+4+5
+D: 2+3+4+5
+E: Toutes les propositions
+R: A
+10/ L'hypersensibilité de type I : (2023)
+1. Est une sensibilité retardée
+2. La forme clinique de l'allergie à IgE peut être le choc septique
+3. Ses symptômes sont dus au dépôt des complexes immuns
+4. Le pontage des IgE induit la dégranulation du mastocyte
+5. Les symptômes sont dus aux médiateurs libérés par les mastocytes
+A: 1+4
+B: 4+5
+C: 1+2+4+5
+D: 2+5
+E: Toutes les réponses
+R: B
+11/ Les formes cliniques de l'allergie à IgE peuvent être : (2023)
+1. Le choc septique
+2. Le choc anaphylactique
+3. L'œdème angioneurotique
+4. L'asthme extrinsèque
+5. La dermatite atopique
+A: 2
+B: 4+5
+C: 1+2+4+5
+D: 2+5
+E: Toutes les réponses
+R: D
+12/ À propos des réactions allergiques dépendantes des IgE (HS type I), on peut affirmer que : (2023)
+1. Elles entrainent des manifestations lors d'un premier contact avec l'Ag
+2. Elles impliquent les mastocytes et les basophiles
+3. Elles peuvent être provoquées par la tuberculine
+4. Leur diagnostic fait appel aux prick-tests
+5. L'hérédité joue un rôle important
+A: 2
+B: 2+4+5
+C: 3+4
+D: 1+2+3+5
+E: Toutes les réponses
+R: B
+13/ Au cours de la phase de sensibilisation de l'hypersensibilité de type I les IgE se fixent (INEXACTE) : (2022)
+1. Aux polynucléaires éosinophiles par FceRII
+2. Aux mastocytes et polynucléaires basophiles par FcεRII
+3. Aux macrophages par FcεRII
+4. Aux mastocytes par FcεRI
+5. Aux basophiles par FcεRI
+A: 1,2,3,5
+B: 2,3,4,5
+C: 1,3,4,5
+D: 3,4,5
+E: 2,5
+R: A
+14/ l'hypersensibilité de type I (INEXACTE) : (2022)
+1. Est une réaction retardée
+2. Fait intervenir les cellules NK via FcγR
+3. Fait intervenir des Ag nucléaires comme l'ADN
+4. Fait intervenir des antigènes membranaires HLA
+5. Fait intervenir les inhibiteurs membranaires du complément
+A: 2,5
+B: 1,3,5
+C: 1,3,4
+D: 3,5
+E: 1,2,3,5
+R: B
+15/ Au cours de la 2° phase de l'hypersensibilité de type I (INEXACTE) : (2022)
+1. Fixation simultanée de l'Ag sur 2 IgE du mastocyte -> histamine
+2. Fixation de l'Ag sur une IgE du mastocyte -> médiateurs préformés
+3. Fixation de l'Ag sur 2 IgE du neutrophile -> IL4/IL6
+4. Fixation de l'Ag sur 2 IgE -> prostaglandines et leucotriènes
+5. Fixation de l'Ag sur IgE du macrophage -> IL4
+A: 1,2,5
+B: 2,3,5
+C: 1,2,4,5
+D: 2,3,4,5
+E: 1,4
+R: D
+16/ Le diagnostic allergologique de l'hypersensibilité IgE dépendante repose sur (INEXACTE) : (2022)
+1. Un interrogatoire minutieux
+2. Dosage des IgE spécifiques fixées sur mastocytes
+3. Dosage des IgE totales très utile
+4. Prick-tests

@@ -1,0 +1,86 @@
+E: Toutes les propositions
+R. A
+7/ Les techniques d'immunoprécipitation quantitatives en milieu gélifié sont : réponse exacte. (2023)
+1. Mancini.
+2. Néphélométrie laser.
+3. Laurell.
+4. Ouchterlony.
+5. Electrosynérèse.
+A: 1+2
+B: 1+3
+C: 2+3
+D: 3+4
+E: 4+5
+R. B
+8/ La zone d'équivalence est caractérisée par : la réponse exacte. (2023)
+1. La présence d'anticorps libre.
+2. La présence d'antigène libre.
+3. La présence d'anticorps libre et d'antigène libre.
+4. La présence d'anticorps libre et l'absence d'antigène libre.
+5. L'absence d'anticorps et d'antigène libres.
+A: 3
+B: 4
+C: 5
+D: 3+4
+E: 4+5
+R. C
+9/ Les réactions de précipitation : la réponse inexacte. (2023)
+A. Sont des réactions qui impliquent les Ag solubles.
+B. Peuvent être réalisées uniquement en milieu liquide.
+C. Utilisées pour mettre en évidence des Ag ou des Ac.
+D. Sont des réactions dans des conditions optimales de concentration d'Ag et d'Ac.
+E. Sont des réactions qui impliquent des Ac précipitants.
+R. B
+10/ Le test d'Ouchterlony : la réponse exacte. (2023)
+A. Est une réaction de précipitation en milieu liquide.
+B. Appliquée dans la recherche des protéines de Bence Jones dans les urines.
+C. Le gel utilisé est soumis à un fort courant d'électro-endosmose.
+D. Appliquée dans la recherche des protéines de Bence Jones dans le sang.
+R. B
+## IV Hypersensibilité type I
+1/ La réaction d'hypersensibilité de type I : (2025)
+A. Est dite immédiate car elle se déclenche après le premier contact avec l'allergène.
+B. Fait intervenir les immunoglobulines E spécifiques d'allergènes de nature protéique.
+C. Est caractérisée par la libération de l'histamine et des amines vasoactives.
+D. Est due au dépôt des anaphylatoxines (C3a et C5a) dans le tissu conjonctif.
+E. Fait intervenir principalement les mastocytes et les polynucléaires basophiles.
+R : A, D
+2/ Les éléments suivants sont les principaux acteurs de l'hypersensibilité de type I : (2025)
+A. L'allergène qui est une molécule de l'environnement.
+B. L'immunoglobuline E fixée sur le FcERI.
+C. Les mastocytes des tissus conjonctifs et des muqueuses.
+D. L'IL4 sécrété par les lymphocytes Th2.
+E. Le dépôt des complexes immuns IgE-antigène sensibilisant dans le tissu conjonctif.
+R : D, E
+3/ L'identification de l'allergène en cause est basée sur : (2025)
+A. La numération et formule sanguine qui nous donne le nombre de PN éosinophiles.
+B. Le dosage des IgE sériques totales.
+C. La pratique des tests cutanés (prick test).
+D. La recherche des IgE spécifiques.
+E. Le test de dégranulation des basophiles.
+R : A
+4/ Les éléments intervenant dans l'hypersensibilité de type I sont : (2024)
+1. Les mastocytes
+2. Les IgE
+3. Les lymphocytes T cytotoxiques
+ 4. Les cellules NK
+ 5. Les polynucléaires éosinophiles
+A : 1+2+3
+B : 3+4+5
+C : 1+4+5
+D : 1+2+5
+E : Toutes les propositions
+R : D
+5/ L'atopie se caractérise par (réponse INEXACTE) : (2024)
+A. L'implication d'IL4 et d'IL13 dans l'orientation du système immunitaire vers la synthèse des IgE.
+B. L'implication de cellules effectrices telles que le mastocyte et le basophile.
+C. Une phase retardée où l'éosinophile constitue l'effecteur le plus important.
+D. La prédisposition génétique et l'intervention d'un facteur de l'environnement.
+ E. Un déséquilibre lymphocytaire T helper en faveur de la population Th1.
+R : E
+6/ L'exploration du terrain allergique dans les états d'hypersensibilité de type I nécessite : (2024)
+1. Anamnèse
+2. Éosinophilie sanguine > 300 cellules/ml
+ 3. Dosage des IgE totales
+ 4. Dosage des IgE spécifiques circulantes
+ 5. Recherche des IgE spécifiques fixées sur les basophiles

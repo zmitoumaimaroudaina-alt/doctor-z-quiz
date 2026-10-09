@@ -1,0 +1,94 @@
+R: E
+12/ La définition du stade SIDA inclut:
+(réponse exacte) (2023)
+1. LT CD4+ < 200/µL.
+2. Forte concentration IFNγ.
+3. Ig sériques > 30g/L.
+4. Activité NK très élevée.
+5. β2-microglobuline < 2mg/L.
+A: 1+2+5
+B: 1+2+3+4
+C: 1+2+3+4+5
+D: 1+4+5
+E: 2+3+4+5
+R: B
+13/ Le virus VIH (réponse exacte) (2023)
+1. Est un virus à ARN.
+2. Peut être transmis par allaitement.
+3. Corécepteurs: CCR5 (macrophages) & CXCR4 (LT CD4).
+4. Peut infecter cellules CD4+CR1+ via complément.
+5. Se lie à CD4 après interaction avec son corécepteur.
+A: 1+2+5
+B: 1+2+3+4
+C: 1+2+3+4+5
+D: 1+4+5
+E: 2+3+4+5
+R: C
+14/ Concernant la réponse immunitaire au cours de l'infection par le VIH (réponse exacte) (2021)
+a) Les anticorps anti-VIH sont protecteurs.
+b) Les LT CD8 permettent de contrôler la réplication virale.
+c) La réponse Ac est absente en primo-infection.
+d) Pas de réponse T CD4+ anti-VIH.
+e) Les LT CD8 n'apparaissent qu'au stade SIDA.
+R: B
+15/ Les cellules permissives à l'infection par le VIH (réponse exacte) (2021)
+a) LT CD4+.
+b) Macrophages.
+c) PNN.
+d) Cellules dendritiques.
+e) A+B+D.
+R: E
+## X ➔ immunité anti-infectieuse
+## ( anti- bactéries, viral , parasitaires, tumorales )
+1/ La réponse immunitaire cellulaire contre les pathogènes à multiplication intracellulaire implique: (RF 2025)
+a) Les lymphocytes TH2 qui permettent la production des anticorps de haute affinité.
+b) Les CTL qui reconnaissent et détruisent les cellules infectées.
+c) Les lymphocytes NK exercent une activité cytotoxique vis-à-vis de cellules infectées.
+d) Les lymphocytes T auxiliaires producteurs d'IL-2, IFNγ et TNFα.
+e) La production des IgG1 qui détruisent l'agresseur par la voie complément dépendante.
+R: A
+2/ Dans la réponse immunitaire lors d'une agression bactérienne: (RF 2025)
+a) Le complément est activé par la voie alterne.
+b) Les PNN sont les premières cellules à migrer vers le site infecté.
+c) Les anticorps interviennent immédiatement après l'effraction des barrières anatomiques.
+d) Les macrophages sont recrutés par les cytokines TH1.
+e) Les mastocytes libèrent les médiateurs vasoactifs pour préparer la diapédèse des leucocytes.
+R: C
+3/ L'immunité naturelle (réponse exacte) (2023)
+1. Est mise en jeu immédiatement après stimulation antigénique.
+2. Fait intervenir les lymphocytes T et B.
+3. Fait intervenir des cellules phagocytaires et des cytokines pro-inflammatoires.
+4. Nécessite une présentation des antigènes au sein des molécules HLA.
+5. Confère une mémoire.
+A: 1+2
+B: 2+3
+C: 1+3
+D: 4+5
+E: 1+5
+R: C
+4/ Les mécanismes de défenses appropriés contre une infection bactérienne dépendent de: (réponse exacte) (2023)
+1. Capacité d'invasion: bactérie intra ou extracellulaire.
+2. Structure de la paroi ou présence de capsule.
+3. Facteurs de virulence.
+4. Type de bactérie.
+5. Mode de vie.
+A: 1+2+3
+B: 2+3
+C: 1+3
+D: 4+5
+E: 1+5
+R: A
+5/ Concernant l'immunité anti-bactérienne: (réponse inexacte) (2021)
+a) Les déficits en anticorps, complément et PNN causent des infections par bactéries pyogènes extracellulaires.
+b) Les déficits en lymphocytes T ➔ infections à germes intracellulaires.
+c) Le complément joue un rôle clé via chimiotactisme des PNN.
+d) Les IgA sécrétoires assurent la protection au niveau sanguin.
+e) La voie des lectines du complément favorise opsonisation et phagocytose.
+R: D
+6/ Les mécanismes d'échappement des parasites aux réponses immunes: (réponse exacte) (2021)
+a) Dissimulation et modification séquentielle des antigènes.
+b) Acquisition d'antigènes de l'hôte.
+c) Altération de la présentation de l'antigène.
+d) Production de facteurs immunosuppresseurs (TGFβ, IL-10).
+e) Toutes les réponses sont justes.
+R: E

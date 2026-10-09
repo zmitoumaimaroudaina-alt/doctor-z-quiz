@@ -1,0 +1,80 @@
+A: 1+2+4
+B: 1+2+5
+C: 4+5
+D: 1+2+3+5
+E: 2+4
+R: E
+## V ► hypersensibilité type II
+1/ La présence d'IgG anti Rhésus sur les GR d'un nouveau né: réponse fausse (2025)
+a) Renseigne sur la présence d'une hypersensibilité cytotoxique.
+b) Peut être détectée par une technique d'hémagglutination.
+c) Résulte du passage, au moment de la délivrance, des Ac maternels, dans la circulation fœtale.
+d) Est explorée par le test de COOMBS direct pratiqué chez la mère.
+e) Est prévenue par la sérothérapie anti D préconisée chez les femmes à risque.
+R: C, D
+2/ Dans l'Hypersensibilité de type II la cible est détruite par: réponse fausse (2025)
+a) L'activation du complément par la voie alterne.
+b) La cytotoxicité dépendante des anticorps (ADCC).
+c) L'opsonisation par le C3b.
+d) La phagocytose.
+e) L'activation des lymphocytes T cytotoxiques.
+R: A
+3/ Le test de COOMBS direct est: réponse fausse (2025)
+a) Basé sur l'utilisation d'un anticorps marqué par une enzyme.
+b) Effectué sur un échantillon de sang prélevé chez la mère.
+c) Utilisé pour rechercher les anticorps anti-Rhésus sur les hématies fœtales.
+d) Positif si l'anti-Ig (réactif de COOMBS) retrouve des anticorps sur les hématies testées.
+e) Couramment utilisé dans l'exploration des anémies hémolytiques.
+R: A, B
+4/ La maladie hémolytique par incompatibilité fœto-maternelle «Rhésus»: (2024)
+1. Résulte du passage transplacentaire d'IgG maternelles anti-Rhésus.
+2. Est explorée par le test de Coombs direct chez le nouveau-né.
+3. Survient chez un nouveau-né Rhésus négatif dont la mère est Rhésus positif.
+4. Est explorée par le test de Coombs indirect chez la mère.
+5. Est prévenue par l'injection d'anticorps anti-D chez toute femme à risque dans les 72h du post-partum.
+A: 1+2+3+4
+B: 1+2+4+5
+C: 2+3+4+5
+D: 1+3+4+5
+E: Toutes les propositions
+R: B
+5/ Dans les états d'hypersensibilité de type II on peut classer (Réponse INEXACTE): (2024)
+A. La leucopénie médicamenteuse
+B. La maladie hémolytique du nouveau-né
+C. La tuberculose
+D. Le syndrome de Goodpasture
+E. La maladie de Graves Basedow
+R: C
+6/ L'hypersensibilité de type II (Réponse exacte) (2023)
+A. Fait intervenir les cellules CD4 TH2
+B. A pour conséquence la destruction de la cellule cible par les mastocytes
+C. Peut être explorée par un test de Coombs direct ou indirect
+D. Est une hypersensibilité à complexe immun
+E. Fait intervenir des anticorps d'isotype IgD
+R: C
+7/ Les pathologies suivantes font partie des hypersensibilités de type II (2023)
+A. Les rejets chroniques de greffes
+B. L'anémie par carence en vitamine B12
+C. La maladie sérique
+D. Les cytopénies médicamenteuses
+E. Le syndrome d'Arthus
+R: D
+8/ L'hypersensibilité de type II (Réponse exacte) (2023)
+A. Est une réaction qui implique les antigènes solubles
+B. Fait intervenir des antigènes nucléaires solubles comme l'ADN
+C. Fait intervenir les cellules NK via leurs récepteurs FcγR
+D. Fait intervenir des antigènes intracytoplasmiques comme HLA
+E. Fait intervenir le complément par la voie alterne et les lectines seulement
+R: C
+9/ Dans l'hypersensibilité de type II on peut classer: (Réponse INEXACTE) (2022)
+1- Les pneumonies allergiques extrinsèques
+2- L'allo-immunisation par incompatibilité HLA
+3- L'allo-immunisation par incompatibilité ABO
+4- L'allo-immunisation par incompatibilité Rhésus
+5- Les anémies hémolytiques par carence en vitamine B12
+A (1,3,5) B (1,5) C (1,4) D (3,5) E (1,2,3,4)
+R: B
+10/ L'hypersensibilité de type II: (Réponse INEXACTE) (2021)
+A. Est une réaction cytotoxique.
+B. S'accompagne par une production normale d'IgE.
+C. Fait intervenir des antigènes membranaires comme HLA.

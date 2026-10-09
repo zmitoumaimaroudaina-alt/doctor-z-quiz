@@ -1,0 +1,47 @@
+B.Concerne des cellules isolées
+C.Est le plus souvent un mécanisme physiologique de "suicide" cellulaire essentiel au développement, à la maturation, et au renouvellement normal des tissus
+D.Est un processus actif.
+E.Induit une réponse inflammatoire importante
+R : E
+11/Parmi les caractéristiques phénotypiques des cellules sénescentes : (RF) (2023)
+A.Instabilité génomique
+B.Allongement des télomères
+C.Altérations épigénétiques
+D.Dysfonctionnement mitochondrial
+E.Arrêt du cycle cellulaire
+R : B
+12/Au cours de l'apoptose (cocher la ou les RF) (2022)
+A.Le volume cellulaire est augmenté
+B.Les constituants cellulaires sont dégradés à l'intérieur de la cellule
+C.Le noyau subit une rétraction
+D.la membrane cellulaire reste intacte
+E.Les corps apoptotiques sont phagocytés par les cellules de voisinage
+R : A
+13/La nécrose de coagulation (cocher la ou les RF) (2022)
+A.Est fréquente
+B.Survient lorsque la dénaturation protéique est l'événement essentiel
+C.Est secondaire à une infection à germes pyogènes
+D.Se voit dans les ischémies et brûlures
+E.S'accompagne d'une perte totale de l'architecture tissulaire
+R : C,E
+14/Les phénomènes d'adaptation cellulaire sont : (RF) (2022)
+A.L'atrophie
+B.L'hypertrophie
+C.Les mitoses
+D.L'hyperplasie
+E.La métaplasie
+R : C
+15/Parmi ces lésions cellulaires, laquelle ou lesquelles sont réversibles ? (2022)
+A.Gonflement mitochondrial de faible amplitude
+B.Pycnose
+C.Dégénérescence hydropique du cytoplasme
+D.Caryorrhexis
+E.Caryolyse
+R : A,C
+16/Une fragmentation deaal chromatine correspond à : (RI) (2022)
+A.Une mitose
+B.Une cytolyse
+C.Une pycnose
+D.Une caryolyse
+E.Une caryorrhexis
+R : E

@@ -1,0 +1,32 @@
+## I les réaction utilisant des anticorps marqués
+1/ L'immunofluorescence indirect : (RF) (2025)
+A. Consiste à fixer directement l'anticorps marqué sur la préparation antigénique étudiée.
+B. Possède une plus grande sensibilité que l'immunofluorescence directe.
+C. Nécessite, pour la lecture du résultat, un microscope équipé pour la fluorescence.
+D. Est une technique semi quantitative.
+E. Est la technique de choix dans le dépistage des anticorps antinucléaires.
+R. A
+2/ La Technique ELISA (ENZYM-LINKED IMMUNOSORBENT ASSAY) :(RF) (2025)
+A. Est sensible, rapide et adaptée à la réalisation de grandes séries de dosage.
+B. Elle est réalisée sur frottis cellulaire ou sur une coupe d'organe.
+C. Se base sur la mesure de la densité optique pour révéler la formation du complexe immun.
+D. Utilise une courbe d'étalonnage pour déterminer la concentration de la molécule à doser.
+E. Varie en fonction de la nature de la molécule à doser et de la méthode de révélation : direct, indirect, sandwich ou compétitive.
+R. B
+3/ Les techniques de radio-immunologie :RF (2025)
+A. Sont des méthodes de dosage et d'analyse quantitative.
+B. Utilisent un antigène ou un anticorps marqués par un fluorochrome.
+C. Nécessite une utilisation rapide du conjugué, après couplage, afin d'obtenir le signal optimal.
+D. Ont été utilisée pour le dosage des anticorps anti-ADN natif.
+E. Leur utilisation est restreinte et soumise à une réglementation spécifique.
+R. B
+4/ La réaction utilisant des anticorps marqués par un chimiluminescent : RF (2025)
+A. Se base sur la production de lumière à la suite d'une réaction chimique.
+B. Est caractérisée par la présence de seulement un spectre d'émission.
+C. Se caractérise par l'émission d'une lumière de longueur d'onde différente de celle de la lumière d'excitation.
+D. Est rapide dans sa lecture, car l'émission lumineuse est fugace et d'intensité fluctuante.
+E. Est adaptée à l'automatisation.
+R. B
+5/ L'Immunofluorescence indirect (IFI) est utilisée pour : (2024)
+1. La recherche des Ac (ou auto-Ac)
+2. La recherche des Ag (ou auto-Ag)

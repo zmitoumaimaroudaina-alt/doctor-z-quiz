@@ -1,0 +1,38 @@
+A. La dépolarisation d'une cellule cardiaque se fait de l'épicarde vers l'endocarde
+B. L'impulsion électrique nait au niveau du nœud de Keith et Flack
+C. Le nœud sino-auriculaire est situé au niveau de l'auricule droite
+D. Le tissu nodal est responsable de la conduction de l'influx électrique
+E. La dépolarisation des ventricules se fait grâce au réseau de Purkinje
+R: A
+7/ Quelle est la réponse fausse ? (2021)
+A. Le segment ST et l'onde T correspondent à la repolarisation des ventricules
+B. Un indice de SOKOLOW à 30 mm est considéré comme normal
+C. L'espace PQ correspond à la repolarisation des oreillettes
+D. Le complexe QRS à l'ECG traduit la contraction des ventricules
+E. L'indice de Cornell est égal à l'amplitude de RaVL + S V3
+R: C
+8/ A l'ECG normal: 1RJ (2021)
+A. La fréquence sinusale est comprise entre 60-80/mn
+B. L'axe du QRS est entre +30 et +90°
+C. La durée de l'onde P est < 0.12 sec
+D. Les QRS ont un aspect rS en V6
+E. Test positif en VR
+R: D
+## VII ➤ SCA
+1/ Parmi les propositions concernant les syndromes coronariens aigus, laquelle est vraie ? (2021) (2023) (2024)
+A. Le syndrome coronarien aigu sans sus décalage du segment ST (SCA ST-) est dû à une occlusion coronaire aiguë
+B. Aux urgences, le diagnostic de syndrome coronarien aigu ST+ est posé sur l'élévation des troponines
+C. La douleur thoracique peut être absente et remplacée par une dyspnée aiguë
+D. L'ECG est toujours pathologique
+E. L'angor instable ne fait pas partie des syndromes coronariens aigus
+R: C
+2/ Quelles sont les anomalies électriques possibles dans les syndromes coronariens aigus sans élévation du segment ST (NSTEMI) : 1RF (2024)
+A. Des ondes T négatives et symétriques
+B. Une lésion sous épicardique non persistante
+C. Un sous décalage du segment PQ
+D. Une onde T biphasique
+E. Une lésion sous endocardique
+R: C
+3/ Concernant l'angor de Prinzmetal ou angor spastique, toutes ces propositions sont vraies sauf une, laquelle : (2022) (2023)
+A. Il est toujours évoqué devant un SCA, surtout chez le sujet jeune
+B. Il existe parfois des facteurs déclenchants : stress, tabac, prise de cocaïne

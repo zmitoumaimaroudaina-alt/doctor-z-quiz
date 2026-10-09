@@ -1,0 +1,46 @@
+A. Des tumeurs malignes
+B. Des tumeurs qui présentent des critères histologiques de bénignité
+C. Des tumeurs à agressivité locale
+D. D'exérèse difficile
+E. Des tumeurs qui ont tendance à récidiver
+R : A
+7/ Le léiomyome : (RJ) (2021)
+A. Siège le plus souvent dans l'utérus
+B. Se présente sous forme d'un nodule blanchâtre fasciculé et bien limité
+C. Correspond à une prolifération de cellules musculaires lisses
+D. Peut contenir des mitoses anormales
+E. Est plus fréquent que le léiomyosarcome
+R : BCE
+CAS: Cas Clinique N°01 :(q8,9,10,11) (2021)
+Il s'agit de l'enfant MN âgé de 04 ans qui consulte pour des hématuries. A l'échographie,une masse tumorale de la vessie est retrouvée. Une biopsie de la masse est réalisée,objectivant à la morphologie, une prolifération tumorale composée de cellules rhabdoïdes, avec atypies cyto-nucléaires et mitoses :
+8/. Devant ce tableau clinique et l'aspect morphologique, Quel diagnostic doit-on évoquer: (Cocher la RJ)
+A. Lymphome.
+B. Léiomyosarcome.
+C. Rhabdomyosarcome.
+D. Fibrosarcome.
+E. Rhabdomyome.
+R : C
+9/. Quelle est la nature de cette tumeur : (RJ)
+A. Une tumeur épithéliale bénigne.
+B. Une tumeur mésenchymateuse maligne.
+C. D'une tumeur épithéliale maligne.
+D. D'une tumeur embryonnaire.
+E. Une tumeur mésenchymateuse bénigne.
+R : B
+10/. Le marqueur Immunohistochimique permettant de confirmer le diagnostic est le suivant: (2021)
+A. CD34.
+B. STAT6.
+C. c-Kit.
+D. Myogénine
+E. DOGI.
+R : D
+11/ L'immunohistochimie en anatomie et cytologie pathologiques est réalisée dans un but : (cocher les R.J)
+A. Diagnostic.
+B. Thérapeutique.
+C. Pronostic.
+D. Epidémiologique.
+E. Statistique.
+R : ABC
+12/ Les tumeurs mésenchymateuses bénignes : (RF) (2020)
+A. Sont plus fréquentes que les sarcomes
+B. N'ont pas de potentiel métastatique

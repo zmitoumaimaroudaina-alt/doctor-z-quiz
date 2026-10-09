@@ -1,0 +1,46 @@
+C. Allergique
+D. Hypovolémique
+E. Obstructive
+R. B
+7/ Quel médicament de choix allez-vous prescrire pour ce patient ? (2025)
+A. Noradrénaline
+B. Adrénaline
+C. Dopamine
+D. Atropine
+E. Dobutamine
+R. E
+8/ En présence d’un état de choc, les signes suivants peuvent orienter vers le diagnostic de choc hémorragique (cocher la réponse fausse) (2024)
+A. Une hypotension artérielle
+B. Des frissons
+C. Une pâleur des conjonctives
+D. Une peau érythrosique chaude
+E. Des marbrures
+R. D
+9/ Le choc cardiogénique est caractérisé par : (RF) (2023)
+A. Signes d’hypoxie tissulaire
+B. Pression artérielle systolique inférieure à 90 mm Hg pendant au moins trente minutes
+C. Débit cardiaque élevé
+D. Peut concerner la fonction systolique et/ou diastolique
+E. Pression artérielle pulmonaire d’occlusion (PAPO) supérieure à 15 mm Hg
+R. C
+10/ L’anaphylaxie est médiée essentiellement par : (RJ) (2023)
+A. IgM et IgG
+B. IgE seule
+C. Lymphocytes T
+D. Lymphocytes B
+E. IgG seule
+R. B
+11/ Dans le choc anaphylactique on retrouve : (RF) (2023)
+A. Une baisse du débit cardiaque
+B. Une inhibition du métabolisme cellulaire
+C. Une chute brutale des résistances artérielles systémiques
+D. Une vasoconstriction veineuse splanchnique et pulmonaire
+E. Une réduction de la perfusion du compartiment musculaire
+R. B
+12/ Le choc hypovolémique : cochez la réponse juste (2022)
+A. Le choc hypovolémie est caractérisé par une diminution du volume intravasculaire
+B. Augmentation du précharge
+C. La déshydratation n’est pas considérée comme un mécanisme de choc hypovolémie
+D. Cette diminution du volume sanguin circulant est responsable d’une augmentation du débit cardiaque
+E. L’insuffisance cardiaque est la cause principale du choc hypovolémie
+R. A

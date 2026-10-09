@@ -1,0 +1,43 @@
+22. Les Troponines Hs/Us : 1RF
+A. Sont de localisation cytosolique
+B. Sont 10 fois plus sensibles que les troponines classiques
+C. Cinétiquement, elles augmentent à partir de la 2ème heure après la nécrose myocardique
+D. Il existe 3 sous unités sur le plan analytique
+E. Toutes ces réponses
+23. Le brain natriuretic peptide (BNP) : 1RF
+A. A une activité hormonale
+B. A une structure cyclique
+C. Est produit en équimoléculaire avec le NtPro BNP
+D. Est un marqueur de suivi de l'insuffisance cardiaque
+E. Permet le diagnostic des syndromes coronaires aigus
+24. Dans le tube à rayons X : 1RJ
+A. La cathode est la pièce métallique qui freine les électrons accélérés
+B. L'anode est le filament porté à l'incandescence
+C. L'anode est la pièce métallique qui freine les électrons accélérés et produit les rayons X
+D. Les réponses A et B sont justes
+25. Le scanner : 1RF
+A. Utilise un tube à rayons X et un ensemble de détecteurs disposés en cadre
+B. Chaque pixel de la matrice de reconstruction correspond une valeur d'atténuation
+C. Permettent la réalisation des coupes infra rnillimétriques
+D. Le lit d'examen est mobil pendant la rotation du tube
+26. Les types d'artefact existant au scanner : 1RJ
+A. Artéfacts en rapport avec des objets métalliques
+B. Une opacité osseuse très dense
+C. Les mouvements du malade
+D. Cône d'ombre postérieure pour les structures calciques
+27. L'échotomographie est une technique d'imagerie médicale : 1RF
+A. N'est pas dangereuse pour les cellules du corps humain
+B. Utilise des ultra-sons
+C. Utilisée surtout pour l'exploration du l'abdomen et du pelvis
+D. Utilise 02 sondes : une réceptrice et une émettrice
+28. En échographie pour l'étude des structures : 1RF
+A. La sonde à plus faible fréquence pour les structures profondes
+B. La sonde à plus haute fréquence pour les structures superficielles
+C. Les faisceaux obliques à la sonde sont détectés et transformés en image
+D. La réflexion de l'ultra-son est proportionnelle à la différence d'impédance du tissu
+29. Le plan de l'observation médicale se fait selon un plan bien précis et débute par : 1RJ
+A. L'histoire de la maladie
+B. Le motif d'hospitalisation
+C. Le recueille des données d'identification du patient
+D. L'anamnèse
+E. Les antécédents

@@ -1,0 +1,29 @@
+Douleur thoracique basithoracique vive : Cela peut correspondre à une atteinte
+pleurale, fréquente dans l'embolie pulmonaire.
+-Dyspnée et tachypnée (FR = 30 cycles/min) : Des signes classiques d'une EP.
+-Tachycardie (FC = 120 b/min) : L'EP provoque souvent une réponse cardiaque
+rapide.
+-Fièvre légère (38,2 °C) : Bien que moins spécifique, une fièvre légère peut survenir
+dans l'embolie pulmonaire.
+2/ Quels sont les arguments (cités dans l'énoncé) en faveur de ce diagnostic ? (RF)
+A. Post partum
+B. Polypnée
+C. Type de la douleur
+D. Tachycardie
+E. Diabète
+R: E
+3/ Quel examen radiologique est à réaliser pour confirmer le diagnostic ? (RJ)
+A. Dosage des D Dimères
+B. Radiographie thoracique standard de face
+C. Angioscanner thoracique
+D. NFS
+E. ECG
+R: C
+## Commentaire :
+-L'examen radiologique à réaliser pour confirmer le diagnostic d'embolie
+pulmonaire est l'angioscanner thoracique.
+-L'angioscanner thoracique est : l'examen de référence pour visualiser directement
+les emboles dans les artères pulmonaires. Il permet de confirmer la présence de
+thrombus et de préciser leur localisation, leur taille, ainsi que l'atteinte des
+branches pulmonaires. C'est l'examen le plus sensible et spécifique pour
+diagnostiquer une embolie pulmonaire.

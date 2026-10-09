@@ -1,0 +1,83 @@
+R. A
+6/ Un sujet du groupe O rhésus négatif présente : la réponse exacte. (2023)
+1. Des anticorps naturels anti A
+2. Des anticorps naturels anti B
+3. Des anticorps naturels anti h
+4. Des anticorps naturels anti D
+5. Aucun anticorps naturel régulier
+A: 1+2
+B: 2+3+4
+C: 1+3+4
+D: 5
+E: 1+2+4
+R. B
+7/ Le test de Coombs direct permet de mettre en évidence : la réponse exacte. (2023)
+1. Des Ac anti-érythrocytaires libres dans le sérum
+2. Des Ac fixés in vivo sur des hématies du malade
+3. Des Ac anti-Ig
+4. Des Ac fixés in vitro sur les hématies du malade
+5. Des Ac fixés in vitro sur les leucocytes du malade
+A: 1
+B: 2
+C: 1+2
+D: 2+3
+E: 3+4
+R. B
+8/ La réaction d'agglutination indirecte ou passive : réponse exacte. (2023)
+A. Est une réaction basée sur l'utilisation d'Ag solubles.
+B. Les Ag sont fixés sur des particules inertes comme les billes de LATEX.
+C. Est une réaction purement quantitative.
+D. Les particules inertes sont impliquées directement dans l'agglutination.
+E. Est une réaction basée sur l'utilisation d'Ac non agglutinants.
+R. B
+## III ► Les réactions de précipitation
+1/ Les réactions d'immunoprécipitation : (RF) (2025)
+A. Peuvent se pratiquer soit en milieu liquide soit en milieu solide.
+B. Peuvent être utilisées dans le dosage des protéines sériques comme les immunoglobulines.
+C. Utilisent des antigènes solubles.
+D. Se font en présence de fortes concentrations d'antigènes.
+E. Nécessitent la présence du complément dans le milieu réactionnel.
+R. D+E
+2/ Parmi les techniques d'immunoprécipitation suivantes quelles sont celles qui sont qualitatives : (RF) (2025)
+A. La Néphélométrie et turbidimétrie laser.
+B. La technique du Laurell.
+C. L'immunodiffusion double en milieu gélifié (Ouchterlony).
+D. L'Electrosynérèse.
+E. L'immunodiffusion radiale (Mancini).
+R. A+E
+3/ L'immunoélectrophorèse : (2025) RF
+A. Est une technique d'immunoprécipitation en milieu gélifié.
+B. Consiste à déposer tous les réactants en un seul temps et à laisser diffuser dans le gel.
+C. Nécessite l'utilisation d'un sérum humain normal.
+D. Utilise un gel d'agarose riche en courant d'électro-endosmose.
+E. Nécessite l'utilisation d'une courbe d'étalonnage.
+R. B+C+E
+4/ La technique de Mancini d'immunodiffusion radiale (technique manuelle) tend à être avantageusement remplacée pour le dosage des immunoglobulines sériques en routine par : (2024)
+A. Immuno-électrophorèse.
+B. Dosage radio-immunologique.
+C. Dosage immuno-enzymatique (ELISA).
+D. Dosage immunofluorométrique.
+E. Néphélométrie laser et/ou Turbidimétrie laser.
+R. E
+5/ La réaction de Waller Rose : (Réactions de précipitation et d'agglutination) (2024)
+1. Est une réaction d'hémagglutination passive.
+2. Utilise comme support des globules rouges de lapin.
+3. Nécessite, pour sa réalisation, la présence de complément cytolytique.
+4. Permet la mise en évidence d'IgM anti-IgG.
+5. Est d'utilisation courante dans le diagnostic de polyarthrite rhumatoïde.
+A: 1+2+3
+B: 1+3+5
+C. 1+2
+D: 1+4+5
+E: Toutes les propositions
+R. D
+6/ Le test de Coombs direct et indirect est applicable pour poser le diagnostic : (2024)
+1. Des anémies hémolytiques auto-immunes.
+2. Des maladies hémolytiques du nouveau-né.
+3. Des maladies à CIC.
+4. De Myasthénie.
+5. De Gougerot Sjögren.
+A: 1+2
+B: 3+4
+C: 4+5
+D: 1+4

@@ -1,0 +1,36 @@
+21/ Les proto-oncogènes : (2020)
+A. Sont des gènes présents à l'état normal
+B. Sont régulateurs de la croissance et de la différenciation cellulaire normale
+C. Acquièrent un pouvoir oncogène par transduction virale ou par lésions génomiques
+D. Les oncogènes sont responsables de la transformation de la cellule normale en cellule cancéreuse
+E. L'atteinte des 2 allèles du proto-oncogène est nécessaire pour induire une perte de la fonction qu'il contrôle
+R : C
+22/ Les Gènes suppresseurs de tumeurs : (2020)
+A. Codent pour des protéines qui empêchent l'entrée dans le cycle cellulaire
+B. Des mutations des gènes suppresseurs induisent une prolifération cellulaire anormale
+C. Il suffit qu'un des deux allèles du gène suppresseur soit atteint pour induire une perte de sa fonction
+D. L'atteinte du gène du rétinoblastome (Rb) induit une prolifération incontrôlée
+E. Des mutations somatiques du gène codant la protéine P53 sont retrouvées dans une large variété de cancers
+R : C
+23/ Parmi ces propositions laquelle est fausse ? (2020)
+A. Les gènes BRCA-1 et BRCA-2 sont associés au développement de cancers familiaux du sein et des ovaires
+B. La mutation du gène APC entraîne une polypose colique adénomateuse familiale
+C. L'altération de la protéine Rb est retrouvée dans d'autres cancers tels que vessie
+D. Des mutations germinales sont retrouvées dans certains états prédisposant aux cancers, tel que le syndrome de Li-Fraumeni
+E. Toutes ces réponses sont fausses
+R : E
+24/Le stroma des cancers à tous les caractères suivants, sauf un lequel ? (Résidanat Blida | 2019)
+(Cocher la réponse fausse)
+A.Il est de nature conjonctive
+B.Il est dépourvu de vascularisation C.Il appartient à l'organe atteint par la tumeur D.Il assure la nutrition du cancer
+E.Il peut être granulomateux
+R. B
+Les gènes suivants sont des gènes suppresseurs des tumeurs sauf un lequel ? 2025
+a) Le gène du rétinoblastome Rb
+b) Les gènes hMSH2, hMLH1, hPMS1, hPMS2, hMSH6
+c) Les gènes BRCA-1 et BRCA-2
+d) Le gène de la protéine p53
+e) Le gène APC
+R. B
+Les proto oncogènes : (RF) (2025)
+a) Sont des gènes qui existent à l'état normal

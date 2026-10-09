@@ -1,0 +1,25 @@
+## LES CAS CLINIQUES
+## Cas clinique 01:
+CAS: un jeune patient, âgé de 26 ans, qui se plaint d'une dyspnée d'effort de plus en plus intense
+1/ Vous recherchez à l'examen clinique : (réponse juste)
+1. Un tirage sus sternal
+2. Une cyanose des extrémités
+3. Une tachycardie
+4. Une polypnée
+5. Un hippocratisme digital
+A. 1,2,5
+B. 1,3,4
+C. 2,3
+D. 1,2,3,4
+E. 2,3,4
+R: D
+Commentaire :
+L'hippocratisme digital est écarté dans ce cas-là, la dyspnée est récente, donc il n'y a pas d'hypoxie prolongée inductrice d'hippocratisme digital.
+2/ Vous retrouvez une matité franche de bois ainsi qu'une abolition du murmure vésiculaire, les autres signes cliniques accompagnateurs sont : (réponse juste)
+1. Une diminution de l'ampliation thoracique
+2. Une abolition des vibrations vocales
+3. Un tympanisme
+4. Parfois un souffle pleurétique
+5. Parfois un souffle amphorique
+A. 1,2,4
+B. 2,3,4

@@ -1,0 +1,41 @@
+CAS: de repos constrictive ayant débuté il ya deux heures. l'examen clinique le patient est apyrétique, sa tension artérielle est à180/95mmHg. Sa fréquence cardiaque à 80 battements par minute, l'auscultation cardiaque et pulmonaire sont normales. L'ECG est le suivant:
+9. Enumérez les facteurs de risque cardiovasculaires présents chez ce patient:
+A.2
+B.3
+C.4
+D.5
+E.6
+R.D
+10. Quelle est l'hypothèse diagnostique la plus probable vu le contexte clinique et les caractères de la douleur?
+A. Péricardite aigue
+B. Dissection de l'aorte
+C. Syndrome coronaire aigu
+D. Embolie pulmonaire
+E. Pleurésie
+R.C
+11. Comment interprétez-vous cet électrocardiogramme?
+A. ECG typique d'embolie pulmonaire
+B. ECG normal
+C. ECG fortement évocateur d'une péricardite aigue
+D. ECG évocateur d'un syndrome coronaire aigu
+E. ECG évocateur d'une dissection de l'aorte
+R.B
+12. Quel bilan va-t-il vous permettre d'affirmer le diagnostic?
+A. D dimères
+B. Pro BNP
+C. Angioscanner thoracique
+D. Echocardiographie
+E. Le dosage des troponines ultra sensibles
+R.E
+## IX ► sémiologie des valvulopathies
+1/ Le souffle d'insuffisance mitrale: Cochez la réponse fausse (RF) (2025)
+A. Siège à la pointe et irradie habituellement vers l'aisselle
+B. Débute habituellement dès le premier bruit
+C. Peut être suivi d'un troisième bruit protodiastolique
+D. A une intensité maximale en mésosystole
+E. Est mieux perçu en décubitus latéral gauche
+R: D
+CAS: 2/ Une femme de 35 ans, est atteinte d'un rétrécissement mitral en fibrillation atriale. Elle ressent brutalement une douleur vive du mallet qui s'accompagne rapidement d'une impotence complète. A l'examen la jambe et le pied sont froids. Quel est votre diagnostic? Cochez la réponse juste (RJ) (2025)
+A. Thrombose artérielle
+B. Phlébite
+C. Embolie artérielle
