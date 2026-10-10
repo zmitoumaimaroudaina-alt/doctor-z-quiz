@@ -119,7 +119,7 @@ def parse_stream(lines, mode):
                          "flags": ["section 'LES CAS CLINIQUES' sans matière explicite: rangée en Sémiologie, à vérifier"]}
                 groups.append(group); case = None; last_heading_idx = idx; continue
             m = LESSON_RE.match(h)
-            title = m.group(2).strip() if m and m.group(1) else h
+            title = (m.group(2) if m and m.group(1) else h).strip().lstrip("►➢➤‣▻➔▷> ").strip()
             if group and group["kind"] == "course" and last_heading_idx == idx - 1 and group["title"] and not group["questions"] and not q:
                 group["title"] = (group["title"] + " " + h).strip()  # wrapped title continuation
                 last_heading_idx = idx; continue

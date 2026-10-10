@@ -544,6 +544,7 @@ export type Database = {
         Returns: Json
       }
       claim_mission: { Args: { _key: string }; Returns: Json }
+      creator_ids: { Args: never; Returns: string[] }
       exam_status: {
         Args: { _exam: string }
         Returns: {
@@ -572,6 +573,13 @@ export type Database = {
           rnk: number
           tomato_until: string
           user_id: string
+        }[]
+      }
+      my_course_counts: {
+        Args: never
+        Returns: {
+          course_id: string
+          n: number
         }[]
       }
       start_attempt: { Args: { _exam: string }; Returns: string }
