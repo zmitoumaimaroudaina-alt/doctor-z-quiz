@@ -1,24 +1,49 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Avatar } from "@/components/Avatar";
+import { Brand } from "@/components/AppShell";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
-  component: Index,
+  head: () => ({
+    meta: [
+      { title: "Z QCM GAME — QCM médicaux Blida 1" },
+      { name: "description", content: "Entraîne-toi sur les vrais examens et les QCM par cours de la Faculté de Médecine de Blida 1, en mode jeu." },
+      { property: "og:title", content: "Z QCM GAME — QCM médicaux Blida 1" },
+      { property: "og:description", content: "Examens officiels, QCM par cours, classement, missions et avatar : révise la médecine en jouant." },
+    ],
+  }),
+  component: Landing,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
+function Landing() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="min-h-screen">
+      <header className="mx-auto flex max-w-5xl items-center justify-between px-4 py-5">
+        <Brand />
+        <Link to="/auth" className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-pop">Se connecter</Link>
+      </header>
+      <section className="mx-auto grid max-w-5xl items-center gap-8 px-4 py-8 md:grid-cols-2 md:py-16">
+        <div>
+          <p className="text-sm font-semibold text-primary">Université Saad Dahleb – Blida 1 · Faculté de Médecine</p>
+          <h1 className="mt-3 font-display text-4xl font-bold leading-tight sm:text-5xl">Révise la médecine <span className="text-primary">en jouant</span>.</h1>
+          <p className="ar mt-3 text-lg text-muted-foreground">راجع، العب، وتقدّم مع زملائك</p>
+          <p className="mt-4 text-muted-foreground">Vrais examens chronométrés, QCM par cours, corrections officielles, explications IA, classement en direct et tomates 🍅 pour le Top 5.</p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link to="/auth" className="rounded-2xl bg-hero px-6 py-3 font-semibold text-primary-foreground shadow-pop">Commencer · ابدأ</Link>
+          </div>
+          <div className="mt-8 grid grid-cols-3 gap-3 text-center text-sm">
+            {[["📝", "QCM Examens"], ["📚", "QCM par Cours"], ["🏆", "Leaderboard"]].map(([i, l]) => (
+              <div key={l} className="card-game p-3"><div className="text-2xl">{i}</div><div className="mt-1 font-medium">{l}</div></div>
+            ))}
+          </div>
+        </div>
+        <div className="relative mx-auto">
+          <div className="absolute inset-0 -z-10 rounded-full bg-hero opacity-20 blur-3xl" />
+          <div className="flex items-end gap-2">
+            <Avatar config={{ gender: "f", hijab: 1, outfit: 0, accessory: 1, skin: 1 }} mood="happy" size={180} pet="cat" />
+            <Avatar config={{ gender: "m", hair: 1, outfit: 2, beard: 1, glasses: 1, skin: 3, accessory: 0 }} mood="veryHappy" size={150} pet="fox" />
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
