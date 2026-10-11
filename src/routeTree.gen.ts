@@ -15,6 +15,11 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedExamensRouteImport } from './routes/_authenticated/examens'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as ApiAiExplainRouteImport } from './routes/api/ai-explain'
+import { Route as AuthenticatedErreursAttemptIdRouteImport } from './routes/_authenticated/erreurs.$attemptId'
+import { Route as AuthenticatedExamExamIdRouteImport } from './routes/_authenticated/exam.$examId'
+import { Route as AuthenticatedPlayAttemptIdRouteImport } from './routes/_authenticated/play.$attemptId'
+import { Route as AuthenticatedResultsAttemptIdRouteImport } from './routes/_authenticated/results.$attemptId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -45,6 +50,34 @@ const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiAiExplainRoute = ApiAiExplainRouteImport.update({
+  id: '/api/ai-explain',
+  path: '/api/ai-explain',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedErreursAttemptIdRoute =
+  AuthenticatedErreursAttemptIdRouteImport.update({
+    id: '/erreurs/$attemptId',
+    path: '/erreurs/$attemptId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedExamExamIdRoute = AuthenticatedExamExamIdRouteImport.update({
+  id: '/exam/$examId',
+  path: '/exam/$examId',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPlayAttemptIdRoute =
+  AuthenticatedPlayAttemptIdRouteImport.update({
+    id: '/play/$attemptId',
+    path: '/play/$attemptId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedResultsAttemptIdRoute =
+  AuthenticatedResultsAttemptIdRouteImport.update({
+    id: '/results/$attemptId',
+    path: '/results/$attemptId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -52,6 +85,11 @@ export interface FileRoutesByFullPath {
   '/examens': typeof AuthenticatedExamensRoute
   '/home': typeof AuthenticatedHomeRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/api/ai-explain': typeof ApiAiExplainRoute
+  '/erreurs/$attemptId': typeof AuthenticatedErreursAttemptIdRoute
+  '/exam/$examId': typeof AuthenticatedExamExamIdRoute
+  '/play/$attemptId': typeof AuthenticatedPlayAttemptIdRoute
+  '/results/$attemptId': typeof AuthenticatedResultsAttemptIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -59,6 +97,11 @@ export interface FileRoutesByTo {
   '/examens': typeof AuthenticatedExamensRoute
   '/home': typeof AuthenticatedHomeRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/api/ai-explain': typeof ApiAiExplainRoute
+  '/erreurs/$attemptId': typeof AuthenticatedErreursAttemptIdRoute
+  '/exam/$examId': typeof AuthenticatedExamExamIdRoute
+  '/play/$attemptId': typeof AuthenticatedPlayAttemptIdRoute
+  '/results/$attemptId': typeof AuthenticatedResultsAttemptIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -68,12 +111,37 @@ export interface FileRoutesById {
   '/_authenticated/examens': typeof AuthenticatedExamensRoute
   '/_authenticated/home': typeof AuthenticatedHomeRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
+  '/api/ai-explain': typeof ApiAiExplainRoute
+  '/_authenticated/erreurs/$attemptId': typeof AuthenticatedErreursAttemptIdRoute
+  '/_authenticated/exam/$examId': typeof AuthenticatedExamExamIdRoute
+  '/_authenticated/play/$attemptId': typeof AuthenticatedPlayAttemptIdRoute
+  '/_authenticated/results/$attemptId': typeof AuthenticatedResultsAttemptIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/examens' | '/home' | '/onboarding'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/examens'
+    | '/home'
+    | '/onboarding'
+    | '/api/ai-explain'
+    | '/erreurs/$attemptId'
+    | '/exam/$examId'
+    | '/play/$attemptId'
+    | '/results/$attemptId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/examens' | '/home' | '/onboarding'
+  to:
+    | '/'
+    | '/auth'
+    | '/examens'
+    | '/home'
+    | '/onboarding'
+    | '/api/ai-explain'
+    | '/erreurs/$attemptId'
+    | '/exam/$examId'
+    | '/play/$attemptId'
+    | '/results/$attemptId'
   id:
     | '__root__'
     | '/'
@@ -82,12 +150,18 @@ export interface FileRouteTypes {
     | '/_authenticated/examens'
     | '/_authenticated/home'
     | '/_authenticated/onboarding'
+    | '/api/ai-explain'
+    | '/_authenticated/erreurs/$attemptId'
+    | '/_authenticated/exam/$examId'
+    | '/_authenticated/play/$attemptId'
+    | '/_authenticated/results/$attemptId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiAiExplainRoute: typeof ApiAiExplainRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -134,6 +208,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/ai-explain': {
+      id: '/api/ai-explain'
+      path: '/api/ai-explain'
+      fullPath: '/api/ai-explain'
+      preLoaderRoute: typeof ApiAiExplainRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/erreurs/$attemptId': {
+      id: '/_authenticated/erreurs/$attemptId'
+      path: '/erreurs/$attemptId'
+      fullPath: '/erreurs/$attemptId'
+      preLoaderRoute: typeof AuthenticatedErreursAttemptIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/exam/$examId': {
+      id: '/_authenticated/exam/$examId'
+      path: '/exam/$examId'
+      fullPath: '/exam/$examId'
+      preLoaderRoute: typeof AuthenticatedExamExamIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/play/$attemptId': {
+      id: '/_authenticated/play/$attemptId'
+      path: '/play/$attemptId'
+      fullPath: '/play/$attemptId'
+      preLoaderRoute: typeof AuthenticatedPlayAttemptIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/results/$attemptId': {
+      id: '/_authenticated/results/$attemptId'
+      path: '/results/$attemptId'
+      fullPath: '/results/$attemptId'
+      preLoaderRoute: typeof AuthenticatedResultsAttemptIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -141,12 +250,20 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedExamensRoute: typeof AuthenticatedExamensRoute
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
+  AuthenticatedErreursAttemptIdRoute: typeof AuthenticatedErreursAttemptIdRoute
+  AuthenticatedExamExamIdRoute: typeof AuthenticatedExamExamIdRoute
+  AuthenticatedPlayAttemptIdRoute: typeof AuthenticatedPlayAttemptIdRoute
+  AuthenticatedResultsAttemptIdRoute: typeof AuthenticatedResultsAttemptIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedExamensRoute: AuthenticatedExamensRoute,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
+  AuthenticatedErreursAttemptIdRoute: AuthenticatedErreursAttemptIdRoute,
+  AuthenticatedExamExamIdRoute: AuthenticatedExamExamIdRoute,
+  AuthenticatedPlayAttemptIdRoute: AuthenticatedPlayAttemptIdRoute,
+  AuthenticatedResultsAttemptIdRoute: AuthenticatedResultsAttemptIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -156,6 +273,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiAiExplainRoute: ApiAiExplainRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
