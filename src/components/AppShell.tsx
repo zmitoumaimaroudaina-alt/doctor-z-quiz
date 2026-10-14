@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import type { ReactNode } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/hooks/useMe";
 import { levelFromXp } from "@/lib/game";
 import { play } from "@/lib/sound";
@@ -15,6 +16,11 @@ const NAV = [
   { to: "/profile", icon: "👤", label: "Profile" },
   { to: "/settings", icon: "⚙️", label: "Settings" },
 ] as const;
+
+async function logout() {
+  await supabase.auth.signOut();
+  window.location.href = "/auth";
+}
 
 export function AppShell({ children, wide = false }: { children: ReactNode; wide?: boolean }) {
   const { data: me } = useMe();
@@ -37,6 +43,9 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
               <span>👑</span>Panneau Creator
             </Link>
           )}
+          <button onClick={logout} className="mt-2 flex items-center gap-3 rounded-xl border px-3 py-2.5 text-left text-sm font-medium hover:bg-sidebar-accent">
+            <span className="text-lg">🚪</span><span>Se déconnecter</span>
+          </button>
         </nav>
         <div className="mt-auto text-xs text-muted-foreground">Université Saad Dahleb – Blida 1<br />Faculté de Médecine</div>
       </aside>
@@ -46,12 +55,15 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
           <div className="lg:hidden"><Brand small /></div>
           <div className="hidden text-sm text-muted-foreground lg:block">Bienvenue{me?.display_name ? `, ${me.display_name}` : ""} 👋</div>
           {me && (
-            <button onClick={() => nav({ to: "/profile" })} className="flex items-center gap-3 rounded-full bg-card px-2 py-1 shadow-sm">
-              <span className="rounded-full bg-primary-soft px-2 py-0.5 text-xs font-bold text-primary">Nv {me.isCreator ? "∞" : lv.level}</span>
-              <span className="text-xs font-semibold">🪙 {me.isCreator ? "∞" : me.coins}</span>
-              <span className="text-xs font-semibold">🔥 {me.streak}</span>
-              <Avatar config={me.avatar} size={30} />
-            </button>
+            <div className="flex items-center gap-2">
+              <button onClick={() => nav({ to: "/profile" })} className="flex items-center gap-3 rounded-full bg-card px-2 py-1 shadow-sm">
+                <span className="rounded-full bg-primary-soft px-2 py-0.5 text-xs font-bold text-primary">Nv {me.isCreator ? "∞" : lv.level}</span>
+                <span className="text-xs font-semibold">🪙 {me.isCreator ? "∞" : me.coins}</span>
+                <span className="text-xs font-semibold">🔥 {me.streak}</span>
+                <Avatar config={me.avatar} size={30} />
+              </button>
+              <button onClick={logout} aria-label="Se déconnecter" title="Se déconnecter" className="grid h-9 w-9 place-items-center rounded-full bg-card text-lg shadow-sm lg:hidden">🚪</button>
+            </div>
           )}
         </div>
       </header>
