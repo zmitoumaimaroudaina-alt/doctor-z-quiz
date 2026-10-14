@@ -2,7 +2,7 @@ import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { Avatar } from "@/components/Avatar";
 import { useMe } from "@/hooks/useMe";
-import { levelFromXp, RESOURCES } from "@/lib/game";
+import { levelFromXp } from "@/lib/game";
 
 export const Route = createFileRoute("/_authenticated/home")({
   head: () => ({ meta: [{ title: "Accueil — Z QCM GAME" }, { name: "description", content: "Ton tableau de bord Z QCM GAME." }] }),
@@ -45,15 +45,6 @@ function Home() {
         <Tile to="/leaderboard" icon="🏆" title="Leaderboard" sub="Top 5 + tomates 🍅" />
         <Tile to="/missions" icon="🎯" title="Missions" sub="Quotidiennes & hebdomadaires" />
         <Tile to="/profile" icon="👤" title="Mon profil" sub="Avatar, animal, bulle" />
-      </div>
-
-      <h2 className="mt-8 font-display text-lg font-bold">Ressources éducatives</h2>
-      <div className="mt-3 grid gap-3 sm:grid-cols-3">
-        {RESOURCES.map((r) => (
-          <a key={r.href} href={r.href} target="_blank" rel="noreferrer" className="card-game flex items-center gap-3 p-4 hover:shadow-pop">
-            <span className="text-2xl">{r.icon}</span><span className="font-medium">{r.label}</span>
-          </a>
-        ))}
       </div>
 
       <section dir="rtl" className="card-game mt-8 p-4">
