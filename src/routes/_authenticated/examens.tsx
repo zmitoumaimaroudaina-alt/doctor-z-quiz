@@ -47,7 +47,7 @@ function Examens() {
         <div className="space-y-3">
           {inSubj.filter((e) => e.year === year).map((e) => (
             <Link key={e.id} to="/exam/$examId" params={{ examId: e.id }} className="card-game flex items-center justify-between p-4 hover:shadow-pop">
-              <span><span className="block font-semibold">{e.title}</span><span className="text-xs text-muted-foreground">Source : {e.source_file}</span></span>
+              <span><span className="block font-semibold">{e.title}</span></span>
               <span className="text-primary">Ouvrir →</span>
             </Link>
           ))}
