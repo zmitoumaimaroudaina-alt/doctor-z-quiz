@@ -1,107 +1,74 @@
-import { Link, useNavigate } from "@tanstack/react-router";
-import type { ReactNode } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
+import { AppShell } from "@/components/AppShell";
+import { Avatar } from "@/components/Avatar";
 import { useMe } from "@/hooks/useMe";
 import { levelFromXp } from "@/lib/game";
-import { play } from "@/lib/sound";
-import { Avatar } from "./Avatar";
 
-const NAV = [
-  { to: "/home", icon: "🏠", label: "Home" },
-  { to: "/examens", icon: "📝", label: "QCM Examens" },
-  { to: "/cours", icon: "📚", label: "QCM par Cours" },
-  { to: "/mes-erreurs", icon: "🔁", label: "QCM أخطائي السابقة", ar: true },
-  { to: "/leaderboard", icon: "🏆", label: "Leaderboard" },
-  { to: "/missions", icon: "🎯", label: "Missions" },
-  { to: "/profile", icon: "👤", label: "Profile" },
-  { to: "/settings", icon: "⚙️", label: "Settings" },
-] as const;
+export const Route = createFileRoute("/_authenticated/home")({
+  head: () => ({ meta: [{ title: "Accueil — Z QCM GAME" }, { name: "description", content: "Ton tableau de bord Z QCM GAME." }] }),
+  component: Home,
+});
 
-async function logout() {
-  await supabase.auth.signOut({ scope: "local" });
-  window.location.replace("/auth");
-}
+const CHANNELS = [
+  { icon: "▶️", label: "Doctor Z — YouTube", href: "https://youtube.com/@doctorz-i2007?si=WhkCMFBIccxYDO9l" },
+  { icon: "▶️", label: "Med Support — YouTube", href: "https://youtube.com/@medisuppor1?si=YL2jAcqpSdClp0ep" },
+  { icon: "✈️", label: "Med Support — Telegram", href: "https://t.me/+ubEdEFjoMtllYzE8" },
+];
 
-export function AppShell({ children, wide = false }: { children: ReactNode; wide?: boolean }) {
-  const { data: me } = useMe();
-  const lv = levelFromXp(me?.xp ?? 0);
-  const nav = useNavigate();
+function Home() {
+  const { data: me, isLoading } = useMe();
+  if (isLoading) return <div className="p-8 text-center">Chargement…</div>;
+  if (me && !me.onboarded) return <Navigate to="/onboarding" />;
+  if (!me) return <div className="p-8 text-center">Chargement du profil…</div>;
+  const lv = levelFromXp(me.xp);
   return (
-    <div className="min-h-screen pb-24 lg:pb-0 lg:pl-64">
-      <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col border-r bg-sidebar p-4 lg:flex">
-        <Brand />
-        <nav className="mt-6 flex flex-col gap-1">
-          {NAV.map((n) => (
-            <Link key={n.to} to={n.to} onClick={() => play("nav")}
-              className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent"
-              activeProps={{ className: "bg-primary-soft text-primary" }}>
-              <span className="text-lg">{n.icon}</span><span className={n.ar ? "ar" : ""}>{n.label}</span>
-            </Link>
-          ))}
-          {me?.isCreator && (
-            <Link to="/admin" className="mt-2 flex items-center gap-3 rounded-xl border border-gold px-3 py-2.5 text-sm font-semibold" activeProps={{ className: "bg-gold/20" }}>
-              <span>👑</span>Panneau Creator
-            </Link>
-          )}
-          <button type="button" onClick={logout} className="mt-2 flex items-center gap-3 rounded-xl border px-3 py-2.5 text-left text-sm font-medium hover:bg-sidebar-accent">
-            <span className="text-lg">🚪</span><span>Se déconnecter</span>
-          </button>
-        </nav>
-        <div className="mt-auto text-xs text-muted-foreground">Université Saad Dahleb – Blida 1<br />Faculté de Médecine</div>
-      </aside>
-
-      <header className="sticky top-0 z-30 border-b bg-background/85 backdrop-blur">
-        <div className={`mx-auto flex items-center justify-between gap-3 px-4 py-3 ${wide ? "max-w-6xl" : "max-w-4xl"}`}>
-          <div className="lg:hidden"><Brand small /></div>
-          <div className="hidden text-sm text-muted-foreground lg:block">Bienvenue{me?.display_name ? `, ${me.display_name}` : ""} 👋</div>
-          {me && (
-            <div className="flex items-center gap-2">
-              <button onClick={() => nav({ to: "/profile" })} className="flex items-center gap-3 rounded-full bg-card px-2 py-1 shadow-sm">
-                <span className="rounded-full bg-primary-soft px-2 py-0.5 text-xs font-bold text-primary">Nv {me.isCreator ? "∞" : lv.level}</span>
-                <span className="text-xs font-semibold">🪙 {me.isCreator ? "∞" : me.coins}</span>
-                <span className="text-xs font-semibold">🔥 {me.streak}</span>
-                <Avatar config={me.avatar} size={30} />
-              </button>
-              <button type="button" onClick={logout} aria-label="Se déconnecter" title="Se déconnecter" className="grid h-9 w-9 place-items-center rounded-full bg-card text-lg shadow-sm lg:hidden">🚪</button>
+    <AppShell>
+      <section className="relative overflow-hidden rounded-3xl bg-hero p-6 text-primary-foreground shadow-pop">
+        <div className="flex items-center gap-4">
+          <Avatar config={me.avatar} mood="happy" size={110} pet={me.pet} />
+          <div>
+            <p className="text-sm opacity-90">Université Saad Dahleb – Blida 1 · Faculté de Médecine</p>
+            <h1 className="font-display text-2xl font-bold sm:text-3xl">Salut {me.display_name} 👋</h1>
+            <p className="ar opacity-90">مرحبا! واش راك حاب تراجع اليوم؟</p>
+            <div className="mt-3 h-2 w-48 overflow-hidden rounded-full bg-primary-foreground/30">
+              <div className="h-full rounded-full bg-gold" style={{ width: `${me.isCreator ? 100 : Math.round(lv.progress * 100)}%` }} />
             </div>
-          )}
+            <p className="mt-1 text-xs opacity-90">Niveau {me.isCreator ? "∞" : lv.level} · {me.xp} XP {me.isCreator && "· 👑 Creator"}</p>
+          </div>
         </div>
-      </header>
+      </section>
 
-      <main className={`mx-auto px-4 py-6 ${wide ? "max-w-6xl" : "max-w-4xl"}`}>{children}</main>
+      <div className="mt-6 grid gap-4 sm:grid-cols-2">
+        <Tile to="/examens" icon="📝" title="QCM Examens" sub="Matière → Année → Examen · 30 min" />
+        <Tile to="/cours" icon="📚" title="QCM par Cours" sub="Matière → Cours → QCM" />
+        <Tile to="/mes-erreurs" icon="🔁" title="QCM أخطائي السابقة" sub="Rejoue tes anciennes erreurs" />
+        <Tile to="/leaderboard" icon="🏆" title="Leaderboard" sub="Top 5 + tomates 🍅" />
+        <Tile to="/missions" icon="🎯" title="Missions" sub="Quotidiennes & hebdomadaires" />
+        <Tile to="/profile" icon="👤" title="Mon profil" sub="Avatar, animal, bulle" />
+      </div>
 
-      <nav className="fixed inset-x-0 bottom-0 z-30 border-t bg-card/95 backdrop-blur lg:hidden">
-        <div className="flex overflow-x-auto px-1">
-          {[...NAV, ...(me?.isCreator ? [{ to: "/admin", icon: "👑", label: "Creator" } as const] : [])].map((n) => (
-            <Link key={n.to} to={n.to} onClick={() => play("nav")}
-              className="flex min-w-[72px] flex-1 flex-col items-center gap-0.5 px-1 py-2 text-[10px] text-muted-foreground"
-              activeProps={{ className: "text-primary font-semibold" }}>
-              <span className="text-xl">{n.icon}</span><span className="truncate">{n.label.replace("QCM ", "")}</span>
-            </Link>
+      <section dir="rtl" className="card-game mt-8 p-4">
+        <h2 className="font-display text-base font-bold">📢 تابعوا Doctor Z و Med Support</h2>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {CHANNELS.map((c) => (
+            <a
+              key={c.href}
+              href={c.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-full bg-primary-soft px-4 py-2 text-sm font-medium transition hover:-translate-y-0.5 hover:shadow-pop"
+            >
+              <span>{c.icon}</span>
+              <span>{c.label}</span>
+            </a>
           ))}
         </div>
-      </nav>
-    </div>
+      </section>
+    </AppShell>
   );
 }
 
-export function Brand({ small = false }: { small?: boolean }) {
+function Tile({ to, icon, title, sub }: { to: "/examens" | "/cours" | "/mes-erreurs" | "/leaderboard" | "/missions" | "/profile"; icon: string; title: string; sub: string }) {
   return (
-    <Link to="/home" className="flex items-center gap-2">
-      <span className="grid h-10 w-10 place-items-center rounded-2xl bg-hero font-display text-xl font-bold text-primary-foreground shadow-pop">Z</span>
-      <span className="leading-tight">
-        <span className="block font-display text-lg font-bold">Z QCM GAME</span>
-        {!small && <span className="block text-[11px] text-muted-foreground">Blida 1 · Médecine</span>}
-      </span>
-    </Link>
-  );
-}
-
-export function PageTitle({ title, ar, sub }: { title: string; ar?: string; sub?: string }) {
-  return (
-    <div className="mb-5">
-      <h1 className="font-display text-2xl font-bold sm:text-3xl">{title} {ar && <span className="ar text-primary">· {ar}</span>}</h1>
-      {sub && <p className="mt-1 text-sm text-muted-foreground">{sub}</p>}
-    </div>
-  );
-}
+    <Link to={to} className="card-game group flex items-center gap-4 p-5 transition hover:-translate-y-0.5 hover:shadow-pop">
+      <span classNam
