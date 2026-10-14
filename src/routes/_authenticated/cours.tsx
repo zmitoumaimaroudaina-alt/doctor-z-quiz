@@ -50,7 +50,7 @@ function Cours() {
           {list.map((c, i) => (
             <Link key={c.id} to="/course/$courseId" params={{ courseId: c.id }} className="card-game flex items-center gap-3 p-4 hover:shadow-pop">
               <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary-soft font-bold text-primary">{i + 1}</span>
-              <span className="flex-1"><span className="block font-semibold">{c.title}</span><span className="text-xs text-muted-foreground">{c.n} QCM · {c.source_file}</span></span>
+              <span className="flex-1"><span className="block font-semibold">{c.title}</span><span className="text-xs text-muted-foreground">{c.n} QCM</span></span>
               <span className="text-primary">→</span>
             </Link>
           ))}
