@@ -1,68 +1,87 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
-import { Brand } from "@/components/AppShell";
+import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
+import { AppShell } from "@/components/AppShell";
+import { Avatar } from "@/components/Avatar";
+import { useMe } from "@/hooks/useMe";
+import { levelFromXp, RESOURCES } from "@/lib/game";
 
-export const Route = createFileRoute("/auth")({
-  head: () => ({
-    meta: [
-      { title: "Connexion — Z QCM GAME" },
-      { name: "description", content: "Connecte-toi ou crée ton compte Z QCM GAME." },
-      { property: "og:title", content: "Connexion — Z QCM GAME" },
-      { property: "og:description", content: "Connecte-toi pour jouer aux QCM médicaux de Blida 1." },
-    ],
-  }),
-  component: AuthPage,
+export const Route = createFileRoute("/_authenticated/home")({
+  head: () => ({ meta: [{ title: "Accueil — Z QCM GAME" }, { name: "description", content: "Ton tableau de bord Z QCM GAME." }] }),
+  component: Home,
 });
 
-function AuthPage() {
-  const nav = useNavigate();
-  const [mode, setMode] = useState<"in" | "up">("in");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [busy, setBusy] = useState(false);
+const CHANNELS = [
+  { icon: "▶️", label: "Doctor Z — YouTube", href: "https://youtube.com/@doctorz-i2007?si=WhkCMFBIccxYDO9l" },
+  { icon: "▶️", label: "Med Support — YouTube", href: "https://youtube.com/@medisuppor1?si=YL2jAcqpSdClp0ep" },
+  { icon: "✈️", label: "Med Support — Telegram", href: "https://t.me/+ubEdEFjoMtllYzE8" },
+];
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => { if (data.session) nav({ to: "/home" }); });
-    const { data } = supabase.auth.onAuthStateChange((_e, s) => { if (s) nav({ to: "/home" }); });
-    return () => data.subscription.unsubscribe();
-  }, [nav]);
-
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    setBusy(true);
-    const res = mode === "in"
-      ? await supabase.auth.signInWithPassword({ email, password })
-      : await supabase.auth.signUp({ email, password, options: { emailRedirectTo: window.location.origin + "/home" } });
-    setBusy(false);
-    if (res.error) return toast.error(res.error.message);
-    if (mode === "up" && !res.data.session) toast.success("Vérifie ta boîte mail pour confirmer ton compte 📩");
-  }
-
-  async function google() {
-    const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin + "/auth" });
-    if (r.error) toast.error(String(r.error.message ?? r.error));
-  }
-
+function Home() {
+  const { data: me, isLoading } = useMe();
+  if (isLoading) return null;
+  if (me && !me.onboarded) return <Navigate to="/onboarding" />;
+  if (!me) return null;
+  const lv = levelFromXp(me.xp);
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
-      <div className="card-game w-full max-w-sm p-6 animate-pop">
-        <Brand />
-        <h1 className="mt-6 font-display text-2xl font-bold">{mode === "in" ? "Connexion" : "Créer un compte"}</h1>
-        <p className="ar text-sm text-muted-foreground">{mode === "in" ? "تسجيل الدخول" : "إنشاء حساب"}</p>
-        <button onClick={google} className="mt-5 w-full rounded-xl border bg-card py-2.5 text-sm font-semibold hover:bg-muted">Continuer avec Google</button>
-        <div className="my-4 text-center text-xs text-muted-foreground">ou</div>
-        <form onSubmit={submit} className="space-y-3">
-          <input required type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full rounded-xl border bg-background px-3 py-2.5 text-sm" />
-          <input required type="password" minLength={6} placeholder="Mot de passe" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full rounded-xl border bg-background px-3 py-2.5 text-sm" />
-          <button disabled={busy} className="w-full rounded-xl bg-hero py-2.5 font-semibold text-primary-foreground shadow-pop disabled:opacity-60">{busy ? "…" : mode === "in" ? "Se connecter" : "S'inscrire"}</button>
-        </form>
-        <button onClick={() => setMode(mode === "in" ? "up" : "in")} className="mt-4 w-full text-center text-sm text-primary">
-          {mode === "in" ? "Pas de compte ? Inscris-toi" : "Déjà inscrit ? Connecte-toi"}
-        </button>
+    <AppShell>
+      <section className="relative overflow-hidden rounded-3xl bg-hero p-6 text-primary-foreground shadow-pop">
+        <div className="flex items-center gap-4">
+          <Avatar config={me.avatar} mood="happy" size={110} pet={me.pet} />
+          <div>
+            <p className="text-sm opacity-90">Université Saad Dahleb – Blida 1 · Faculté de Médecine</p>
+            <h1 className="font-display text-2xl font-bold sm:text-3xl">Salut {me.display_name} 👋</h1>
+            <p className="ar opacity-90">مرحبا! واش راك حاب تراجع اليوم؟</p>
+            <div className="mt-3 h-2 w-48 overflow-hidden rounded-full bg-primary-foreground/30">
+              <div className="h-full rounded-full bg-gold" style={{ width: `${me.isCreator ? 100 : Math.round(lv.progress * 100)}%` }} />
+            </div>
+            <p className="mt-1 text-xs opacity-90">Niveau {me.isCreator ? "∞" : lv.level} · {me.xp} XP {me.isCreator && "· 👑 Creator"}</p>
+          </div>
+        </div>
+      </section>
+
+      <div className="mt-6 grid gap-4 sm:grid-cols-2">
+        <Tile to="/examens" icon="📝" title="QCM Examens" sub="Matière → Année → Examen · 30 min" />
+        <Tile to="/cours" icon="📚" title="QCM par Cours" sub="Matière → Cours → QCM" />
+        <Tile to="/mes-erreurs" icon="🔁" title="QCM أخطائي السابقة" sub="Rejoue tes anciennes erreurs" />
+        <Tile to="/leaderboard" icon="🏆" title="Leaderboard" sub="Top 5 + tomates 🍅" />
+        <Tile to="/missions" icon="🎯" title="Missions" sub="Quotidiennes & hebdomadaires" />
+        <Tile to="/profile" icon="👤" title="Mon profil" sub="Avatar, animal, bulle" />
       </div>
-    </div>
+
+      <h2 className="mt-8 font-display text-lg font-bold">Ressources éducatives</h2>
+      <div className="mt-3 grid gap-3 sm:grid-cols-3">
+        {RESOURCES.map((r) => (
+          <a key={r.href} href={r.href} target="_blank" rel="noreferrer" className="card-game flex items-center gap-3 p-4 hover:shadow-pop">
+            <span className="text-2xl">{r.icon}</span><span className="font-medium">{r.label}</span>
+          </a>
+        ))}
+      </div>
+
+      <section dir="rtl" className="card-game mt-8 p-4">
+        <h2 className="font-display text-base font-bold">📢 تابعوا Doctor Z و Med Support</h2>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {CHANNELS.map((c) => (
+            <a
+              key={c.href}
+              href={c.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-full bg-primary-soft px-4 py-2 text-sm font-medium transition hover:-translate-y-0.5 hover:shadow-pop"
+            >
+              <span>{c.icon}</span>
+              <span>{c.label}</span>
+            </a>
+          ))}
+        </div>
+      </section>
+    </AppShell>
+  );
+}
+
+function Tile({ to, icon, title, sub }: { to: "/examens" | "/cours" | "/mes-erreurs" | "/leaderboard" | "/missions" | "/profile"; icon: string; title: string; sub: string }) {
+  return (
+    <Link to={to} className="card-game group flex items-center gap-4 p-5 transition hover:-translate-y-0.5 hover:shadow-pop">
+      <span className="grid h-14 w-14 place-items-center rounded-2xl bg-primary-soft text-3xl transition group-hover:scale-110">{icon}</span>
+      <span><span className="block font-display text-lg font-bold">{title}</span><span className="text-sm text-muted-foreground">{sub}</span></span>
+    </Link>
   );
 }
