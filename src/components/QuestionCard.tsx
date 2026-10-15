@@ -8,11 +8,10 @@ export function MistakeBadge({ m }: { m?: { corrected_at: string | null } }) {
 }
 
 export function QuestionCard({
-  q, index, selected, onToggle, mistake, disabled, reveal, showSource,
+  q, index, selected, onToggle, mistake, disabled, reveal,
 }: {
   q: Question; index: number; selected: string[]; onToggle?: (k: string) => void;
   mistake?: { corrected_at: string | null }; disabled?: boolean; reveal?: string[] | null;
-  showSource?: boolean;
 }) {
   return (
     <div className="card-game p-4 sm:p-5" id={`q-${q.id}`}>
@@ -36,7 +35,7 @@ export function QuestionCard({
           );
         })}
       </div>
-      {showSource && <p className="mt-2 text-[11px] text-muted-foreground">Source : {q.source_file}{q.source_page ? ` · p.${q.source_page}` : ""}</p>}
+      <p className="mt-2 text-[11px] text-muted-foreground">Source : {q.source_file}{q.source_page ? ` · p.${q.source_page}` : ""}</p>
     </div>
   );
 }
