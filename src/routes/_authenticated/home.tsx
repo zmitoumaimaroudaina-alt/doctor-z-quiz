@@ -5,7 +5,6 @@ import { useMe } from "@/hooks/useMe";
 import { levelFromXp } from "@/lib/game";
 
 export const Route = createFileRoute("/_authenticated/home")({
-  head: () => ({ meta: [{ title: "Accueil — Z QCM GAME" }, { name: "description", content: "Ton tableau de bord Z QCM GAME." }] }),
   component: Home,
 });
 
@@ -68,7 +67,26 @@ function Home() {
   );
 }
 
-function Tile({ to, icon, title, sub }: { to: "/examens" | "/cours" | "/mes-erreurs" | "/leaderboard" | "/missions" | "/profile"; icon: string; title: string; sub: string }) {
+function Tile({ 
+  to, 
+  icon, 
+  title, 
+  sub 
+}: { 
+  to: "/examens" | "/cours" | "/mes-erreurs" | "/leaderboard" | "/missions" | "/profile"; 
+  icon: string; 
+  title: string; 
+  sub: string; 
+}) {
   return (
     <Link to={to} className="card-game group flex items-center gap-4 p-5 transition hover:-translate-y-0.5 hover:shadow-pop">
-      <span classNam
+      <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary-soft text-2xl transition group-hover:scale-110">
+        {icon}
+      </span>
+      <div className="min-w-0 flex-1">
+        <h2 className="font-display font-bold">{title}</h2>
+        <p className="text-xs text-muted-foreground">{sub}</p>
+      </div>
+    </Link>
+  );
+}
