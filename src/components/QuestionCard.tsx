@@ -21,4 +21,22 @@ export function QuestionCard({
         <span className="rounded-lg bg-primary-soft px-2 py-0.5 text-xs font-bold text-primary">Q{index}</span>
         <div className="flex gap-1"><MistakeBadge m={mistake} />{q.needs_review && <span className="rounded-full bg-warning/30 px-2 py-0.5 text-[10px]">À vérifier</span>}</div>
       </div>
-      <p
+      <p className="whitespace-pre-line font-medium">{q.stem}</p>
+      <div className="mt-3 space-y-2">
+        {(q.options as Option[]).map((o) => {
+          const on = selected.includes(o.key);
+          const ok = reveal?.includes(o.key);
+          return (
+            <button key={o.key} type="button" disabled={disabled} onClick={() => onToggle?.(o.key)}
+              className={`flex w-full items-start gap-3 rounded-xl border p-3 text-left text-sm transition
+                ${reveal ? (ok ? "border-success bg-success/10" : on ? "border-destructive bg-destructive/10" : "") : on ? "border-primary bg-primary-soft" : "hover:bg-muted"}`}>
+              <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-md border text-xs font-bold ${on ? "bg-primary text-primary-foreground border-primary" : ""}`}>{o.key}</span>
+              <span>{o.text}</span>
+            </button>
+          );
+        })}
+      </div>
+      {showSource && <p className="mt-2 text-[11px] text-muted-foreground">Source : {q.source_file}{q.source_page ? ` · p.${q.source_page}` : ""}</p>}
+    </div>
+  );
+}
