@@ -1,3 +1,4 @@
+// v2 - test sync
 import type { Option, Question } from "@/lib/queries";
 
 export function MistakeBadge({ m }: { m?: { corrected_at: string | null } }) {
