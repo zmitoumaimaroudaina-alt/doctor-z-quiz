@@ -16,7 +16,7 @@ function Course() {
     queryKey: ["course", courseId],
     queryFn: async () => {
       const [{ data: c }, { data: qs }] = await Promise.all([
-        supabase.from("courses").select("title, source_file, subjects(name)").eq("id", courseId).single(),
+        supabase.from("courses").select("title, subjects(name)").eq("id", courseId).single(),
         supabase.from("questions").select("*").eq("course_id", courseId).order("pos"),
       ]);
       return { c, qs: (qs ?? []) as unknown as Question[] };
@@ -25,7 +25,7 @@ function Course() {
   return (
     <AppShell wide>
       {data && <>
-        <PageTitle title={data.c?.title ?? ""} sub={`${(data.c?.subjects as { name: string } | null)?.name ?? ""} · ${data.c?.source_file}`} />
+        <PageTitle title={data.c?.title ?? ""} sub={(data.c?.subjects as { name: string } | null)?.name ?? ""} />
         <Practice questions={data.qs} />
       </>}
     </AppShell>
