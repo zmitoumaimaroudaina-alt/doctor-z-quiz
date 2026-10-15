@@ -111,7 +111,7 @@ function Play() {
       <div className="mx-auto grid max-w-6xl gap-6 px-4 py-6 lg:grid-cols-[1fr_240px]">
         <div className="space-y-4">
           {data.qs.map((q, i) => (
-            <QuestionCard key={q.id} q={q} index={i + 1} selected={answers[q.id] ?? []} onToggle={(k) => toggle(q, k)} mistake={data.mistakes.get(q.id)} showSource={me.isCreator} />
+            <QuestionCard key={q.id} q={q} index={i + 1} selected={answers[q.id] ?? []} onToggle={(k) => toggle(q, k)} mistake={data.mistakes.get(q.id)} />
           ))}
           <button disabled={submitting} onClick={() => void submit()} className="w-full rounded-xl bg-hero py-3 font-semibold text-primary-foreground shadow-pop">Soumettre ma copie</button>
         </div>
