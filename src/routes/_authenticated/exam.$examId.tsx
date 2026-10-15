@@ -42,7 +42,7 @@ function ExamIntro() {
 
   return (
     <AppShell>
-      <PageTitle title={exam.title} sub={`Source : ${exam.source_file}`} />
+      <PageTitle title={exam.title} />
       <div className="card-game space-y-4 p-6">
         <div className="grid grid-cols-3 gap-3 text-center">
           <Stat label="Questions" value={String(data.count)} />
