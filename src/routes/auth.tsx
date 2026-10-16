@@ -17,9 +17,9 @@ const CHANNELS = [
 
 function Home() {
   const { data: me, isLoading } = useMe();
-  if (isLoading) return null;
+  if (isLoading) return <div className="p-8 text-center">Chargement…</div>;
   if (me && !me.onboarded) return <Navigate to="/onboarding" />;
-  if (!me) return null;
+  if (!me) return <div className="p-8 text-center">Chargement du profil…</div>;
   const lv = levelFromXp(me.xp);
   return (
     <AppShell>
