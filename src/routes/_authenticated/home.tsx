@@ -38,7 +38,7 @@ function Home() {
       </section>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
-        <Tile to="/examens" icon="📝" title="QCM Examens" sub="Matière → Année → Examen · 30 min" />
+        <Tile to="/examens" icon="📝" title="QCM Examens" sub="Matière → Année → Examen · 60 min" />
         <Tile to="/cours" icon="📚" title="QCM par Cours" sub="Matière → Cours → QCM" />
         <Tile to="/mes-erreurs" icon="🔁" title="QCM أخطائي السابقة" sub="Rejoue tes anciennes erreurs" />
         <Tile to="/leaderboard" icon="🏆" title="Leaderboard" sub="Top 5 + tomates 🍅" />
@@ -54,40 +54,4 @@ function Home() {
               key={c.href}
               href={c.href}
               target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-full bg-primary-soft px-4 py-2 text-sm font-medium transition hover:-translate-y-0.5 hover:shadow-pop"
-            >
-              <span>{c.icon}</span>
-              <span>{c.label}</span>
-            </a>
-          ))}
-        </div>
-      </section>
-    </AppShell>
-  );
-}
-
-function Tile({ 
-  to, 
-  icon, 
-  title, 
-  sub 
-}: { 
-  to: "/examens" | "/cours" | "/mes-erreurs" | "/leaderboard" | "/missions" | "/profile"; 
-  icon: string; 
-  title: string; 
-  sub: string; 
-}) {
-  return (
-    <Link to={to} className="card-game group flex items-center gap-4 p-5 transition hover:-translate-y-0.5 hover:shadow-pop">
-      <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary-soft text-2xl transition group-hover:scale-110">
-        {icon}
-      </span>
-      <div className="min-w-0 flex-1">
-        <h2 className="font-display font-bold">{title}</h2>
-        <p className="text-xs text-muted-foreground">{sub}</p>
-      </div>
-    </Link>
-  );
-}
-
+              rel="noopener nor
