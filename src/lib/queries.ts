@@ -5,10 +5,15 @@ export type Subject = { id: number; slug: string; name: string; name_ar: string 
 export type Option = { key: string; text: string };
 export type Question = { id: string; pos: number; case_text: string | null; stem: string; options: Option[]; source_file: string; source_page: number | null; source_year: string | null; needs_review: boolean; exam_id: string | null; course_id: string | null };
 
+const HIDDEN_SLUGS = ["physiologie"];
+
 export function useSubjects() {
   return useQuery({
     queryKey: ["subjects"],
-    queryFn: async () => (await supabase.from("subjects").select("*").order("sort")).data as Subject[],
+    queryFn: async () => {
+      const { data } = await supabase.from("subjects").select("*").order("sort");
+      return ((data ?? []) as Subject[]).filter((s) => !HIDDEN_SLUGS.includes(s.slug));
+    },
     staleTime: Infinity,
   });
 }
