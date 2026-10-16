@@ -96,4 +96,75 @@ function Play() {
       if (auto) toast("⏰ Temps écoulé — copie soumise automatiquement");
       nav({ to: "/results/$attemptId", params: { attemptId } });
     },
-    [attemptId, nav
+    [attemptId, nav, storeKey]
+  );
+
+  useEffect(() => {
+    if (!data?.a?.started_at) return;
+    const end = new Date(data.a.started_at).getTime() + LIMIT * 1000;
+    const t = setInterval(() => {
+      const l = Math.max(0, Math.round((end - Date.now()) / 1000));
+      setLeft(l);
+      if (l === 300) play("warning");
+      if (l === 60) play("finalMinute");
+      if (l === 0) {
+        clearInterval(t);
+        void submit(true);
+      }
+    }, 1000);
+    return () => clearInterval(t);
+  }, [data, submit]);
+
+  async function toggle(q: Question, k: string) {
+    const cur = answers[q.id] ?? [];
+    const next = cur.includes(k) ? cur.filter((x) => x !== k) : [...cur, k].sort();
+    play(cur.length ? "change" : "select");
+    const all = { ...answers, [q.id]: next };
+    setAnswers(all);
+    localStorage.setItem(storeKey, JSON.stringify(all));
+
+    if (!next.length) return;
+    try {
+      const { data: r } = await supabase.rpc("check_answer", {
+        _q: q.id,
+        _sel: next,
+        _record: false,
+      });
+      const ok = !!(r as { correct?: boolean } | null)?.correct;
+      const prev = verdicts.current[q.id];
+      verdicts.current[q.id] = ok;
+      if (prev === ok) return;
+      setStreak((s) => (ok ? (s > 0 ? s + 1 : 1) : s < 0 ? s - 1 : -1));
+      play(ok ? "happy" : "sad");
+    } catch (e) {
+      console.warn("Check answer failed:", e);
+    }
+  }
+
+  if (isLoading) {
+    return <div className="p-8 text-center font-semibold">Chargement de l'examen… ⏳</div>;
+  }
+
+  if (isError || !data) {
+    return (
+      <div className="p-8 text-center text-destructive">
+        Une erreur est survenue : {(error as Error)?.message || "Impossible de charger l'examen"}
+      </div>
+    );
+  }
+
+  const mood = moodFrom(streak);
+  const answered = Object.values(answers).filter((v) => v.length).length;
+  const moodText =
+    {
+      neutral: "Concentré·e 🧐",
+      happy: "Bien joué ! 😊",
+      veryHappy: "En feu !! 🔥🤩",
+      sad: "Hmm… 😕",
+      angry: "Grrr ! 😤",
+    }[mood] || "Concentré·e 🧐";
+
+  return (
+    <div className="min-h-screen">
+      <header className="sticky top-0 z-30 border-b bg-background/90 backdrop-blur">
+        <div classNa
