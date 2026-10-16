@@ -1,4 +1,3 @@
-
 import type { Option, Question } from "@/lib/queries";
 
 export function MistakeBadge({ m }: { m?: { corrected_at: string | null } }) {
@@ -32,15 +31,17 @@ export function QuestionCard({
   disabled?: boolean;
   reveal?: string[] | null;
 }) {
-  // حماية في حال كان السؤال غير موجود أو لم يتحمل بعد
   if (!q) return null;
 
   const options: Option[] = Array.isArray(q.options) ? (q.options as Option[]) : [];
   const selectedKeys = Array.isArray(selected) ? selected : [];
 
+  // Cas clinique "A.h agée de 87 ans" : concerne seulement les questions 1 à 4 (source: "Questions 1,2,3,4")
+  const showCase = !!q.case_text && !(q.case_text.startsWith("A.h ag") && index > 4);
+
   return (
     <div className="card-game p-4 sm:p-5" id={`q-${q.id}`}>
-      {q.case_text && (
+      {showCase && (
         <div className="mb-3 whitespace-pre-line rounded-xl bg-secondary p-3 text-sm">
           <b>Cas clinique · </b>
           {q.case_text}
