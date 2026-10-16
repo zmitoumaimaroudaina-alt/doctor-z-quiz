@@ -27,7 +27,6 @@ function ExamIntro() {
 
       if (examErr || !exam) throw new Error("Examen introuvable");
 
-      // التعامل الآمن مع نتيجة الـ RPC سواء كانت Array أو Object
       const statusObj = Array.isArray(st) ? st[0] : st;
 
       return { exam, count: count ?? 0, st: statusObj };
@@ -38,7 +37,7 @@ function ExamIntro() {
     try {
       setBusy(true);
       const { data: id, error } = await supabase.rpc("start_attempt", { _exam: examId });
-      
+
       if (error) {
         setBusy(false);
         return toast.error(rpcError(error));
@@ -50,10 +49,9 @@ function ExamIntro() {
       }
 
       play("submit");
-      // ✅ الانتقال الآمن عبر المسار الصحيح المباشر
-      nav({ 
-        to: "/play/$attemptId", 
-        params: { attemptId: String(id) } 
+      nav({
+        to: "/play/$attemptId",
+        params: { attemptId: String(id) },
       });
     } catch (e) {
       console.error("Start attempt error:", e);
@@ -89,7 +87,7 @@ function ExamIntro() {
       <div className="card-game space-y-4 p-6">
         <div className="grid grid-cols-3 gap-3 text-center">
           <Stat label="Questions" value={String(data.count)} />
-          <Stat label="Durée" value="30:00" />
+          <Stat label="Durée" value="60:00" />
           <Stat label="Cœurs" value={st?.unlimited ? "∞" : "❤️".repeat(Math.max(0, st?.hearts_left ?? 0)) + "🤍".repeat(Math.max(0, 2 - (st?.hearts_left ?? 0)))} />
         </div>
         <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
