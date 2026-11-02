@@ -97,7 +97,7 @@ export function Brand({ small = false }: { small?: boolean }) {
   );
 }
 
-export function PageTitle({ title, ar, sub }: { title: string; ar?: string; sub?: string }) {
+export function PageTitle({ title, ar, sub }: { title: string; ar?: string; sub?: string | undefined }) {
   return (
     <div className="mb-5">
       <h1 className="font-display text-2xl font-bold sm:text-3xl">{title} {ar && <span className="ar text-primary">· {ar}</span>}</h1>

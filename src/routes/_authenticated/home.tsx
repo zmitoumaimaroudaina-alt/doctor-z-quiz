@@ -9,9 +9,9 @@ export const Route = createFileRoute("/_authenticated/home")({
 });
 
 const CHANNELS = [
-  { icon: "▶️", label: "Doctor Z — YouTube", href: "https://youtube.com/@doctorz-i2007?si=WhkCMFBIccxYDO9l" },
+  { icon: "▶️", label: "Doctor Z — YouTube", href: "https://youtube.com/@doctorz-i2007?si=nZg18vbKQGGshfbu" },
   { icon: "▶️", label: "Med Support — YouTube", href: "https://youtube.com/@medisuppor1?si=YL2jAcqpSdClp0ep" },
-  { icon: "✈️", label: "Med Support — Telegram", href: "https://t.me/+ubEdEFjoMtllYzE8" },
+  { icon: "✈️", label: "Med Support — Telegram", href: "https://t.me/+ubEdEFjoMtllYZcE8" },
 ];
 
 function Home() {

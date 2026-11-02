@@ -16,19 +16,21 @@ export const Route = createFileRoute("/_authenticated/results/$attemptId")({
 function Results() {
   const { attemptId } = Route.useParams();
   const { data: me } = useMe();
-  const { data } = useQuery({
+  const { data, error } = useQuery({
     queryKey: ["results", attemptId],
     queryFn: async () => {
-      const { data: a } = await supabase.from("attempts").select("*").eq("id", attemptId).single();
+      const { data: a, error: attemptError } = await supabase.from("attempts").select("*").eq("id", attemptId).single();
+      if (attemptError || !a || !a.exam_id || !a.submitted_at) throw new Error("Résultats introuvables.");
       const [{ data: lb }, { data: prev }, { data: exam }] = await Promise.all([
-        supabase.rpc("leaderboard", { _exam: a!.exam_id! }),
-        supabase.from("attempts").select("score20").eq("exam_id", a!.exam_id!).eq("user_id", a!.user_id).not("submitted_at", "is", null).neq("id", attemptId),
-        supabase.from("exams").select("title").eq("id", a!.exam_id!).single(),
+        supabase.rpc("leaderboard", { _exam: a.exam_id }),
+        supabase.from("attempts").select("score20").eq("exam_id", a.exam_id).eq("user_id", a.user_id).not("submitted_at", "is", null).neq("id", attemptId),
+        supabase.from("exams").select("title").eq("id", a.exam_id).single(),
       ]);
-      return { a: a!, lb: lb ?? [], prevBest: Math.max(0, ...(prev ?? []).map((p) => Number(p.score20))), hadPrev: !!prev?.length, exam };
+      return { a, lb: lb ?? [], prevBest: Math.max(0, ...(prev ?? []).map((p) => Number(p.score20))), hadPrev: !!prev?.length, exam };
     },
   });
   useEffect(() => { if (data) play(data.hadPrev && Number(data.a.score20) > data.prevBest ? "best" : "reveal"); }, [data]);
+  if (error) return <AppShell><p className="text-destructive">{error.message}</p></AppShell>;
   if (!data || !me) return <AppShell><p>…</p></AppShell>;
   const { a, lb } = data;
   const score = Number(a.score20);
@@ -57,7 +59,7 @@ function Results() {
           <S l="Rang" v={mine ? `#${mine.rnk} / ${lb.length}` : "—"} />
         </div>
         <div className="flex flex-col gap-3 p-5 pt-0 sm:flex-row">
-          <Link to="/exam/$examId" params={{ examId: a.exam_id! }} className="flex-1 rounded-xl border py-3 text-center font-semibold">🔄 Refaire l'examen</Link>
+          <Link to="/exam/$examId" params={{ examId: a.exam_id ?? "" }} className="flex-1 rounded-xl border py-3 text-center font-semibold">🔄 Refaire l'examen</Link>
           <Link to="/erreurs/$attemptId" params={{ attemptId }} className="flex-1 rounded-xl bg-hero py-3 text-center font-semibold text-primary-foreground">❌ Voir mes erreurs</Link>
         </div>
       </div>

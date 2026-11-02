@@ -20,7 +20,7 @@ function Examens() {
 
   return (
     <AppShell>
-      <PageTitle title="📝 QCM Examens" ar="امتحانات" sub="Uniquement les vrais examens importés des fichiers sources." />
+      <PageTitle title="📝 QCM Examens" ar="امتحانات" sub="Questions de la Faculté de Médecine de l’Université de Blida" />
       <Crumbs items={["Matière", subj?.name, year?.toString()]} onBack={(i) => { if (i === 0) { setSel(null); setYear(null); } if (i === 1) setYear(null); }} />
       {!subj && (
         <div className="grid gap-3 sm:grid-cols-2">
@@ -41,7 +41,7 @@ function Examens() {
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {years.map((y) => <button key={y} onClick={() => { play("click"); setYear(y); }} className="card-game p-5 font-display text-2xl font-bold hover:shadow-pop">{y}</button>)}
           </div>
-        ) : <Empty text="Aucun examen officiel pour cette matière dans les fichiers fournis." />
+        ) : <Empty text="Aucun examen disponible pour cette matière." />
       )}
       {subj && year && (
         <div className="space-y-3">
