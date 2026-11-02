@@ -167,4 +167,15 @@ function Play() {
   return (
     <div className="min-h-screen">
       <header className="sticky top-0 z-30 border-b bg-background/90 backdrop-blur">
-        <div classNa
+        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-2">
+          <div><h1 className="font-display font-bold">{data.exam?.title}</h1><p className="text-xs text-muted-foreground">{answered}/{data.qs.length} réponses</p></div>
+          <div className="flex items-center gap-2"><Avatar config={me?.avatar} mood={mood} size={48} /><div><strong className={left < 300 ? "text-destructive" : "text-primary"}>{fmtTime(left)}</strong><p className="text-xs">{moodText}</p></div></div>
+        </div>
+      </header>
+      <main className="mx-auto max-w-3xl space-y-4 px-4 py-6">
+        {data.qs.map((q, i) => <QuestionCard key={q.id} q={q} index={i + 1} selected={answers[q.id] ?? []} onToggle={(k) => void toggle(q, k)} />)}
+        <Button disabled={submitting} onClick={() => void submit()} className="w-full">{submitting ? "Enregistrement…" : "Terminer et enregistrer"}</Button>
+      </main>
+    </div>
+  );
+}

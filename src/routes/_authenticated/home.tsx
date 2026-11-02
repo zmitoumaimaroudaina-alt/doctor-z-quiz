@@ -54,4 +54,16 @@ function Home() {
               key={c.href}
               href={c.href}
               target="_blank"
-              rel="noopener nor
+              rel="noopener noreferrer"
+              className="rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground"
+            >{c.icon} {c.label}</a>
+          ))}
+        </div>
+      </section>
+    </AppShell>
+  );
+}
+
+function Tile({ to, icon, title, sub }: { to: "/examens" | "/cours" | "/mes-erreurs" | "/leaderboard" | "/missions" | "/profile"; icon: string; title: string; sub: string }) {
+  return <Link to={to} className="card-game flex items-center gap-3 p-4"><span className="text-3xl">{icon}</span><div><h2 className="font-display font-bold">{title}</h2><p className="text-sm text-muted-foreground">{sub}</p></div></Link>;
+}
