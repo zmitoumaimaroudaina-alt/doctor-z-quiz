@@ -65,7 +65,7 @@ function Editor({ row, onSaved }: { row: any; onSaved: () => void }) {
     const letters = [...new Set(correct.toUpperCase().replace(/[^A-E]/g, "").split(""))].sort();
     const r1 = await supabase.from("questions").update({ stem, options: opts, ...(clearFlag ? { needs_review: false, review_reason: null } : {}) }).eq("id", row.id);
     const r2 = await supabase.from("question_keys").upsert({ question_id: row.id, correct: letters, explanation: expl || null, note: note || null });
-    if (r1.error || r2.error) return toast.error((r1.error ?? r2.error)!.message);
+    if (r1.error || r2.error) { toast.error((r1.error ?? r2.error)!.message); return; }
     toast.success("Question mise à jour"); onSaved();
   }
   return (
@@ -107,7 +107,7 @@ function Students() {
   });
   async function resetHearts(id: string) {
     const { error } = await supabase.from("exam_hearts").delete().eq("user_id", id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Cœurs restaurés ❤️❤️");
   }
   return (

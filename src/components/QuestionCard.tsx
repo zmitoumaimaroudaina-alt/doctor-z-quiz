@@ -1,6 +1,6 @@
 import type { Option, Question } from "@/lib/queries";
 
-export function MistakeBadge({ m }: { m?: { corrected_at: string | null } }) {
+export function MistakeBadge({ m }: { m?: { corrected_at: string | null } | undefined }) {
   if (!m) return null;
 
   return m.corrected_at ? (
@@ -27,7 +27,7 @@ export function QuestionCard({
   index: number;
   selected?: string[];
   onToggle?: (k: string) => void;
-  mistake?: { corrected_at: string | null };
+  mistake?: { corrected_at: string | null } | undefined;
   disabled?: boolean;
   reveal?: string[] | null;
 }) {
@@ -37,7 +37,7 @@ export function QuestionCard({
   const selectedKeys = Array.isArray(selected) ? selected : [];
 
   // Cas clinique "A.h agée de 87 ans" : concerne seulement les questions 1 à 4 (source: "Questions 1,2,3,4")
-  const showCase = !!q.case_text && !(q.case_text.startsWith("A.h ag") && index > 4);
+  const showCase = !!q.case_text;
 
   return (
     <div className="card-game p-4 sm:p-5" id={`q-${q.id}`}>

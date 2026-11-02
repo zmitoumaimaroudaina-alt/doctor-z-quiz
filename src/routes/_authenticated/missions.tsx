@@ -44,7 +44,7 @@ function Missions() {
 
   async function claim(key: string) {
     const { error } = await supabase.rpc("claim_mission", { _key: key });
-    if (error) return toast.error(rpcError(error));
+    if (error) { toast.error(rpcError(error)); return; }
     play("reward");
     const before = lv.level;
     await refresh(); qc.invalidateQueries({ queryKey: ["missions"] });

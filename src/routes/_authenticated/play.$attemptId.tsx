@@ -90,7 +90,7 @@ function Play() {
       if (error) {
         submitted.current = false;
         setSubmitting(false);
-        return toast.error(error.message);
+        { toast.error(error.message); return; }
       }
       localStorage.removeItem(storeKey);
       if (auto) toast("⏰ Temps écoulé — copie soumise automatiquement");

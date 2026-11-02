@@ -25,7 +25,7 @@ export const Route = createFileRoute("/api/ai-explain")({
         const { questionId, selected, messages } = parsed.data;
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const { data: q } = await supabaseAdmin.from("questions").select("stem, case_text, options, source_file").eq("id", questionId).single();
+        const { data: q } = await supabaseAdmin.from("questions").select("stem, case_text, options").eq("id", questionId).single();
         const { data: k } = await supabaseAdmin.from("question_keys").select("correct, explanation, note").eq("question_id", questionId).single();
         if (!q || !k) return new Response("Not found", { status: 404 });
 
@@ -44,7 +44,8 @@ RÉPONSE DE L'ÉTUDIANT : ${selected.length ? selected.join(", ") : "aucune rép
 RÉPONSE OFFICIELLE : ${k.correct.join(", ") || "non disponible"}
 EXPLICATION DE LA SOURCE : ${k.explanation ?? "aucune"}
 NOTE DE LA SOURCE : ${k.note ?? "aucune"}
-FICHIER SOURCE : ${q.source_file}`;
+ORIGINE : Questions de la Faculté de Médecine de l’Université de Blida.
+Ne mentionne aucun nom de fichier ou de recueil.`;
 
         const input = [
           { role: "system", content: system },
