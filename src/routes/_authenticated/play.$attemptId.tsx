@@ -3,18 +3,19 @@ import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/Avatar";
 import { QuestionCard } from "@/components/QuestionCard";
 import { useMe } from "@/hooks/useMe";
 import { fetchMistakesFor, type Question } from "@/lib/queries";
-import { fmtTime, moodFrom } from "@/lib/game";
+import { fmtTime, moodFrom, EXAM_DURATION_SECONDS, examSecondsLeft } from "@/lib/game";
 import { play } from "@/lib/sound";
 
 export const Route = createFileRoute("/_authenticated/play/$attemptId")({
   component: Play,
 });
 
-const LIMIT = 3600;
+const LIMIT = EXAM_DURATION_SECONDS;
 
 function Play() {
   const { attemptId } = Route.useParams();
@@ -37,11 +38,11 @@ function Play() {
         .eq("id", attemptId)
         .maybeSingle();
 
-      if (aErr || !a) throw new Error("Tentative introuvable");
+      if (aErr || !a || !a.exam_id) throw new Error("Tentative introuvable");
 
       const [{ data: qs }, { data: exam }] = await Promise.all([
-        supabase.from("questions").select("*").eq("exam_id", a.exam_id!).order("pos"),
-        supabase.from("exams").select("title").eq("id", a.exam_id!).maybeSingle(),
+        supabase.from("questions").select("*").eq("exam_id", a.exam_id).order("pos"),
+        supabase.from("exams").select("title").eq("id", a.exam_id).maybeSingle(),
       ]);
 
       let mistakes = new Map();
@@ -54,6 +55,7 @@ function Play() {
         console.warn("Could not fetch mistakes:", e);
       }
 
+      setAnswers(a.answers as Record<string, string[]>);
       return { a, qs: (qs ?? []) as unknown as Question[], exam, mistakes };
     },
     staleTime: Infinity,
@@ -90,7 +92,7 @@ function Play() {
       if (error) {
         submitted.current = false;
         setSubmitting(false);
-        return toast.error(error.message);
+        { toast.error(error.message); return; }
       }
       localStorage.removeItem(storeKey);
       if (auto) toast("⏰ Temps écoulé — copie soumise automatiquement");
@@ -101,9 +103,14 @@ function Play() {
 
   useEffect(() => {
     if (!data?.a?.started_at) return;
-    const end = new Date(data.a.started_at).getTime() + LIMIT * 1000;
+    const tick = () => {
+      const l = examSecondsLeft(data.a.started_at);
+      setLeft(l);
+      if (l === 0) void submit(true);
+    };
+    tick();
     const t = setInterval(() => {
-      const l = Math.max(0, Math.round((end - Date.now()) / 1000));
+      const l = examSecondsLeft(data.a.started_at);
       setLeft(l);
       if (l === 300) play("warning");
       if (l === 60) play("finalMinute");
@@ -123,6 +130,8 @@ function Play() {
     setAnswers(all);
     localStorage.setItem(storeKey, JSON.stringify(all));
 
+    const { error: saveError } = await supabase.rpc("save_exam_answers", { _attempt: attemptId, _answers: all });
+    if (saveError) { toast.error("Réponse non enregistrée : vérifie la connexion."); return; }
     if (!next.length) return;
     try {
       const { data: r } = await supabase.rpc("check_answer", {
@@ -167,4 +176,15 @@ function Play() {
   return (
     <div className="min-h-screen">
       <header className="sticky top-0 z-30 border-b bg-background/90 backdrop-blur">
-        <div classNa
+        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-2">
+          <div><h1 className="font-display font-bold">{data.exam?.title}</h1><p className="text-xs text-muted-foreground">{answered}/{data.qs.length} réponses</p></div>
+          <div className="flex items-center gap-2"><Avatar config={me?.avatar} mood={mood} size={48} /><div><strong className={left < 300 ? "text-destructive" : "text-primary"}>{fmtTime(left)}</strong><p className="text-xs">{moodText}</p></div></div>
+        </div>
+      </header>
+      <main className="mx-auto max-w-3xl space-y-4 px-4 py-6">
+        {data.qs.map((q) => <QuestionCard key={q.id} q={q} index={q.pos} selected={answers[q.id] ?? []} onToggle={(k) => void toggle(q, k)} />)}
+        <Button disabled={submitting} onClick={() => void submit()} className="w-full">{submitting ? "Enregistrement…" : "Terminer et enregistrer"}</Button>
+      </main>
+    </div>
+  );
+}

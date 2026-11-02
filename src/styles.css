@@ -58,6 +58,65 @@
 }
 
 :root {
+  --avatar-skin-default: #F6C9A4;
+  --avatar-hair-default: #1F1A17;
+  --avatar-coat: #FFFFFF;
+  --avatar-pigment-0: #FDE3CF;
+  --avatar-pigment-1: #F6C9A4;
+  --avatar-pigment-2: #E3A877;
+  --avatar-pigment-3: #C68652;
+  --avatar-pigment-4: #9A5D34;
+  --avatar-pigment-5: #6B3E22;
+  --avatar-pigment-6: #1F1A17;
+  --avatar-pigment-7: #4A2E1E;
+  --avatar-pigment-8: #7A4A2A;
+  --avatar-pigment-9: #C58B3C;
+  --avatar-pigment-10: #2B2F45;
+  --avatar-pigment-11: #8E3B46;
+  --avatar-pigment-12: #D6C4A4;
+  --avatar-pigment-13: #A6A6A6;
+  --avatar-pigment-14: #5B8DEF;
+  --avatar-pigment-15: #F2A7B8;
+  --avatar-pigment-16: #2E3A59;
+  --avatar-pigment-17: #F4E3C1;
+  --avatar-pigment-18: #7FC8A9;
+  --avatar-pigment-19: #80516B;
+  --avatar-pigment-20: #FDFDFD;
+  --avatar-pigment-21: #264D45;
+  --avatar-pigment-22: #C97052;
+  --avatar-pigment-23: #FFFFFF;
+  --avatar-pigment-24: #3E6FD8;
+  --avatar-pigment-25: #E9D8B4;
+  --avatar-pigment-26: #B8925A;
+  --avatar-pigment-27: #5FB8A8;
+  --avatar-pigment-28: #3E9686;
+  --avatar-pigment-29: #F2C14E;
+  --avatar-pigment-30: #F2C2D1;
+  --avatar-pigment-31: #994A67;
+  --avatar-pigment-32: #874F69;
+  --avatar-pigment-33: #F2D2DB;
+  --avatar-pigment-34: #498878;
+  --avatar-pigment-35: #CDE8DF;
+  --avatar-pigment-36: #BBD7EF;
+  --avatar-pigment-37: #356485;
+  --avatar-pigment-38: #F1F5F4;
+  --avatar-pigment-39: #478879;
+  --avatar-pigment-40: #2A2230;
+  --avatar-pigment-41: #fff;
+  --avatar-pigment-42: #7A2E3A;
+  --avatar-pigment-43: rgba(0,0,0,.08);
+  --avatar-pigment-44: #3A2A20;
+  --avatar-pigment-45: rgba(0,0,0,.35);
+  --avatar-pigment-46: rgba(0,0,0,.12);
+  --avatar-pigment-47: #F28B9B;
+  --avatar-pigment-48: #7FB5FF;
+  --avatar-pigment-49: #E5484D;
+  --avatar-pigment-50: rgba(255,255,255,.25);
+  --avatar-pigment-51: #3A4A6B;
+  --avatar-pigment-52: #C9D3E6;
+  --avatar-pigment-53: #FFB3A8;
+  --avatar-pigment-54: #3E9A4A;
+
   --radius: 1rem;
   --background: oklch(0.975 0.012 235);
   --foreground: oklch(0.24 0.05 250);
@@ -111,7 +170,7 @@
     min-height: 100vh;
   }
   [lang="ar"], .ar { font-family: var(--font-arabic); }
-  h1, h2, h3, .font-display { font-family: var(--font-display); letter-spacing: -0.01em; }
+  h1, h2, h3, .font-display { font-family: var(--font-display); letter-spacing: 0; }
 }
 
 @utility card-game {
@@ -133,3 +192,5 @@
 @utility animate-shake { animation: shake-x .35s ease-in-out 2; }
 @utility animate-bounce-big { animation: bounce-big .7s ease-in-out 2; }
 @utility animate-tomato { animation: tomato-fly .6s ease-out both; }
+
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; scroll-behavior: auto !important; } }

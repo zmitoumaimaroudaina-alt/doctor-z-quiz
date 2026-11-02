@@ -54,7 +54,7 @@ function Leaderboard() {
     setFlying(target);
     const { error } = await supabase.rpc("throw_tomato", { _exam: id, _target: target });
     setTimeout(() => setFlying(null), 700);
-    if (error) return toast.error(rpcError(error));
+    if (error) { toast.error(rpcError(error)); return; }
     setTimeout(() => play("hit"), 500);
     toast.success("🍅 Splash !");
   }
@@ -62,7 +62,7 @@ function Leaderboard() {
     if (!me) return;
     const clean = text.replace(/[<>]/g, "").slice(0, 60);
     const { error } = await supabase.from("profiles").update({ bubble: clean }).eq("id", me.id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     qc.invalidateQueries({ queryKey: ["lb", id] });
   }
 

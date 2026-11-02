@@ -1,3 +1,8 @@
+export const EXAM_DURATION_SECONDS = 3600;
+export function examSecondsLeft(startedAt: string, now = Date.now()) {
+  return Math.max(0, Math.ceil((new Date(startedAt).getTime() + EXAM_DURATION_SECONDS * 1000 - now) / 1000));
+}
+
 export const CREATOR_EMAIL = "doctorzmit@gmail.com";
 
 export function levelFromXp(xp: number) {

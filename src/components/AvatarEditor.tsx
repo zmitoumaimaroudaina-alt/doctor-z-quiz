@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Avatar, type AvatarConfig, SKINS, HAIR_COLORS, HIJAB_COLORS, OUTFITS, OPTIONS } from "./Avatar";
 import { PETS } from "@/lib/game";
@@ -18,10 +19,10 @@ export function AvatarEditor({ initial, pet: initialPet, level, unlockAll, onSav
         {items.map((it, i) => {
           const lk = lockAt[i] ? locked(lockAt[i]) : false;
           return (
-            <button key={it} type="button" disabled={lk} onClick={() => set(k, i)}
+            <Button key={it} type="button" disabled={lk} onClick={() => set(k, i)}
               className={`rounded-lg border px-2.5 py-1 text-xs ${c[k] === i ? "border-primary bg-primary-soft text-primary" : "bg-card"} disabled:opacity-40`}>
               {lk ? "🔒 " : ""}{it}{lk ? ` (Nv ${lockAt[i]})` : ""}
-            </button>
+            </Button>
           );
         })}
       </div>
@@ -32,24 +33,23 @@ export function AvatarEditor({ initial, pet: initialPet, level, unlockAll, onSav
       <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
       <div className="flex flex-wrap gap-2">
         {colors.map((col, i) => i < start ? null : (
-          <button key={i} type="button" onClick={() => set(k, i)} aria-label={`${label} ${i}`}
-            className={`h-8 w-8 rounded-full border-2 ${c[k] === i ? "border-primary ring-2 ring-primary/30" : "border-border"}`} style={{ background: col || "transparent" }} />
+          <Button key={i} type="button" onClick={() => set(k, i)} aria-label={`${label} ${i}`}
+            className={`h-8 w-8 p-0 rounded-full border-2 ${c[k] === i ? "border-primary ring-2 ring-primary/30" : "border-border"}`} style={{ background: col || "transparent" }} />
         ))}
       </div>
     </div>
   );
 
   return (
-    <div className="grid gap-6 md:grid-cols-[220px_1fr]">
-      <div className="card-game flex flex-col items-center justify-center p-4 md:sticky md:top-20 md:self-start">
+    <div className="grid gap-6 md:grid-cols-[220px_minmax(0,1fr)]">
+      <div className="flex flex-col items-center justify-center p-4 md:sticky md:top-20 md:self-start">
         <Avatar config={c} mood="happy" size={180} pet={pet} />
       </div>
-      <div className="card-game space-y-4 p-4">
-        <Row label="Genre" k="gender" items={["Garçon", "Fille"]} />
-        {c.gender === "m" ? null : null}
+      <div className="min-w-0 space-y-4 p-4">
+        <div className="text-xs font-semibold text-muted-foreground">Genre</div>
         <div className="flex flex-wrap gap-1.5">
           {(["m", "f"] as const).map((g) => (
-            <button key={g} type="button" onClick={() => set("gender", g)} className={`rounded-lg border px-3 py-1 text-xs ${c.gender === g ? "border-primary bg-primary-soft text-primary" : ""}`}>{g === "m" ? "👦 Garçon" : "👧 Fille"}</button>
+            <Button key={g} type="button" onClick={() => set("gender", g)} className={`rounded-lg border px-3 py-1 text-xs ${c.gender === g ? "border-primary bg-primary-soft text-primary" : ""}`}>{g === "m" ? "👦 Garçon" : "👧 Fille"}</Button>
           ))}
         </div>
         <Swatches label="Teint" k="skin" colors={SKINS} />
@@ -61,9 +61,9 @@ export function AvatarEditor({ initial, pet: initialPet, level, unlockAll, onSav
         <div>
           <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Hijab</div>
           <div className="flex flex-wrap gap-2">
-            <button type="button" onClick={() => set("hijab", 0)} className={`rounded-lg border px-2.5 py-1 text-xs ${!c.hijab ? "border-primary bg-primary-soft" : ""}`}>Aucun</button>
+            <Button type="button" onClick={() => set("hijab", 0)} className={`rounded-lg border px-2.5 py-1 text-xs ${!c.hijab ? "border-primary bg-primary-soft" : ""}`}>Aucun</Button>
             {HIJAB_COLORS.slice(1).map((col, i) => (
-              <button key={i} type="button" onClick={() => set("hijab", i + 1)} className={`h-8 w-8 rounded-full border-2 ${c.hijab === i + 1 ? "border-primary" : "border-border"}`} style={{ background: col }} aria-label={`hijab ${i + 1}`} />
+              <Button key={i} type="button" onClick={() => set("hijab", i + 1)} className={`h-8 w-8 p-0 rounded-full border-2 ${c.hijab === i + 1 ? "border-primary" : "border-border"}`} style={{ background: col }} aria-label={`Hijab ${i + 1}`} aria-pressed={c.hijab === i + 1} />
             ))}
           </div>
         </div>
@@ -78,17 +78,17 @@ export function AvatarEditor({ initial, pet: initialPet, level, unlockAll, onSav
             {PETS.map((p) => {
               const lk = locked(p.level);
               return (
-                <button key={p.id} type="button" disabled={lk} onClick={() => { play("unlock"); setPet(p.id); }}
+                <Button key={p.id} type="button" disabled={lk} onClick={() => { play("unlock"); setPet(p.id); }}
                   className={`rounded-xl border px-3 py-1.5 text-sm ${pet === p.id ? "border-primary bg-primary-soft" : "bg-card"} disabled:opacity-40`}>
                   {p.emoji} {p.name}{lk ? ` 🔒Nv${p.level}` : ""}
-                </button>
+                </Button>
               );
             })}
           </div>
         </div>
-        <button disabled={saving} onClick={() => { play("submit"); onSave(c, pet); }} className="w-full rounded-xl bg-hero py-3 font-semibold text-primary-foreground shadow-pop disabled:opacity-60">
+        <Button disabled={saving} onClick={() => { play("submit"); onSave(c, pet); }} className="w-full rounded-xl bg-hero py-3 font-semibold text-primary-foreground shadow-pop disabled:opacity-60">
           {saving ? "…" : "Enregistrer mon avatar ✨"}
-        </button>
+        </Button>
       </div>
     </div>
   );

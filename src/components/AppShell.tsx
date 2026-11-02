@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/hooks/useMe";
 import { levelFromXp } from "@/lib/game";
 import { play } from "@/lib/sound";
-import { Avatar } from "./Avatar";
+
 
 const NAV = [
   { to: "/home", icon: "🏠", label: "Home" },
@@ -35,7 +35,7 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
             <Link key={n.to} to={n.to} onClick={() => play("nav")}
               className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent"
               activeProps={{ className: "bg-primary-soft text-primary" }}>
-              <span className="text-lg">{n.icon}</span><span className={n.ar ? "ar" : ""}>{n.label}</span>
+              <span className="text-lg">{n.icon}</span><span className={"ar" in n && n.ar ? "ar" : ""}>{n.label}</span>
             </Link>
           ))}
           {me?.isCreator && (
@@ -60,7 +60,7 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
                 <span className="rounded-full bg-primary-soft px-2 py-0.5 text-xs font-bold text-primary">Nv {me.isCreator ? "∞" : lv.level}</span>
                 <span className="text-xs font-semibold">🪙 {me.isCreator ? "∞" : me.coins}</span>
                 <span className="text-xs font-semibold">🔥 {me.streak}</span>
-                <Avatar config={me.avatar} size={30} />
+                <span aria-hidden="true">👤</span>
               </button>
               <button onClick={logout} aria-label="Se déconnecter" title="Se déconnecter" className="grid h-9 w-9 place-items-center rounded-full bg-card text-lg shadow-sm lg:hidden">🚪</button>
             </div>
@@ -97,7 +97,7 @@ export function Brand({ small = false }: { small?: boolean }) {
   );
 }
 
-export function PageTitle({ title, ar, sub }: { title: string; ar?: string; sub?: string }) {
+export function PageTitle({ title, ar, sub }: { title: string; ar?: string; sub?: string | undefined }) {
   return (
     <div className="mb-5">
       <h1 className="font-display text-2xl font-bold sm:text-3xl">{title} {ar && <span className="ar text-primary">· {ar}</span>}</h1>

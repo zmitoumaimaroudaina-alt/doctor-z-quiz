@@ -231,6 +231,56 @@ export type Database = {
           },
         ]
       }
+      practice_attempts: {
+        Row: {
+          answers: Json
+          correct_count: number | null
+          id: string
+          question_ids: string[]
+          score20: number | null
+          started_at: string
+          submitted_at: string | null
+          total: number | null
+          unanswered_count: number | null
+          user_id: string
+          wrong_count: number | null
+        }
+        Insert: {
+          answers?: Json
+          correct_count?: number | null
+          id?: string
+          question_ids: string[]
+          score20?: number | null
+          started_at?: string
+          submitted_at?: string | null
+          total?: number | null
+          unanswered_count?: number | null
+          user_id: string
+          wrong_count?: number | null
+        }
+        Update: {
+          answers?: Json
+          correct_count?: number | null
+          id?: string
+          question_ids?: string[]
+          score20?: number | null
+          started_at?: string
+          submitted_at?: string | null
+          total?: number | null
+          unanswered_count?: number | null
+          user_id?: string
+          wrong_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "practice_attempts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar: Json
@@ -522,6 +572,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      answer_practice: {
+        Args: { _attempt: string; _q: string; _sel: string[] }
+        Returns: Json
+      }
       attempt_review: {
         Args: { _attempt: string }
         Returns: {
@@ -545,6 +599,7 @@ export type Database = {
       }
       claim_mission: { Args: { _key: string }; Returns: Json }
       creator_ids: { Args: never; Returns: string[] }
+      exam_duration_seconds: { Args: never; Returns: number }
       exam_status: {
         Args: { _exam: string }
         Returns: {
@@ -553,6 +608,7 @@ export type Database = {
           unlimited: boolean
         }[]
       }
+      finish_practice: { Args: { _attempt: string }; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -582,7 +638,12 @@ export type Database = {
           n: number
         }[]
       }
+      save_exam_answers: {
+        Args: { _answers: Json; _attempt: string }
+        Returns: undefined
+      }
       start_attempt: { Args: { _exam: string }; Returns: string }
+      start_practice: { Args: { _questions: string[] }; Returns: string }
       submit_attempt: {
         Args: { _answers: Json; _attempt: string }
         Returns: Json

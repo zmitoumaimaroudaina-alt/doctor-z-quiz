@@ -2,6 +2,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell, PageTitle } from "@/components/AppShell";
+import { useState } from "react";
+import { Practice } from "@/components/Practice";
+import { Button } from "@/components/ui/button";
+import type { Question } from "@/lib/queries";
 import { AiExplain } from "@/components/AiExplain";
 
 export const Route = createFileRoute("/_authenticated/erreurs/$attemptId")({
@@ -11,6 +15,7 @@ export const Route = createFileRoute("/_authenticated/erreurs/$attemptId")({
 
 function Erreurs() {
   const { attemptId } = Route.useParams();
+  const [retry, setRetry] = useState(false);
   const { data } = useQuery({
     queryKey: ["review", attemptId],
     queryFn: async () => (await supabase.rpc("attempt_review", { _attempt: attemptId })).data ?? [],
@@ -19,7 +24,8 @@ function Erreurs() {
   return (
     <AppShell>
       <PageTitle title="❌ Mes erreurs" ar="أخطائي" sub={`${wrong.length} question(s) fausse(s) ou sans réponse`} />
-      <div className="space-y-4">
+      {wrong.length > 0 && <Button onClick={() => setRetry(!retry)} className="mb-4">{retry ? "Voir la correction" : "Rejouer mes erreurs"}</Button>}
+      {retry ? <Practice questions={wrong.map(r => ({ ...r, id: r.question_id, needs_review: false, source_year: null, exam_id: null, course_id: null })) as unknown as Question[]} /> : <div className="space-y-4">
         {wrong.map((r) => {
           const sel = (r.selected as string[]) ?? [];
           return (
@@ -41,13 +47,13 @@ function Erreurs() {
               <p className="ar mt-3 font-semibold text-warning-foreground">⚠️ ركز! راجع درسك مليح.</p>
               {r.explanation && <p className="mt-2 whitespace-pre-line rounded-lg bg-secondary p-2 text-sm"><b>Explication officielle :</b> {r.explanation}</p>}
               {r.note && <p className="ar mt-2 rounded-lg bg-warning/20 p-2 text-sm">📝 ملاحظة: {r.note}</p>}
-              <p className="mt-2 text-[11px] text-muted-foreground">Source : {r.source_file}{r.source_page ? ` · p.${r.source_page}` : ""}</p>
+              <p className="mt-2 text-[11px] text-muted-foreground">Questions de la Faculté de Médecine de l’Université de Blida</p>
               <AiExplain questionId={r.question_id} selected={sel} />
             </div>
           );
         })}
         {data && !wrong.length && <div className="card-game p-8 text-center">Aucune erreur 🎉</div>}
-      </div>
+      </div>}
       <Link to="/examens" className="mt-6 inline-block text-primary">← Retour aux examens</Link>
     </AppShell>
   );

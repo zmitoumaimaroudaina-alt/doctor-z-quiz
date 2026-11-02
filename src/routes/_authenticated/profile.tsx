@@ -8,6 +8,7 @@ import { AppShell, PageTitle } from "@/components/AppShell";
 import { AvatarEditor } from "@/components/AvatarEditor";
 import { useMe, useRefreshMe } from "@/hooks/useMe";
 import { levelFromXp } from "@/lib/game";
+import type { Database } from "@/integrations/supabase/types";
 import { deleteMyAccount } from "@/lib/account.functions";
 
 export const Route = createFileRoute("/_authenticated/profile")({
@@ -26,11 +27,12 @@ function Profile() {
   const [confirmText, setConfirmText] = useState("");
   if (!me) return <AppShell><p>…</p></AppShell>;
 
-  async function save(patch: Record<string, unknown>) {
+  async function save(patch: Database["public"]["Tables"]["profiles"]["Update"]) {
+    if (!me) return;
     setSaving(true);
-    const { error } = await supabase.from("profiles").update(patch).eq("id", me!.id);
+    const { error } = await supabase.from("profiles").update(patch).eq("id", me.id);
     setSaving(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Enregistré ✅"); refresh();
   }
 

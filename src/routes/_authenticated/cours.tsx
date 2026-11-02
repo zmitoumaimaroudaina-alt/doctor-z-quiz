@@ -8,7 +8,7 @@ import { Crumbs, Empty } from "./examens";
 import { play } from "@/lib/sound";
 
 export const Route = createFileRoute("/_authenticated/cours")({
-  head: () => ({ meta: [{ title: "QCM par Cours — Z QCM GAME" }, { name: "description", content: "QCM organisés par matière et par cours, dans l'ordre des fichiers sources." }] }),
+  head: () => ({ meta: [{ title: "QCM par Cours — Z QCM GAME" }, { name: "description", content: "Questions de la Faculté de Médecine de l’Université de Blida, par cours." }] }),
   component: Cours,
 });
 
@@ -30,7 +30,7 @@ function Cours() {
   const list = (data ?? []).filter((c) => c.subject_id === sel);
   return (
     <AppShell>
-      <PageTitle title="📚 QCM par Cours" ar="حسب الدروس" sub="Les cours et leur ordre suivent exactement les fichiers fournis." />
+      <PageTitle title="📚 QCM par Cours" ar="حسب الدروس" sub="Questions de la Faculté de Médecine de l’Université de Blida" />
       <Crumbs items={["Matière", subj?.name]} onBack={() => setSel(null)} />
       {!subj ? (
         <div className="grid gap-3 sm:grid-cols-2">
@@ -55,7 +55,7 @@ function Cours() {
             </Link>
           ))}
         </div>
-      ) : <Empty text="Aucun cours pour cette matière dans les fichiers fournis." />}
+      ) : <Empty text="Aucun cours disponible pour cette matière." />}
     </AppShell>
   );
 }

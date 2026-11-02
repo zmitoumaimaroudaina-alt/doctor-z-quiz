@@ -23,15 +23,15 @@ export function useMe() {
     queryFn: async (): Promise<Me | null> => {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) return null;
-      const [{ data: p }, { data: roles }] = await Promise.all([
+      const [{ data: p }, { data: creator }] = await Promise.all([
         supabase.from("profiles").select("id, display_name, avatar, pet, bubble, xp, coins, streak, sound_on, onboarded").eq("id", u.user.id).maybeSingle(),
-        supabase.from("user_roles").select("role").eq("user_id", u.user.id),
+        supabase.rpc("is_creator"),
       ]);
       if (!p) return null;
       return {
         ...(p as unknown as Omit<Me, "email" | "isCreator">),
         email: u.user.email ?? null,
-        isCreator: !!roles?.some((r) => r.role === "admin"),
+        isCreator: creator === true,
       };
     },
     staleTime: 30_000,

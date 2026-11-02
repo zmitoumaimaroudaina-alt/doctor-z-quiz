@@ -30,7 +30,7 @@ function Onboarding() {
           <p className="ar text-sm text-muted-foreground">اختر اسمك في اللعبة</p>
           <input value={name || me.display_name || ""} onChange={(e) => setName(e.target.value)} maxLength={24} placeholder="Ex : Dr Amine"
             className="mt-4 w-full rounded-xl border px-3 py-2.5" />
-          <button onClick={() => { const n = (name || me.display_name || "").trim(); if (n.length < 2) return toast.error("2 caractères minimum"); setName(n); setStep(1); }}
+          <button onClick={() => { const n = (name || me.display_name || "").trim(); if (n.length < 2) { toast.error("2 caractères minimum"); return; } setName(n); setStep(1); }}
             className="mt-4 w-full rounded-xl bg-hero py-2.5 font-semibold text-primary-foreground">Continuer →</button>
         </div>
       ) : (
@@ -41,7 +41,7 @@ function Onboarding() {
               setSaving(true);
               const { error } = await supabase.from("profiles").update({ display_name: name.trim(), avatar, pet, onboarded: true }).eq("id", me.id);
               setSaving(false);
-              if (error) return toast.error(error.message);
+              if (error) { toast.error(error.message); return; }
               await refresh();
               nav({ to: "/home" });
             }} />

@@ -40,12 +40,12 @@ function ExamIntro() {
 
       if (error) {
         setBusy(false);
-        return toast.error(rpcError(error));
+        { toast.error(rpcError(error)); return; }
       }
 
       if (!id) {
         setBusy(false);
-        return toast.error("Impossible de créer une tentative.");
+        { toast.error("Impossible de créer une tentative."); return; }
       }
 
       play("submit");
