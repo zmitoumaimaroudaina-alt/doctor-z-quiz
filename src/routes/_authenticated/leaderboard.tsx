@@ -96,7 +96,7 @@ function Leaderboard() {
 
       {(rows?.length ?? 0) > 5 && (
         <div className="card-game mt-6 divide-y">
-          {rows!.slice(5).map((r) => (
+          {(rows ?? []).slice(5).map((r) => (
             <div key={r.user_id} className="flex items-center gap-3 p-3">
               <span className="w-8 text-center font-bold">#{r.rnk}</span>
               <Avatar config={r.avatar as AvatarConfig} size={36} tomato={!!r.tomato_until} />

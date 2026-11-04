@@ -44,12 +44,13 @@ function Missions() {
   const lv = levelFromXp(me.xp);
 
   async function claim(key: string) {
+    if (!me) return;
     const { error } = await supabase.rpc("claim_mission", { _key: key });
     if (error) { toast.error(rpcError(error)); return; }
     play("reward");
     const before = lv.level;
     await refresh(); qc.invalidateQueries({ queryKey: ["missions"] });
-    const after = levelFromXp((await supabase.from("profiles").select("xp").eq("id", me!.id).single()).data?.xp ?? 0).level;
+    const after = levelFromXp((await supabase.from("profiles").select("xp").eq("id", me.id).single()).data?.xp ?? 0).level;
     if (after > before) { play("levelUp"); toast.success(`⬆️ Niveau ${after} !`); } else toast.success("Récompense obtenue 🎁");
   }
 
