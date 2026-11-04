@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/metadata";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -7,14 +8,7 @@ import { lovable } from "@/integrations/lovable";
 import { Brand } from "@/components/AppShell";
 
 export const Route = createFileRoute("/auth")({
-  head: () => ({
-    meta: [
-      { title: "Connexion — Z QCM GAME" },
-      { name: "description", content: "Connecte-toi ou crée ton compte Z QCM GAME." },
-      { property: "og:title", content: "Connexion — Z QCM GAME" },
-      { property: "og:description", content: "Connecte-toi pour jouer aux QCM médicaux de Blida 1." },
-    ],
-  }),
+  head: () => pageMetadata("Connexion", "Connexion et inscription à Z QCM GAME."),
   component: AuthPage,
 });
 

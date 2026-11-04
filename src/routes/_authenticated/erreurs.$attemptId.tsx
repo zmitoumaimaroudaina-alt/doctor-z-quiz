@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/metadata";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,7 +10,7 @@ import type { Question } from "@/lib/queries";
 import { AiExplain } from "@/components/AiExplain";
 
 export const Route = createFileRoute("/_authenticated/erreurs/$attemptId")({
-  head: () => ({ meta: [{ title: "Mes erreurs — Z QCM GAME" }, { name: "description", content: "Correction des questions fausses et sans réponse." }] }),
+  head: () => pageMetadata("Correction de ma tentative", "Questions fausses et sans réponse de ta tentative."),
   component: Erreurs,
 });
 

@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/metadata";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -8,7 +9,7 @@ import { Brand } from "@/components/AppShell";
 import { levelFromXp } from "@/lib/game";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
-  head: () => ({ meta: [{ title: "Créer mon personnage — Z QCM GAME" }, { name: "description", content: "Choisis ton nom et crée ton avatar." }] }),
+  head: () => pageMetadata("Créer mon personnage", "Personnalise ton personnage de médecine."),
   component: Onboarding,
 });
 

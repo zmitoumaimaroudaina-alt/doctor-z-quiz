@@ -1,16 +1,10 @@
+import { pageMetadata } from "@/lib/metadata";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Avatar } from "@/components/Avatar";
 import { Brand } from "@/components/AppShell";
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "Z QCM GAME — QCM médicaux Blida 1" },
-      { name: "description", content: "Entraîne-toi sur les vrais examens et les QCM par cours de la Faculté de Médecine de Blida 1, en mode jeu." },
-      { property: "og:title", content: "Z QCM GAME — QCM médicaux Blida 1" },
-      { property: "og:description", content: "Examens officiels, QCM par cours, classement, missions et avatar : révise la médecine en jouant." },
-    ],
-  }),
+  head: () => pageMetadata("QCM médicaux Blida 1", "Questions de la Faculté de Médecine de l’Université de Blida, examens et entraînement par cours."),
   component: Landing,
 });
 
@@ -24,7 +18,7 @@ function Landing() {
       <section className="mx-auto grid max-w-5xl items-center gap-8 px-4 py-8 md:grid-cols-2 md:py-16">
         <div>
           <p className="text-sm font-semibold text-primary">Université Saad Dahleb – Blida 1 · Faculté de Médecine</p>
-          <h1 className="mt-3 font-display text-4xl font-bold leading-tight sm:text-5xl">Révise la médecine <span className="text-primary">en jouant</span>.</h1>
+          <h1 className="mt-3 font-display text-4xl font-bold leading-tight sm:text-5xl">Z QCM GAME</h1>
           <p className="ar mt-3 text-lg text-muted-foreground">راجع، العب، وتقدّم مع زملائك</p>
           <p className="mt-4 text-muted-foreground">Vrais examens chronométrés, QCM par cours, corrections officielles, explications IA, classement en direct et tomates 🍅 pour le Top 5.</p>
           <div className="mt-6 flex flex-wrap gap-3">
@@ -37,10 +31,10 @@ function Landing() {
           </div>
         </div>
         <div className="relative mx-auto">
-          <div className="absolute inset-0 -z-10 rounded-full bg-hero opacity-20 blur-3xl" />
+
           <div className="flex items-end gap-2">
             <Avatar config={{ gender: "f", hijab: 1, outfit: 0, accessory: 1, skin: 1 }} mood="happy" size={180} pet="cat" />
-            <Avatar config={{ gender: "m", hair: 1, outfit: 2, beard: 1, glasses: 1, skin: 3, accessory: 0 }} mood="veryHappy" size={150} pet="fox" />
+
           </div>
         </div>
       </section>

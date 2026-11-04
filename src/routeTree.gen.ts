@@ -21,6 +21,7 @@ import { Route as AuthenticatedMesErreursRouteImport } from './routes/_authentic
 import { Route as AuthenticatedMissionsRouteImport } from './routes/_authenticated/missions'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as AuthenticatedQuestionsAVerifierRouteImport } from './routes/_authenticated/questions-a-verifier'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as ApiAiExplainRouteImport } from './routes/api/ai-explain'
 import { Route as AuthenticatedCourseCourseIdRouteImport } from './routes/_authenticated/course.$courseId'
@@ -89,6 +90,12 @@ const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedQuestionsAVerifierRoute =
+  AuthenticatedQuestionsAVerifierRouteImport.update({
+    id: '/questions-a-verifier',
+    path: '/questions-a-verifier',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -141,6 +148,7 @@ export interface FileRoutesByFullPath {
   '/missions': typeof AuthenticatedMissionsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/questions-a-verifier': typeof AuthenticatedQuestionsAVerifierRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/api/ai-explain': typeof ApiAiExplainRoute
   '/course/$courseId': typeof AuthenticatedCourseCourseIdRoute
@@ -161,6 +169,7 @@ export interface FileRoutesByTo {
   '/missions': typeof AuthenticatedMissionsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/questions-a-verifier': typeof AuthenticatedQuestionsAVerifierRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/api/ai-explain': typeof ApiAiExplainRoute
   '/course/$courseId': typeof AuthenticatedCourseCourseIdRoute
@@ -183,6 +192,7 @@ export interface FileRoutesById {
   '/_authenticated/missions': typeof AuthenticatedMissionsRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/questions-a-verifier': typeof AuthenticatedQuestionsAVerifierRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/api/ai-explain': typeof ApiAiExplainRoute
   '/_authenticated/course/$courseId': typeof AuthenticatedCourseCourseIdRoute
@@ -205,6 +215,7 @@ export interface FileRouteTypes {
     | '/missions'
     | '/onboarding'
     | '/profile'
+    | '/questions-a-verifier'
     | '/settings'
     | '/api/ai-explain'
     | '/course/$courseId'
@@ -225,6 +236,7 @@ export interface FileRouteTypes {
     | '/missions'
     | '/onboarding'
     | '/profile'
+    | '/questions-a-verifier'
     | '/settings'
     | '/api/ai-explain'
     | '/course/$courseId'
@@ -246,6 +258,7 @@ export interface FileRouteTypes {
     | '/_authenticated/missions'
     | '/_authenticated/onboarding'
     | '/_authenticated/profile'
+    | '/_authenticated/questions-a-verifier'
     | '/_authenticated/settings'
     | '/api/ai-explain'
     | '/_authenticated/course/$courseId'
@@ -348,6 +361,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProfileRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/questions-a-verifier': {
+      id: '/_authenticated/questions-a-verifier'
+      path: '/questions-a-verifier'
+      fullPath: '/questions-a-verifier'
+      preLoaderRoute: typeof AuthenticatedQuestionsAVerifierRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/settings': {
       id: '/_authenticated/settings'
       path: '/settings'
@@ -410,6 +430,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMissionsRoute: typeof AuthenticatedMissionsRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedQuestionsAVerifierRoute: typeof AuthenticatedQuestionsAVerifierRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedCourseCourseIdRoute: typeof AuthenticatedCourseCourseIdRoute
   AuthenticatedErreursAttemptIdRoute: typeof AuthenticatedErreursAttemptIdRoute
@@ -428,6 +449,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMissionsRoute: AuthenticatedMissionsRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedQuestionsAVerifierRoute: AuthenticatedQuestionsAVerifierRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedCourseCourseIdRoute: AuthenticatedCourseCourseIdRoute,
   AuthenticatedErreursAttemptIdRoute: AuthenticatedErreursAttemptIdRoute,

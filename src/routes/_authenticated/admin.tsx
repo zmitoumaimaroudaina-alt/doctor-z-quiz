@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/metadata";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -10,7 +11,7 @@ import { deleteStudent } from "@/lib/account.functions";
 import type { Option } from "@/lib/queries";
 
 export const Route = createFileRoute("/_authenticated/admin")({
-  head: () => ({ meta: [{ title: "Panneau Creator — Z QCM GAME" }, { name: "description", content: "Gestion du contenu et des étudiants." }] }),
+  head: () => pageMetadata("Gestion Doctor Z", "Gestion des questions et des étudiants Z QCM GAME."),
   component: Admin,
 });
 

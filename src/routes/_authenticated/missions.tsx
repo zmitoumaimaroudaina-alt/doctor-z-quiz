@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/metadata";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -8,7 +9,7 @@ import { levelFromXp, PETS, rpcError } from "@/lib/game";
 import { play } from "@/lib/sound";
 
 export const Route = createFileRoute("/_authenticated/missions")({
-  head: () => ({ meta: [{ title: "Missions — Z QCM GAME" }, { name: "description", content: "Missions quotidiennes et hebdomadaires, XP et récompenses." }] }),
+  head: () => pageMetadata("Missions", "Missions quotidiennes et hebdomadaires Z QCM GAME."),
   component: Missions,
 });
 

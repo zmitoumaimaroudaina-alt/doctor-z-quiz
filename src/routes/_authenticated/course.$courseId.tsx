@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/metadata";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,6 +7,7 @@ import { Practice } from "@/components/Practice";
 import type { Question } from "@/lib/queries";
 
 export const Route = createFileRoute("/_authenticated/course/$courseId")({
+  head: () => pageMetadata("Entraînement par cours", "QCM de médecine par cours et résultats sauvegardés."),
   component: Course,
 });
 
@@ -50,7 +52,19 @@ function Course() {
   return (
     <AppShell wide>
       <PageTitle title={c.title ?? ""} sub={subjectName} />
-      <Practice questions={qs} />
+      <Practice key={courseId} questions={qs} />
+      <PracticeHistory questionIds={qs.map(q => q.id)} />
     </AppShell>
   );
+}
+
+function PracticeHistory({ questionIds }: { questionIds: string[] }) {
+  const { data } = useQuery({ queryKey: ["practice-history", questionIds], queryFn: async () => {
+    const { data, error } = await supabase.from("practice_attempts").select("id,question_ids,submitted_at,score20,correct_count,wrong_count,unanswered_count").not("submitted_at", "is", null).order("submitted_at", { ascending: false }).limit(100);
+    if (error) throw error;
+    return (data ?? []).filter(a => a.question_ids.length === questionIds.length && a.question_ids.every((id, i) => id === questionIds[i]));
+  }, refetchInterval: 5000 });
+  return <section className="mt-8 border-t py-4"><h2 className="font-display text-lg font-bold">Mes tentatives enregistrées</h2>
+    {data?.map(a => <div key={a.id} className="flex flex-wrap justify-between gap-2 border-b py-3 text-sm"><span>{new Date(a.submitted_at ?? "").toLocaleString("fr-DZ")}</span><strong>{Number(a.score20).toFixed(2)}/20</strong><span>✓ {a.correct_count} · ✕ {a.wrong_count} · Sans réponse {a.unanswered_count}</span></div>)}
+  </section>;
 }

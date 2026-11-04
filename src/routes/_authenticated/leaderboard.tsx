@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/metadata";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -11,7 +12,7 @@ import { fmtTime, rpcError } from "@/lib/game";
 import { play } from "@/lib/sound";
 
 export const Route = createFileRoute("/_authenticated/leaderboard")({
-  head: () => ({ meta: [{ title: "Leaderboard — Z QCM GAME" }, { name: "description", content: "Classement en direct par examen." }] }),
+  head: () => pageMetadata("Classement", "Classement des examens de médecine de Blida."),
   component: Leaderboard,
 });
 

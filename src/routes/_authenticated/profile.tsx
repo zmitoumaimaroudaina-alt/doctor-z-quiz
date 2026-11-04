@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/metadata";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -12,7 +13,7 @@ import type { Database } from "@/integrations/supabase/types";
 import { deleteMyAccount } from "@/lib/account.functions";
 
 export const Route = createFileRoute("/_authenticated/profile")({
-  head: () => ({ meta: [{ title: "Profil — Z QCM GAME" }, { name: "description", content: "Ton avatar, ton nom et ton compte." }] }),
+  head: () => pageMetadata("Profil", "Ton personnage et ton compte Z QCM GAME."),
   component: Profile,
 });
 
