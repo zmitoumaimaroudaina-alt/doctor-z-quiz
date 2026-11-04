@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/metadata";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -8,7 +9,7 @@ import { Crumbs, Empty } from "./examens";
 import { play } from "@/lib/sound";
 
 export const Route = createFileRoute("/_authenticated/cours")({
-  head: () => ({ meta: [{ title: "QCM par Cours — Z QCM GAME" }, { name: "description", content: "Questions de la Faculté de Médecine de l’Université de Blida, par cours." }] }),
+  head: () => pageMetadata("QCM par Cours", "Questions de la Faculté de Médecine de l’Université de Blida par cours."),
   component: Cours,
 });
 

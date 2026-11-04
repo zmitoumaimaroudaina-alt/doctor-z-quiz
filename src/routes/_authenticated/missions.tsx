@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/metadata";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -8,7 +9,7 @@ import { levelFromXp, PETS, rpcError } from "@/lib/game";
 import { play } from "@/lib/sound";
 
 export const Route = createFileRoute("/_authenticated/missions")({
-  head: () => ({ meta: [{ title: "Missions — Z QCM GAME" }, { name: "description", content: "Missions quotidiennes et hebdomadaires, XP et récompenses." }] }),
+  head: () => pageMetadata("Missions", "Missions quotidiennes et hebdomadaires Z QCM GAME."),
   component: Missions,
 });
 
@@ -43,12 +44,13 @@ function Missions() {
   const lv = levelFromXp(me.xp);
 
   async function claim(key: string) {
+    if (!me) return;
     const { error } = await supabase.rpc("claim_mission", { _key: key });
     if (error) { toast.error(rpcError(error)); return; }
     play("reward");
     const before = lv.level;
     await refresh(); qc.invalidateQueries({ queryKey: ["missions"] });
-    const after = levelFromXp((await supabase.from("profiles").select("xp").eq("id", me!.id).single()).data?.xp ?? 0).level;
+    const after = levelFromXp((await supabase.from("profiles").select("xp").eq("id", me.id).single()).data?.xp ?? 0).level;
     if (after > before) { play("levelUp"); toast.success(`⬆️ Niveau ${after} !`); } else toast.success("Récompense obtenue 🎁");
   }
 

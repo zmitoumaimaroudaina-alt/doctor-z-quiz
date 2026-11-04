@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/metadata";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
@@ -9,7 +10,7 @@ import { fmtTime } from "@/lib/game";
 import { play } from "@/lib/sound";
 
 export const Route = createFileRoute("/_authenticated/results/$attemptId")({
-  head: () => ({ meta: [{ title: "Résultats — Z QCM GAME" }, { name: "description", content: "Résultats de ton examen." }] }),
+  head: () => pageMetadata("Résultats", "Score, statistiques et erreurs de ton examen médical."),
   component: Results,
 });
 

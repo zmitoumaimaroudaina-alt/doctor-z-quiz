@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/metadata";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -10,7 +11,7 @@ import { deleteStudent } from "@/lib/account.functions";
 import type { Option } from "@/lib/queries";
 
 export const Route = createFileRoute("/_authenticated/admin")({
-  head: () => ({ meta: [{ title: "Panneau Creator — Z QCM GAME" }, { name: "description", content: "Gestion du contenu et des étudiants." }] }),
+  head: () => pageMetadata("Gestion Doctor Z", "Gestion des questions et des étudiants Z QCM GAME."),
   component: Admin,
 });
 
@@ -37,7 +38,7 @@ function Questions({ reviewOnly }: { reviewOnly: boolean }) {
   const { data, refetch } = useQuery({
     queryKey: ["admin-q", reviewOnly, q],
     queryFn: async () => {
-      let s = supabase.from("questions").select("*, question_keys(*)").order("source_file").order("pos").limit(50);
+      let s = supabase.from("questions").select("*, question_keys(*)").order("source_file").order("pos").limit(200);
       if (reviewOnly) s = s.eq("needs_review", true);
       if (q.trim()) s = s.ilike("stem", `%${q.trim()}%`);
       return (await s).data ?? [];
@@ -65,13 +66,14 @@ function Editor({ row, onSaved }: { row: any; onSaved: () => void }) {
     const letters = [...new Set(correct.toUpperCase().replace(/[^A-E]/g, "").split(""))].sort();
     const r1 = await supabase.from("questions").update({ stem, options: opts, ...(clearFlag ? { needs_review: false, review_reason: null } : {}) }).eq("id", row.id);
     const r2 = await supabase.from("question_keys").upsert({ question_id: row.id, correct: letters, explanation: expl || null, note: note || null });
-    if (r1.error || r2.error) { toast.error((r1.error ?? r2.error)!.message); return; }
+    const saveError = r1.error ?? r2.error;
+    if (saveError) { toast.error(saveError.message); return; }
     toast.success("Question mise à jour"); onSaved();
   }
   return (
     <div className="card-game p-4">
       <button onClick={() => setOpen(!open)} className="w-full text-left">
-        <div className="text-xs text-muted-foreground">{row.source_file} · p.{row.source_page} · #{row.pos} {row.needs_review && <span className="ml-1 rounded bg-warning/30 px-1">⚠ {row.review_reason}</span>}</div>
+        <div className="text-xs text-muted-foreground">Questions de la Faculté de Médecine de Blida · #{row.pos} {row.needs_review && <span className="ml-1 rounded bg-warning/30 px-1">⚠ {row.review_reason}</span>}</div>
         <div className="line-clamp-2 font-medium">{row.stem}</div>
       </button>
       {open && (

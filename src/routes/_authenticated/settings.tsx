@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/metadata";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -8,7 +9,7 @@ import { RESOURCES } from "@/lib/game";
 import { isSoundOn, play, setSoundOn } from "@/lib/sound";
 
 export const Route = createFileRoute("/_authenticated/settings")({
-  head: () => ({ meta: [{ title: "Paramètres — Z QCM GAME" }, { name: "description", content: "Son, ressources et déconnexion." }] }),
+  head: () => pageMetadata("Paramètres", "Sons et ressources éducatives Z QCM GAME."),
   component: Settings,
 });
 

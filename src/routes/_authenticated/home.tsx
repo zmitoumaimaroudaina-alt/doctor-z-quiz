@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/metadata";
 import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { Avatar } from "@/components/Avatar";
@@ -5,6 +6,7 @@ import { useMe } from "@/hooks/useMe";
 import { levelFromXp } from "@/lib/game";
 
 export const Route = createFileRoute("/_authenticated/home")({
+  head: () => pageMetadata("Accueil", "Ton espace QCM de médecine à Blida."),
   component: Home,
 });
 
@@ -45,6 +47,8 @@ function Home() {
         <Tile to="/missions" icon="🎯" title="Missions" sub="Quotidiennes & hebdomadaires" />
         <Tile to="/profile" icon="👤" title="Mon profil" sub="Avatar, animal, bulle" />
       </div>
+
+      <Link to="/questions-a-verifier" className="mt-6 block text-sm font-semibold text-warning-foreground">⚠ Questions à vérifier · أسئلة تحتاج مراجعة</Link>
 
       <section dir="rtl" className="card-game mt-8 p-4">
         <h2 className="font-display text-base font-bold">📢 تابعوا Doctor Z و Med Support</h2>

@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/metadata";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -8,6 +9,7 @@ import { rpcError } from "@/lib/game";
 import { play } from "@/lib/sound";
 
 export const Route = createFileRoute("/_authenticated/exam/$examId")({
+  head: () => pageMetadata("Commencer un examen", "Examen médical de Blida : une heure et tentatives sauvegardées."),
   component: ExamIntro,
 });
 

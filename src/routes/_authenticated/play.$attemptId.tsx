@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/metadata";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -12,6 +13,7 @@ import { fmtTime, moodFrom, EXAM_DURATION_SECONDS, examSecondsLeft } from "@/lib
 import { play } from "@/lib/sound";
 
 export const Route = createFileRoute("/_authenticated/play/$attemptId")({
+  head: () => pageMetadata("Examen en cours", "Examen médical chronométré de la Faculté de Médecine de Blida."),
   component: Play,
 });
 

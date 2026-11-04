@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/metadata";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -7,7 +8,7 @@ import { Practice } from "@/components/Practice";
 import type { Question } from "@/lib/queries";
 
 export const Route = createFileRoute("/_authenticated/mes-erreurs")({
-  head: () => ({ meta: [{ title: "QCM أخطائي السابقة — Z QCM GAME" }, { name: "description", content: "Rejoue les questions que tu as ratées." }] }),
+  head: () => pageMetadata("Mes erreurs précédentes", "Historique et révision des erreurs de médecine."),
   component: MesErreurs,
 });
 

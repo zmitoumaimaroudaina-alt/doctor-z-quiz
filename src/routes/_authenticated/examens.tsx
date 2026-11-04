@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/metadata";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { AppShell, PageTitle } from "@/components/AppShell";
@@ -5,7 +6,7 @@ import { useExams, useSubjects } from "@/lib/queries";
 import { play } from "@/lib/sound";
 
 export const Route = createFileRoute("/_authenticated/examens")({
-  head: () => ({ meta: [{ title: "QCM Examens — Z QCM GAME" }, { name: "description", content: "Examens officiels par matière et par année." }] }),
+  head: () => pageMetadata("QCM Examens", "Examens de médecine de Blida par matière et année."),
   component: Examens,
 });
 

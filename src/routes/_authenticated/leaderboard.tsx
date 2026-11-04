@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/metadata";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -11,7 +12,7 @@ import { fmtTime, rpcError } from "@/lib/game";
 import { play } from "@/lib/sound";
 
 export const Route = createFileRoute("/_authenticated/leaderboard")({
-  head: () => ({ meta: [{ title: "Leaderboard — Z QCM GAME" }, { name: "description", content: "Classement en direct par examen." }] }),
+  head: () => pageMetadata("Classement", "Classement des examens de médecine de Blida."),
   component: Leaderboard,
 });
 
@@ -95,7 +96,7 @@ function Leaderboard() {
 
       {(rows?.length ?? 0) > 5 && (
         <div className="card-game mt-6 divide-y">
-          {rows!.slice(5).map((r) => (
+          {(rows ?? []).slice(5).map((r) => (
             <div key={r.user_id} className="flex items-center gap-3 p-3">
               <span className="w-8 text-center font-bold">#{r.rnk}</span>
               <Avatar config={r.avatar as AvatarConfig} size={36} tomato={!!r.tomato_until} />
