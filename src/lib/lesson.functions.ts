@@ -40,8 +40,8 @@ export const generateLessonQuiz = createServerFn({ method: "POST" })
           } } } },
       } } },
     });
-    const text = (res as { output_text?: string }).output_text
-      ?? (res.output ?? []).flatMap((o) => ("content" in o && Array.isArray(o.content) ? o.content : [])).map((c) => ("text" in c ? String(c.text) : "")).join("");
+    const out = JSON.parse(JSON.stringify(res)) as { output_text?: string; output?: { content?: { text?: string }[] }[] };
+    const text = out.output_text ?? (out.output ?? []).flatMap((o) => o.content ?? []).map((c) => c.text ?? "").join("");
     const parsed = Generated.parse(JSON.parse(text));
     const questions = parsed.questions.slice(0, data.count).filter((q) => data.qtype === "QCM" || q.correct.length === 1);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

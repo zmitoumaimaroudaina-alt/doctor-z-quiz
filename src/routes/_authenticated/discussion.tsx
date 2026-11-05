@@ -27,10 +27,11 @@ function Discussion() {
   }, [qc]);
   async function send() {
     const text = body.trim();
-    if (!text || text.length > 1000) return;
+    if (!text || text.length > 1000) return undefined;
     const { error } = await supabase.from("discussion_messages").insert({ body: text, kind });
     if (error) return toast.error("Message non envoyé.");
     setBody("");
+    return undefined;
   }
   return <AppShell>
     <PageTitle title="Discussion" ar="تعليقات ودردشة الطلبة" />

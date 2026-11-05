@@ -40,6 +40,7 @@ function MyLessons() {
       void qc.invalidateQueries({ queryKey: ["lesson-quizzes"] });
     } catch { toast.error("La création a échoué. Réessayez avec un PDF lisible."); }
     finally { setBusy(false); }
+    return undefined;
   }
 
   return <AppShell>
