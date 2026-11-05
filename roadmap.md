@@ -8,9 +8,9 @@
 - [x] Verify signed-in flows and mobile layout.
 
 # Requested additions
-- [ ] Use the supplied opening image.
-- [ ] Expand coordinated avatar choices and answer/tomato reactions.
-- [ ] Add persistent student discussion and feedback.
-- [ ] Generate and save QCM/QCS from an uploaded PDF lesson with a chosen count.
-- [ ] Add an evidence-based scientific answer review, preserving originals and uncertainties.
+- [x] Use the supplied opening image.
+- [x] Expand coordinated avatar choices and answer/tomato reactions.
+- [x] Add persistent student discussion and feedback.
+- [x] Generate and save QCM/QCS from an uploaded PDF lesson with a chosen count.
+- [ ] Scientific answer corrections — waiting for Creator-approved references per question.
 - [ ] Verify new flows, permissions, and mobile presentation.

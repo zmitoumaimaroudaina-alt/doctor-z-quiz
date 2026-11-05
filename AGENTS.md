@@ -13,3 +13,4 @@
 - Practice sessions persist through owner-scoped RPCs, separate from academic exam attempts, hearts and leaderboard rewards.
 - Keep internal question provenance in the database, but render only university attribution and course/exam references to students.
 - Avatar layers share one SVG coordinate system and global pigment tokens so all cosmetic combinations remain aligned and themeable.
+- Student-generated PDF quizzes are stored separately from official questions and never alter official keys or rankings.
