@@ -49,7 +49,7 @@ export function Practice({ questions }: { questions: Question[] }) {
       const r = data as unknown as Feedback;
       setFeedback(f => ({ ...f, [q.id]: r }));
       setStreak(s => r.correct ? Math.max(1, s + 1) : Math.min(-1, s - 1));
-      play(r.correct ? "correct" : "wrong");
+      play(r.correct ? "laugh" : streak < 0 ? "angry" : "cry");
     } catch (e) { toast.error((e as Error).message); }
     finally { pending.current = false; setBusy(false); }
   }
