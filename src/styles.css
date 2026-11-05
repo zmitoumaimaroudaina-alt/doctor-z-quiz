@@ -191,6 +191,8 @@
 @utility animate-float { animation: float-y 3s ease-in-out infinite; }
 @utility animate-shake { animation: shake-x .35s ease-in-out 2; }
 @utility animate-bounce-big { animation: bounce-big .7s ease-in-out 2; }
+@keyframes wipe { 0%,100% { transform: translate(0,0) rotate(0) } 50% { transform: translate(-22px,-12px) rotate(-14deg) } }
+@utility animate-wipe { animation: wipe .9s ease-in-out infinite; transform-box: fill-box; }
 @utility animate-tomato { animation: tomato-fly .6s ease-out both; }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; scroll-behavior: auto !important; } }

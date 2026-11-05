@@ -67,6 +67,7 @@ export function AvatarEditor({ initial, pet: initialPet, level, unlockAll, onSav
             ))}
           </div>
         </div>
+        {!!c.hijab && <Row label="Style du hijab" k="hijabStyle" items={OPTIONS.hijabStyle} />}
         <Row label="Tenue (blouse, jellaba…)" k="outfit" items={OUTFITS.map((o) => o.name)} lockAt={[0, 0, 0, 3, 6]} />
         <Row label="Barbe" k="beard" items={OPTIONS.beard} />
         <Row label="Moustache" k="moustache" items={OPTIONS.moustache} />

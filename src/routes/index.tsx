@@ -1,6 +1,6 @@
 import { pageMetadata } from "@/lib/metadata";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Avatar } from "@/components/Avatar";
+import opening from "@/assets/medical-chess.png.asset.json";
 import { Brand } from "@/components/AppShell";
 
 export const Route = createFileRoute("/")({
@@ -30,13 +30,7 @@ function Landing() {
             ))}
           </div>
         </div>
-        <div className="relative mx-auto">
-
-          <div className="flex items-end gap-2">
-            <Avatar config={{ gender: "f", hijab: 1, outfit: 0, accessory: 1, skin: 1 }} mood="happy" size={180} pet="cat" />
-
-          </div>
-        </div>
+        <img src={opening.url} alt="Étudiante en médecine jouant aux échecs contre la mort" className="w-full rounded-3xl shadow-pop" />
       </section>
     </div>
   );

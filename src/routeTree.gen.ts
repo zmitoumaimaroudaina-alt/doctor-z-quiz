@@ -14,9 +14,11 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedCoursRouteImport } from './routes/_authenticated/cours'
+import { Route as AuthenticatedDiscussionRouteImport } from './routes/_authenticated/discussion'
 import { Route as AuthenticatedExamensRouteImport } from './routes/_authenticated/examens'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
 import { Route as AuthenticatedLeaderboardRouteImport } from './routes/_authenticated/leaderboard'
+import { Route as AuthenticatedMesCoursRouteImport } from './routes/_authenticated/mes-cours'
 import { Route as AuthenticatedMesErreursRouteImport } from './routes/_authenticated/mes-erreurs'
 import { Route as AuthenticatedMissionsRouteImport } from './routes/_authenticated/missions'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
@@ -54,6 +56,11 @@ const AuthenticatedCoursRoute = AuthenticatedCoursRouteImport.update({
   path: '/cours',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedDiscussionRoute = AuthenticatedDiscussionRouteImport.update({
+  id: '/discussion',
+  path: '/discussion',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedExamensRoute = AuthenticatedExamensRouteImport.update({
   id: '/examens',
   path: '/examens',
@@ -70,6 +77,11 @@ const AuthenticatedLeaderboardRoute =
     path: '/leaderboard',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedMesCoursRoute = AuthenticatedMesCoursRouteImport.update({
+  id: '/mes-cours',
+  path: '/mes-cours',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedMesErreursRoute = AuthenticatedMesErreursRouteImport.update({
   id: '/mes-erreurs',
   path: '/mes-erreurs',
@@ -141,9 +153,11 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/cours': typeof AuthenticatedCoursRoute
+  '/discussion': typeof AuthenticatedDiscussionRoute
   '/examens': typeof AuthenticatedExamensRoute
   '/home': typeof AuthenticatedHomeRoute
   '/leaderboard': typeof AuthenticatedLeaderboardRoute
+  '/mes-cours': typeof AuthenticatedMesCoursRoute
   '/mes-erreurs': typeof AuthenticatedMesErreursRoute
   '/missions': typeof AuthenticatedMissionsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -162,9 +176,11 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/cours': typeof AuthenticatedCoursRoute
+  '/discussion': typeof AuthenticatedDiscussionRoute
   '/examens': typeof AuthenticatedExamensRoute
   '/home': typeof AuthenticatedHomeRoute
   '/leaderboard': typeof AuthenticatedLeaderboardRoute
+  '/mes-cours': typeof AuthenticatedMesCoursRoute
   '/mes-erreurs': typeof AuthenticatedMesErreursRoute
   '/missions': typeof AuthenticatedMissionsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -185,9 +201,11 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/cours': typeof AuthenticatedCoursRoute
+  '/_authenticated/discussion': typeof AuthenticatedDiscussionRoute
   '/_authenticated/examens': typeof AuthenticatedExamensRoute
   '/_authenticated/home': typeof AuthenticatedHomeRoute
   '/_authenticated/leaderboard': typeof AuthenticatedLeaderboardRoute
+  '/_authenticated/mes-cours': typeof AuthenticatedMesCoursRoute
   '/_authenticated/mes-erreurs': typeof AuthenticatedMesErreursRoute
   '/_authenticated/missions': typeof AuthenticatedMissionsRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
@@ -208,9 +226,11 @@ export interface FileRouteTypes {
     | '/auth'
     | '/admin'
     | '/cours'
+    | '/discussion'
     | '/examens'
     | '/home'
     | '/leaderboard'
+    | '/mes-cours'
     | '/mes-erreurs'
     | '/missions'
     | '/onboarding'
@@ -229,9 +249,11 @@ export interface FileRouteTypes {
     | '/auth'
     | '/admin'
     | '/cours'
+    | '/discussion'
     | '/examens'
     | '/home'
     | '/leaderboard'
+    | '/mes-cours'
     | '/mes-erreurs'
     | '/missions'
     | '/onboarding'
@@ -251,9 +273,11 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/admin'
     | '/_authenticated/cours'
+    | '/_authenticated/discussion'
     | '/_authenticated/examens'
     | '/_authenticated/home'
     | '/_authenticated/leaderboard'
+    | '/_authenticated/mes-cours'
     | '/_authenticated/mes-erreurs'
     | '/_authenticated/missions'
     | '/_authenticated/onboarding'
@@ -312,6 +336,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCoursRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/discussion': {
+      id: '/_authenticated/discussion'
+      path: '/discussion'
+      fullPath: '/discussion'
+      preLoaderRoute: typeof AuthenticatedDiscussionRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/examens': {
       id: '/_authenticated/examens'
       path: '/examens'
@@ -331,6 +362,13 @@ declare module '@tanstack/react-router' {
       path: '/leaderboard'
       fullPath: '/leaderboard'
       preLoaderRoute: typeof AuthenticatedLeaderboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/mes-cours': {
+      id: '/_authenticated/mes-cours'
+      path: '/mes-cours'
+      fullPath: '/mes-cours'
+      preLoaderRoute: typeof AuthenticatedMesCoursRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/mes-erreurs': {
@@ -423,9 +461,11 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedCoursRoute: typeof AuthenticatedCoursRoute
+  AuthenticatedDiscussionRoute: typeof AuthenticatedDiscussionRoute
   AuthenticatedExamensRoute: typeof AuthenticatedExamensRoute
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
   AuthenticatedLeaderboardRoute: typeof AuthenticatedLeaderboardRoute
+  AuthenticatedMesCoursRoute: typeof AuthenticatedMesCoursRoute
   AuthenticatedMesErreursRoute: typeof AuthenticatedMesErreursRoute
   AuthenticatedMissionsRoute: typeof AuthenticatedMissionsRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
@@ -442,9 +482,11 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedCoursRoute: AuthenticatedCoursRoute,
+  AuthenticatedDiscussionRoute: AuthenticatedDiscussionRoute,
   AuthenticatedExamensRoute: AuthenticatedExamensRoute,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
   AuthenticatedLeaderboardRoute: AuthenticatedLeaderboardRoute,
+  AuthenticatedMesCoursRoute: AuthenticatedMesCoursRoute,
   AuthenticatedMesErreursRoute: AuthenticatedMesErreursRoute,
   AuthenticatedMissionsRoute: AuthenticatedMissionsRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,

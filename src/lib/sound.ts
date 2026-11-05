@@ -1,7 +1,7 @@
 // Synthesized sound effects only (no music). Preference is stored locally and on the profile.
 export type Sfx =
   | "click" | "select" | "change" | "nav" | "warning" | "finalMinute" | "submit" | "correct" | "wrong"
-  | "reveal" | "best" | "rank" | "levelUp" | "reward" | "unlock" | "throw" | "hit" | "happy" | "sad";
+  | "reveal" | "best" | "rank" | "levelUp" | "reward" | "unlock" | "throw" | "hit" | "happy" | "sad" | "laugh" | "cry" | "angry";
 
 let ctx: AudioContext | null = null;
 const KEY = "zqcm-sound";
@@ -69,6 +69,9 @@ export function play(s: Sfx) {
     case "throw": tone(300, 0, 0.35, "sine", 0.08, 1200); break;
     case "hit": noise(0, 0.25, 0.3); tone(120, 0, 0.2, "sine", 0.2, 60); break;
     case "happy": tone(880, 0, 0.08); tone(1175, 0.07, 0.1); break;
+    case "laugh": [0, .13, .26, .39].forEach((t, i) => tone(620 + i * 40, t, .09, "triangle", .1, 760 + i * 40)); break;
+    case "cry": [0, .35, .7].forEach((t) => tone(520, t, .32, "sine", .08, 260)); break;
+    case "angry": [0, .12, .24].forEach((t) => tone(150, t, .1, "sawtooth", .1, 110)); noise(.05, .25, .08); break;
     case "sad": tone(400, 0, 0.2, "sine", 0.08, 300); break;
   }
 }
