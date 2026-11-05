@@ -13,6 +13,8 @@ const NAV = [
   { to: "/mes-erreurs", icon: "🔁", label: "QCM أخطائي السابقة", ar: true },
   { to: "/leaderboard", icon: "🏆", label: "Leaderboard" },
   { to: "/missions", icon: "🎯", label: "Missions" },
+  { to: "/mes-cours", icon: "📄", label: "Mes cours PDF" },
+  { to: "/discussion", icon: "💬", label: "Discussion" },
   { to: "/profile", icon: "👤", label: "Profile" },
   { to: "/settings", icon: "⚙️", label: "Settings" },
 ] as const;
