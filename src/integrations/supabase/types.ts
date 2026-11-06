@@ -764,6 +764,10 @@ export type Database = {
         Args: { _attempt: string; _q: string; _sel: string[] }
         Returns: Json
       }
+      apply_question_correction: {
+        Args: { _accept: boolean; _id: string }
+        Returns: undefined
+      }
       attempt_review: {
         Args: { _attempt: string }
         Returns: {

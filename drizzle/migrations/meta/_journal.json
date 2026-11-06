@@ -36,6 +36,13 @@
       "when": 1793996332785,
       "tag": "0004_corrections_reactions_avatar_admin",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793996352019,
+      "tag": "0005_fix_admin_stats_apply_correction",
+      "breakpoints": true
     }
   ]
 }
