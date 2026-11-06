@@ -77,6 +77,24 @@ export type Database = {
           },
         ]
       }
+      avatar_settings: {
+        Row: {
+          disabled: Json
+          id: number
+          updated_at: string
+        }
+        Insert: {
+          disabled?: Json
+          id?: number
+          updated_at?: string
+        }
+        Update: {
+          disabled?: Json
+          id?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       courses: {
         Row: {
           id: string
@@ -137,6 +155,35 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      discussion_reactions: {
+        Row: {
+          created_at: string
+          emoji: string
+          message_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          emoji: string
+          message_id: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          emoji?: string
+          message_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "discussion_reactions_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "discussion_messages"
             referencedColumns: ["id"]
           },
         ]
@@ -396,6 +443,62 @@ export type Database = {
         }
         Relationships: []
       }
+      question_corrections: {
+        Row: {
+          confidence: string | null
+          created_at: string
+          id: string
+          issue: string
+          justification: string | null
+          original: Json | null
+          proposed_case_text: string | null
+          proposed_correct: string[] | null
+          proposed_options: Json | null
+          proposed_stem: string | null
+          question_id: string
+          reviewed_at: string | null
+          status: string
+        }
+        Insert: {
+          confidence?: string | null
+          created_at?: string
+          id?: string
+          issue: string
+          justification?: string | null
+          original?: Json | null
+          proposed_case_text?: string | null
+          proposed_correct?: string[] | null
+          proposed_options?: Json | null
+          proposed_stem?: string | null
+          question_id: string
+          reviewed_at?: string | null
+          status?: string
+        }
+        Update: {
+          confidence?: string | null
+          created_at?: string
+          id?: string
+          issue?: string
+          justification?: string | null
+          original?: Json | null
+          proposed_case_text?: string | null
+          proposed_correct?: string[] | null
+          proposed_options?: Json | null
+          proposed_stem?: string | null
+          question_id?: string
+          reviewed_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "question_corrections_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: true
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       question_keys: {
         Row: {
           correct: string[]
@@ -639,9 +742,31 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_student_stats: {
+        Args: never
+        Returns: {
+          avatar: Json
+          avg_score: number
+          best_score: number
+          coins: number
+          created_at: string
+          display_name: string
+          exams_done: number
+          last_active: string
+          mistakes_open: number
+          practice_done: number
+          streak: number
+          user_id: string
+          xp: number
+        }[]
+      }
       answer_practice: {
         Args: { _attempt: string; _q: string; _sel: string[] }
         Returns: Json
+      }
+      apply_question_correction: {
+        Args: { _accept: boolean; _id: string }
+        Returns: undefined
       }
       attempt_review: {
         Args: { _attempt: string }

@@ -29,6 +29,20 @@
       "when": 1793837104536,
       "tag": "0003_discussion_and_lesson_generation",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793996332785,
+      "tag": "0004_corrections_reactions_avatar_admin",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793996352019,
+      "tag": "0005_fix_admin_stats_apply_correction",
+      "breakpoints": true
     }
   ]
 }
