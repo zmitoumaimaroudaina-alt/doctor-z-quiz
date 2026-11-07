@@ -1,0 +1,8 @@
+{
+  "name": "Doctor Z Quiz",
+  "description": "Medical QCM game for medical students featuring 8 subjects, exam simulations, course practice, interactive avatar creator with live mood, leaderboard with tomato throws, and missions.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
