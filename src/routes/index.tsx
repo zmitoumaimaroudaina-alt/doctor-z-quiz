@@ -1,6 +1,6 @@
 import { pageMetadata } from "@/lib/metadata";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import opening from "@/assets/medical-chess.png.asset.json";
+import medicalChessImg from "@/assets/images/medical_chess_1794580446834.jpg";
 import { Brand } from "@/components/AppShell";
 
 export const Route = createFileRoute("/")({
@@ -30,7 +30,12 @@ function Landing() {
             ))}
           </div>
         </div>
-        <img src={opening.url} alt="Étudiante en médecine jouant aux échecs contre la mort" className="w-full rounded-3xl shadow-pop" />
+        <img
+          src={medicalChessImg}
+          alt="Étudiante en médecine jouant aux échecs contre la mort"
+          referrerPolicy="no-referrer"
+          className="w-full rounded-3xl shadow-pop"
+        />
       </section>
     </div>
   );

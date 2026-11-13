@@ -13,6 +13,14 @@ type SignInOptions = {
 export const lovable = {
   auth: {
     signInWithOAuth: async (provider: OAuthProvider, opts?: SignInOptions) => {
+      if (!import.meta.env["VITE_SUPABASE_URL"]) {
+        const res = await supabase.auth.signInWithPassword({
+          email: "etudiant@univ-blida.dz",
+          password: "preview-user",
+        });
+        return { redirected: false as const, ...res };
+      }
+
       const result = await lovableAuth.signInWithOAuth(provider, {
         ...opts,
         extraParams: {

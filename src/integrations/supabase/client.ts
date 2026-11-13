@@ -44,12 +44,15 @@ function createSupabaseFetch(supabaseUrl: string, supabaseKey: string): typeof f
   };
 }
 
-function createSupabaseClient() {
-  const SUPABASE_URL = import.meta.env['VITE_SUPABASE_URL'] || process.env['SUPABASE_URL'] || 'https://doctorz-mock.supabase.co';
-  const SUPABASE_PUBLISHABLE_KEY = import.meta.env['VITE_SUPABASE_PUBLISHABLE_KEY'] || process.env['SUPABASE_PUBLISHABLE_KEY'] || 'sb_publishable_dummy_key_for_offline_preview';
+import { createMockSupabaseClient } from './mockClient';
 
-  if (!import.meta.env['VITE_SUPABASE_URL'] && !process.env['SUPABASE_URL']) {
+function createSupabaseClient() {
+  const SUPABASE_URL = import.meta.env['VITE_SUPABASE_URL'] || process.env['SUPABASE_URL'];
+  const SUPABASE_PUBLISHABLE_KEY = import.meta.env['VITE_SUPABASE_PUBLISHABLE_KEY'] || process.env['SUPABASE_PUBLISHABLE_KEY'];
+
+  if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
     console.warn('[Supabase] Running in local/preview mode with client-side fallback storage.');
+    return createMockSupabaseClient();
   }
 
   return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
