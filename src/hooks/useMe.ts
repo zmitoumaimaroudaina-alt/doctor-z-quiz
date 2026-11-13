@@ -1,6 +1,12 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { AvatarConfig } from "@/components/Avatar";
+import {
+  buildDefaultProfile,
+  getSavedProfileByEmail,
+  normalizeEmail,
+  saveProfileDurable,
+} from "@/lib/profileStore";
 
 export type Me = {
   id: string;
@@ -21,7 +27,7 @@ export function useMe() {
   return useQuery({
     queryKey: ["me"],
     queryFn: async (): Promise<Me | null> => {
-      let userObj: { id: string; email?: string | null } | null = null;
+      let userObj: { id: string; email?: string | null; user_metadata?: { full_name?: string } } | null = null;
       try {
         const { data: u } = await supabase.auth.getUser();
         if (u?.user) userObj = u.user;
@@ -32,46 +38,70 @@ export function useMe() {
       if (!userObj && typeof window !== "undefined") {
         const local = localStorage.getItem("doctorz_user");
         if (local) {
-          try { userObj = JSON.parse(local); } catch { /* ignore */ }
+          try {
+            userObj = JSON.parse(local);
+          } catch {
+            /* ignore */
+          }
         }
       }
 
       if (!userObj) return null;
 
+      const email = normalizeEmail(userObj.email) || "etudiant@univ-blida.dz";
+      const isDoctorZ = email === "doctorzmit@gmail.com";
+      const savedLocal = getSavedProfileByEmail(email);
+
       try {
         const [{ data: p }, { data: creator }] = await Promise.all([
-          supabase.from("profiles").select("id, display_name, avatar, pet, bubble, xp, coins, streak, sound_on, onboarded").eq("id", userObj.id).maybeSingle(),
+          supabase
+            .from("profiles")
+            .select("id, display_name, avatar, pet, bubble, xp, coins, streak, sound_on, onboarded")
+            .eq("id", userObj.id)
+            .maybeSingle(),
           supabase.rpc("is_creator"),
         ]);
         if (p) {
-          return {
+          const merged: Me = {
             ...(p as unknown as Omit<Me, "email" | "isCreator">),
-            email: userObj.email ?? null,
-            isCreator: creator === true || userObj.email === "doctorzmit@gmail.com",
+            // Prefer savedLocal avatar/pet/display_name if local profile has edits for this email
+            display_name: savedLocal?.display_name ?? (p as { display_name?: string | null }).display_name ?? null,
+            avatar: savedLocal?.avatar ?? (p as { avatar: AvatarConfig }).avatar,
+            pet: savedLocal?.pet ?? (p as { pet?: string | null }).pet ?? null,
+            bubble: savedLocal?.bubble ?? (p as { bubble?: string | null }).bubble ?? null,
+            xp: Math.max(Number((p as { xp?: number }).xp ?? 0), Number(savedLocal?.xp ?? 0)),
+            coins: Math.max(Number((p as { coins?: number }).coins ?? 0), Number(savedLocal?.coins ?? 0)),
+            email,
+            isCreator: creator === true || isDoctorZ,
           };
+          saveProfileDurable(email, merged);
+          return merged;
         }
       } catch {
         // ignore
       }
 
-      // Local profile fallback
-      const localProfileStr = typeof window !== "undefined" ? localStorage.getItem("doctorz_profile") : null;
-      const localP = localProfileStr ? JSON.parse(localProfileStr) : null;
+      const fallback =
+        savedLocal ??
+        saveProfileDurable(
+          email,
+          buildDefaultProfile(email, userObj.user_metadata?.full_name, isDoctorZ),
+          userObj.user_metadata?.full_name,
+        )!;
 
-      const isDoctorZ = userObj.email === "doctorzmit@gmail.com";
       return {
         id: userObj.id,
-        email: userObj.email ?? "etudiant@univ-blida.dz",
-        display_name: localP?.display_name ?? (isDoctorZ ? "Doctor Z" : "Étudiant Dr. Z"),
-        avatar: localP?.avatar ?? { gender: isDoctorZ ? "m" : "m", skin: 1, eyes: 0, hair: 0, hairColor: 0, hijab: 0, outfit: 0, accessory: 1 },
-        pet: localP?.pet ?? "cat",
-        bubble: localP?.bubble ?? (isDoctorZ ? "Doctor Z ici! 🩺" : "Yallah! 💪"),
-        xp: localP?.xp ?? (isDoctorZ ? 999999 : 120),
-        coins: localP?.coins ?? (isDoctorZ ? 999999 : 50),
-        streak: localP?.streak ?? 3,
-        sound_on: localP?.sound_on ?? true,
-        onboarded: true,
-        isCreator: isDoctorZ,
+        email,
+        display_name: fallback.display_name,
+        avatar: fallback.avatar,
+        pet: fallback.pet,
+        bubble: fallback.bubble,
+        xp: fallback.xp,
+        coins: fallback.coins,
+        streak: fallback.streak,
+        sound_on: fallback.sound_on,
+        onboarded: fallback.onboarded,
+        isCreator: isDoctorZ || fallback.isCreator,
       };
     },
     staleTime: 10_000,

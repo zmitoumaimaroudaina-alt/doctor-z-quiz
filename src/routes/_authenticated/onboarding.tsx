@@ -7,6 +7,7 @@ import { useMe, useRefreshMe } from "@/hooks/useMe";
 import { AvatarEditor } from "@/components/AvatarEditor";
 import { Brand } from "@/components/AppShell";
 import { levelFromXp } from "@/lib/game";
+import { saveProfileDurable } from "@/lib/profileStore";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
   head: () => pageMetadata("Créer mon personnage", "Personnalise ton personnage de médecine."),
@@ -40,9 +41,14 @@ function Onboarding() {
           <AvatarEditor initial={me.avatar} pet={me.pet} level={levelFromXp(me.xp).level} unlockAll={me.isCreator} saving={saving}
             onSave={async (avatar, pet) => {
               setSaving(true);
-              const { error } = await supabase.from("profiles").update({ display_name: name.trim(), avatar, pet, onboarded: true }).eq("id", me.id);
+              const trimmedName = (name || me.display_name || "Étudiant").trim();
+              saveProfileDurable(me.email, { display_name: trimmedName, avatar, pet, onboarded: true }, trimmedName);
+              try {
+                await supabase.from("profiles").update({ display_name: trimmedName, avatar, pet, onboarded: true }).eq("id", me.id);
+              } catch {
+                // durable local save already succeeded
+              }
               setSaving(false);
-              if (error) { toast.error(error.message); return; }
               await refresh();
               nav({ to: "/home" });
             }} />

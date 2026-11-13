@@ -56,3 +56,75 @@ export const rpcError = (e: unknown) => {
   if (m.includes("duplicate key")) return "Déjà réclamé.";
   return m;
 };
+
+// 12-Hour Tomato Splatter Rules
+export const TOMATO_DURATION_HOURS = 12;
+export const TOMATO_DURATION_MS = TOMATO_DURATION_HOURS * 3600 * 1000;
+
+export type TomatoHitRecord = {
+  until: number;
+  throwerId?: string;
+  throwerName?: string;
+};
+
+export function recordLocalTomatoHit(userId: string, throwerId?: string, throwerName?: string): number {
+  if (typeof window === "undefined") return Date.now() + TOMATO_DURATION_MS;
+  const until = Date.now() + TOMATO_DURATION_MS;
+  try {
+    const raw = localStorage.getItem("doctorz_tomato_hits") || "{}";
+    const data = JSON.parse(raw);
+    data[userId] = {
+      until,
+      throwerId: throwerId || "user-unknown",
+      throwerName: throwerName || "أحد الأوائل الثلاثة (Top 3)",
+    };
+    localStorage.setItem("doctorz_tomato_hits", JSON.stringify(data));
+  } catch {
+    // ignore
+  }
+  return until;
+}
+
+export function getTomatoHitDetails(userId: string): { isHit: boolean; hoursLeft: number; throwerName?: string } {
+  if (typeof window === "undefined") return { isHit: false, hoursLeft: 0 };
+  try {
+    const raw = localStorage.getItem("doctorz_tomato_hits") || "{}";
+    const data = JSON.parse(raw);
+    const item = data[userId];
+    if (item) {
+      const until = typeof item === "number" ? item : item.until;
+      if (until && until > Date.now()) {
+        const hoursLeft = Math.max(1, Math.ceil((until - Date.now()) / (3600 * 1000)));
+        return {
+          isHit: true,
+          hoursLeft,
+          throwerName: typeof item === "object" ? item.throwerName : "أحد المتصدرين في الترتيب",
+        };
+      }
+    }
+  } catch {
+    // ignore
+  }
+  return { isHit: false, hoursLeft: 0 };
+}
+
+export function isUserTomatoHit(userId: string, remoteUntil?: string | null): boolean {
+  if (remoteUntil && new Date(remoteUntil).getTime() > Date.now()) {
+    return true;
+  }
+  return getTomatoHitDetails(userId).isHit;
+}
+
+export function getUserTomatoHoursLeft(userId: string, remoteUntil?: string | null): number {
+  if (remoteUntil) {
+    const target = new Date(remoteUntil).getTime();
+    if (target > Date.now()) {
+      return Math.max(1, Math.ceil((target - Date.now()) / (3600 * 1000)));
+    }
+  }
+  return getTomatoHitDetails(userId).hoursLeft;
+}
+
+export function getUserTomatoThrower(userId: string): string {
+  return getTomatoHitDetails(userId).throwerName || "أحد الأوائل الثلاثة (Top 3) 🏆";
+}

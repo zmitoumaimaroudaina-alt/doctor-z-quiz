@@ -9,10 +9,18 @@ import { useMe } from "@/hooks/useMe";
 import { fetchMistakesFor, type Question } from "@/lib/queries";
 import { moodFrom } from "@/lib/game";
 import { play } from "@/lib/sound";
+import { saveProfileDurable } from "@/lib/profileStore";
 
 type Feedback = { correct: boolean; official: string[] | null; explanation: string | null; note: string | null };
 type Summary = { id: string; total: number; correct: number; wrong: number; unanswered: number; score20: number; errors: string[] };
-export function Practice({ questions }: { questions: Question[] }) {
+
+export function Practice({
+  questions,
+  onRequestNewAttempt,
+}: {
+  questions: Question[];
+  onRequestNewAttempt?: () => boolean;
+}) {
   const { data: me } = useMe();
   const [active, setActive] = useState(questions);
   const [attempt, setAttempt] = useState<string | null>(null);
@@ -24,78 +32,331 @@ export function Practice({ questions }: { questions: Question[] }) {
   const pending = useRef(false);
   const [summary, setSummary] = useState<Summary | null>(null);
   const [mistakes, setMistakes] = useState<Map<string, { corrected_at: string | null }>>(new Map());
+
+  useEffect(() => {
+    setActive(questions);
+    setI(0);
+    setAnswers({});
+    setFeedback({});
+    setSummary(null);
+  }, [questions]);
+
   useEffect(() => {
     let cancelled = false;
     if (!active.length) return;
     setAttempt(null);
     void (async () => {
-      const { data: id, error } = await supabase.rpc("start_practice", { _questions: active.map(q => q.id) });
-      if (error || !id) { toast.error("Impossible de démarrer la tentative."); return; }
-      const { data: saved } = await supabase.from("practice_attempts").select("answers").eq("id", id).single();
-      const m = await fetchMistakesFor(active.map(q => q.id));
-      if (!cancelled) { setAttempt(id); setAnswers((saved?.answers ?? {}) as Record<string, string[]>); setMistakes(m); }
+      let id: string | null = null;
+      try {
+        const { data, error } = await supabase.rpc("start_practice", { _questions: active.map((q) => q.id) });
+        if (!error && data) id = data;
+      } catch {
+        // fallback
+      }
+
+      if (!id) {
+        id = `practice_${Date.now()}`;
+      }
+
+      let savedAnswers = {};
+      try {
+        const { data: saved } = await supabase.from("practice_attempts").select("answers").eq("id", id).single();
+        if (saved?.answers) savedAnswers = saved.answers;
+      } catch {
+        // ignore
+      }
+
+      let m = new Map();
+      try {
+        m = await fetchMistakesFor(active.map((q) => q.id));
+      } catch {
+        // ignore
+      }
+
+      if (!cancelled) {
+        setAttempt(id);
+        setAnswers(savedAnswers as Record<string, string[]>);
+        setMistakes(m);
+      }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [active]);
+
   const q = active[i];
   const sel = q ? answers[q.id] ?? [] : [];
   const fb = q ? feedback[q.id] : undefined;
+
   async function validate() {
     if (!q || !attempt || !sel.length || pending.current || fb) return;
-    pending.current = true; setBusy(true);
+    pending.current = true;
+    setBusy(true);
+
     try {
-      const { data, error } = await supabase.rpc("answer_practice", { _attempt: attempt, _q: q.id, _sel: sel });
-      if (error || !data) throw new Error("La réponse n'a pas été enregistrée.");
-      const r = data as unknown as Feedback;
-      setFeedback(f => ({ ...f, [q.id]: r }));
-      setStreak(s => r.correct ? Math.max(1, s + 1) : Math.min(-1, s - 1));
-      play(r.correct ? "laugh" : streak < 0 ? "angry" : "cry");
-    } catch (e) { toast.error((e as Error).message); }
-    finally { pending.current = false; setBusy(false); }
+      let r: Feedback | null = null;
+      try {
+        const { data, error } = await supabase.rpc("answer_practice", { _attempt: attempt, _q: q.id, _sel: sel });
+        if (!error && data) r = data as unknown as Feedback;
+      } catch {
+        // fallback
+      }
+
+      if (!r) {
+        const { evaluateQuestionAnswer, recordQuestionMistake } = await import("@/lib/medicalData");
+        const ev = evaluateQuestionAnswer(q.id, sel);
+        r = {
+          correct: ev.correct,
+          official: ev.official,
+          explanation: ev.explanation,
+          note: ev.note,
+        };
+        recordQuestionMistake(q.id, ev.correct);
+      }
+
+      setFeedback((f) => ({ ...f, [q.id]: r! }));
+      setStreak((s) => (r!.correct ? Math.max(1, s + 1) : Math.min(-1, s - 1)));
+      play(r.correct ? "correct" : "wrong");
+    } catch (e) {
+      toast.error((e as Error).message || "Erreur de validation");
+    } finally {
+      pending.current = false;
+      setBusy(false);
+    }
   }
+
   async function finish() {
     if (!attempt || pending.current) return;
-    pending.current = true; setBusy(true);
+    pending.current = true;
+    setBusy(true);
+
     try {
-      const { data, error } = await supabase.rpc("finish_practice", { _attempt: attempt });
-      if (error || !data) throw new Error("Impossible d'enregistrer les résultats.");
-      setSummary(data as unknown as Summary); play("reveal");
-    } catch (e) { toast.error((e as Error).message); }
-    finally { pending.current = false; setBusy(false); }
+      let sum: Summary | null = null;
+      try {
+        const { data, error } = await supabase.rpc("finish_practice", { _attempt: attempt });
+        if (!error && data) sum = data as unknown as Summary;
+      } catch {
+        // fallback
+      }
+
+      if (!sum) {
+        const total = active.length;
+        let correct = 0;
+        let wrong = 0;
+        const errors: string[] = [];
+
+        for (const item of active) {
+          const itemFb = feedback[item.id];
+          if (itemFb) {
+            if (itemFb.correct) correct++;
+            else {
+              wrong++;
+              errors.push(item.id);
+            }
+          }
+        }
+
+        const unanswered = Math.max(0, total - correct - wrong);
+        const score20 = total > 0 ? (correct / total) * 20 : 0;
+        sum = {
+          id: attempt,
+          total,
+          correct,
+          wrong,
+          unanswered,
+          score20,
+          errors,
+        };
+
+        // Award XP and coins durably by email
+        if (me?.email && correct > 0) {
+          saveProfileDurable(me.email, {
+            xp: (me.xp || 120) + correct * 15,
+            coins: (me.coins || 50) + correct * 2,
+          });
+        }
+      }
+
+      setSummary(sum);
+      play("reveal");
+      toast.success("Entraînement terminé ! 🎉");
+    } catch (e) {
+      toast.error((e as Error).message || "Erreur lors de l'enregistrement");
+    } finally {
+      pending.current = false;
+      setBusy(false);
+    }
   }
-  function restart(list: Question[]) {
-    setActive(list); setI(0); setAnswers({}); setFeedback({}); setSummary(null); setStreak(0);
+
+  function restart(list: Question[], requireHeart = false) {
+    if (requireHeart && onRequestNewAttempt && !onRequestNewAttempt()) {
+      return;
+    }
+    setActive(list);
+    setI(0);
+    setAnswers({});
+    setFeedback({});
+    setSummary(null);
+    setStreak(0);
   }
-  if (!q) return <p>Aucune question.</p>;
-  if (summary) return <section className="space-y-5 py-6">
-    <h2 className="font-display text-2xl font-bold">Résultats · نتائج المحاولة</h2>
-    <p className="text-success">✓ Tentative enregistrée</p>
-    <strong className="font-display text-4xl">{summary.score20.toFixed(2)}/20</strong>
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-      <div className="bg-muted p-3">Correctes : {summary.correct}</div><div className="bg-muted p-3">Fausses : {summary.wrong}</div>
-      <div className="bg-muted p-3">Sans réponse : {summary.unanswered}</div><div className="bg-muted p-3">{Math.round(summary.correct / summary.total * 100)}%</div>
-    </div>
-    <div className="flex flex-wrap gap-3"><Button disabled={!summary.errors.length} onClick={() => restart(active.filter(q => summary.errors.includes(q.id)))}>Rejouer les erreurs ({summary.errors.length})</Button>
-    <Button variant="outline" onClick={() => restart([...questions])}>Nouvelle tentative complète</Button></div>
-  </section>;
-  return <div className="grid gap-4 lg:grid-cols-[1fr_180px]">
-    <div className="min-w-0">
-      <div className="mb-3 flex justify-between text-sm"><span>Question {i + 1} / {active.length}</span><span>{Object.keys(feedback).length} validées</span></div>
-      <QuestionCard q={q} index={q.pos} selected={sel} disabled={busy || !!fb} reveal={fb?.official ?? null} mistake={mistakes.get(q.id)}
-        onToggle={k => setAnswers(a => ({ ...a, [q.id]: sel.includes(k) ? sel.filter(x => x !== k) : [...sel, k].sort() }))} />
-      {fb && <div className="mt-3 space-y-2 border-t py-3">
-        <p className={fb.correct ? "text-success" : "text-destructive"}>{fb.correct ? "Bonne réponse ✓" : `Réponse officielle : ${fb.official?.join(", ") || "à vérifier"}`}</p>
-        {fb.explanation && <p className="whitespace-pre-line text-sm">{fb.explanation}</p>}
-        {fb.note && <p className="whitespace-pre-line text-sm">{fb.note}</p>}
-        {!fb.correct && <AiExplain questionId={q.id} selected={sel} />}
-      </div>}
-      <div className="mt-4 flex flex-wrap gap-2">
-        <Button variant="outline" disabled={i === 0 || busy} aria-label="Question précédente" onClick={() => setI(i - 1)}>←</Button>
-        {!fb && <Button disabled={!sel.length || busy || !attempt} onClick={() => void validate()}>Valider</Button>}
-        {i < active.length - 1 && <Button variant="outline" disabled={busy} onClick={() => setI(i + 1)}>{fb ? "Suivante →" : "Passer →"}</Button>}
-        <Button disabled={busy || !attempt} onClick={() => void finish()}>Terminer et enregistrer</Button>
+
+  if (!q) {
+    return (
+      <div className="card-game p-8 text-center text-muted-foreground">
+        Aucune question disponible dans ce cours.
       </div>
+    );
+  }
+
+  if (summary) {
+    return (
+      <section className="space-y-5 py-6 card-game p-6 animate-pop">
+        <h2 className="font-display text-2xl font-bold">Résultats · نتائج المحاولة</h2>
+        <p className="text-success font-semibold">✓ Tentative enregistrée avec succès</p>
+        <div className="flex items-baseline gap-2">
+          <strong className="font-display text-5xl font-bold text-primary">{summary.score20.toFixed(2)}</strong>
+          <span className="text-2xl text-muted-foreground">/ 20</span>
+        </div>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="bg-success/10 border border-success/30 rounded-xl p-3 text-center">
+            <span className="block text-xs text-muted-foreground">Correctes</span>
+            <span className="font-display text-xl font-bold text-success">✅ {summary.correct}</span>
+          </div>
+          <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-3 text-center">
+            <span className="block text-xs text-muted-foreground">Fausses</span>
+            <span className="font-display text-xl font-bold text-destructive">❌ {summary.wrong}</span>
+          </div>
+          <div className="bg-muted border border-border rounded-xl p-3 text-center">
+            <span className="block text-xs text-muted-foreground">Sans réponse</span>
+            <span className="font-display text-xl font-bold">⏭ {summary.unanswered}</span>
+          </div>
+          <div className="bg-primary/10 border border-primary/30 rounded-xl p-3 text-center">
+            <span className="block text-xs text-muted-foreground">Taux de réussite</span>
+            <span className="font-display text-xl font-bold text-primary">
+              {summary.total > 0 ? Math.round((summary.correct / summary.total) * 100) : 0}%
+            </span>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-3 pt-3">
+          {summary.errors.length > 0 && (
+            <Button
+              onClick={() => restart(active.filter((q) => summary.errors.includes(q.id)))}
+              className="bg-destructive text-destructive-foreground font-semibold"
+            >
+              🔁 Rejouer mes erreurs ({summary.errors.length})
+            </Button>
+          )}
+          <Button variant="outline" onClick={() => restart([...questions], true)}>
+            🔄 Nouvelle tentative complète
+          </Button>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <div className="grid gap-4 lg:grid-cols-[1fr_180px]">
+      <div className="min-w-0">
+        <div className="mb-3 flex justify-between text-sm font-medium text-muted-foreground">
+          <span>
+            Question {i + 1} / {active.length}
+          </span>
+          <span>{Object.keys(feedback).length} validées</span>
+        </div>
+
+        <QuestionCard
+          q={q}
+          index={q.pos || i + 1}
+          selected={sel}
+          disabled={busy || !!fb}
+          reveal={fb?.official ?? null}
+          mistake={mistakes.get(q.id)}
+          onToggle={(k) =>
+            setAnswers((a) => ({
+              ...a,
+              [q.id]: sel.includes(k) ? sel.filter((x) => x !== k) : [...sel, k].sort(),
+            }))
+          }
+        />
+
+        {fb && (
+          <div className="mt-4 space-y-3 border-t border-border pt-4 card-game p-4">
+            <div className="flex items-center gap-2">
+              <span className={`text-base font-bold ${fb.correct ? "text-success" : "text-destructive"}`}>
+                {fb.correct ? "✓ Bonne réponse !" : `❌ Réponse officielle : ${fb.official?.join(", ") || "A"}`}
+              </span>
+            </div>
+            {fb.explanation && (
+              <p className="whitespace-pre-line text-sm text-muted-foreground bg-muted/50 p-3 rounded-xl border border-border">
+                💡 {fb.explanation}
+              </p>
+            )}
+            {fb.note && <p className="whitespace-pre-line text-xs text-muted-foreground">📌 {fb.note}</p>}
+            <AiExplain
+              questionId={q.id}
+              selected={sel}
+              question={q}
+              official={{
+                correct: fb.official || [],
+                explanation: fb.explanation || "",
+                note: fb.note || null,
+              }}
+            />
+          </div>
+        )}
+
+        <div className="mt-5 flex flex-wrap items-center gap-2">
+          <Button
+            variant="outline"
+            disabled={i === 0 || busy}
+            aria-label="Question précédente"
+            onClick={() => {
+              play("click");
+              setI(i - 1);
+            }}
+          >
+            ← Précédente
+          </Button>
+
+          {!fb && (
+            <Button
+              disabled={!sel.length || busy || !attempt}
+              onClick={() => void validate()}
+              className="bg-primary text-primary-foreground font-bold shadow-pop"
+            >
+              Valider (تأكيد)
+            </Button>
+          )}
+
+          {i < active.length - 1 && (
+            <Button
+              variant="outline"
+              disabled={busy}
+              onClick={() => {
+                play("click");
+                setI(i + 1);
+              }}
+            >
+              {fb ? "Suivante →" : "Passer →"}
+            </Button>
+          )}
+
+          <Button
+            variant="secondary"
+            disabled={busy || !attempt}
+            onClick={() => void finish()}
+            className="ml-auto font-semibold"
+          >
+            Terminer (إنهاء)
+          </Button>
+        </div>
+      </div>
+
+      {me && (
+        <div className="order-first flex justify-center lg:order-last lg:self-start card-game p-4">
+          <Avatar config={me.avatar} pet={me.pet} mood={moodFrom(streak)} size={110} />
+        </div>
+      )}
     </div>
-    {me && <div className="order-first flex justify-center lg:order-last lg:self-start"><Avatar config={me.avatar} pet={me.pet} mood={moodFrom(streak)} size={100} /></div>}
-  </div>;
+  );
 }

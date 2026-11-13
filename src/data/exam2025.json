@@ -1,0 +1,1117 @@
+{
+  "exam": "UEI-1 – 3ème année médecine – Faculté de médecine El Mahdi Si Ahmed, Université Blida 01 (2025/2026)",
+  "total_questions": 70,
+  "questions": [
+    {
+      "id": 1,
+      "subject": "Physiopathologie",
+      "question": "Le syndrome du choc cardiogénique :",
+      "statements": {
+        "A": "traduit l'existence d'une hypoxie tissulaire.",
+        "B": "traduit un transport d'oxygène supérieur à la demande d'oxygène",
+        "C": "signe l'existence d'un débit cardiaque abaissé.",
+        "D": "s'accompagne d'une diminution des résistances périphériques.",
+        "E": "s'accompagne d'une acidose lactique"
+      },
+      "options": {
+        "A": "A, C, D",
+        "B": "B, E",
+        "C": "A, B, D",
+        "D": "A, C, E",
+        "E": "C, D, E"
+      },
+      "answer": "D",
+      "answer_text": "A, C, E"
+    },
+    {
+      "id": 2,
+      "subject": "Physiopathologie",
+      "question": "Les étiologies du choc cardiogénique",
+      "statements": {
+        "A": "Syndrome coronarien aigu.",
+        "B": "Rétrécissement aortique.",
+        "C": "Infection pulmonaire",
+        "D": "Déshydratation",
+        "E": "Embolie pulmonaire massive."
+      },
+      "options": {
+        "A": "A, B, E",
+        "B": "A, C, D",
+        "C": "B, D, E",
+        "D": "A, B, C",
+        "E": "C, D, E"
+      },
+      "answer": "A",
+      "answer_text": "A, B, E"
+    },
+    {
+      "id": 3,
+      "subject": "Physiopathologie",
+      "question": "Un choc anaphylactique",
+      "statements": {
+        "A": "Peut être mortel",
+        "B": "Peut-être provoqué par un aliment ingéré",
+        "C": "C'est une réaction d'hypersensibilité type IV",
+        "D": "Peut être d'origine immunologique",
+        "E": "Devrait être pris en charge immédiatement"
+      },
+      "options": {
+        "A": "A, B, C, E",
+        "B": "B, D, E",
+        "C": "A, B, D, E",
+        "D": "A, C, D",
+        "E": "A, B, E"
+      },
+      "answer": "C",
+      "answer_text": "A, B, D, E"
+    },
+    {
+      "id": 4,
+      "subject": "Physiopathologie",
+      "question": "L'hypersensibilité immédiate",
+      "statements": {
+        "A": "Peut provoquer un œdème pharyngé",
+        "B": "Est une pathologie banale et très fréquente",
+        "C": "Est une anaphylaxie avec un potentiel mortel",
+        "D": "Survient uniquement chez l'enfant",
+        "E": "Est pris en charge à domicile en procédant à l'éviction de l'allergène"
+      },
+      "options": {
+        "A": "A, B, C",
+        "B": "A, C",
+        "C": "B, D, E",
+        "D": "A, C, E",
+        "E": "C, D"
+      },
+      "answer": "B",
+      "answer_text": "A, C"
+    },
+    {
+      "id": 5,
+      "subject": "Physiopathologie",
+      "question": "Concernant les médiateurs protéiques impliqués dans la physiopathologie du choc anaphylactique :",
+      "statements": {
+        "A": "L'Histamine est un médiateur majeur libéré par les mastocytes.",
+        "B": "L'Albumine joue un rôle central dans la cascade inflammatoire.",
+        "C": "La Tryptase est un marqueur spécifique de la dégranulation mastocytaire.",
+        "D": "Le TNF (Tumor Necrosis Factor) participe à la phase inflammatoire.",
+        "E": "L'Interleukine 3 intervient dans la régulation et l'activation des cellules effectrices."
+      },
+      "options": {
+        "A": "A, B, C",
+        "B": "B, D, E",
+        "C": "A, C, D, E",
+        "D": "A, C, E",
+        "E": "A, B, D"
+      },
+      "answer": "C",
+      "answer_text": "A, C, D, E"
+    },
+    {
+      "id": 6,
+      "subject": "Physiopathologie",
+      "question": "Concernant les effets physiologiques de l'histamine, cette molécule est à l'origine de :",
+      "statements": {
+        "A": "Une diminution du péristaltisme digestif",
+        "B": "Une vasodilatation périphérique",
+        "C": "Nausées et vomissements",
+        "D": "Un effet chronotrope positif",
+        "E": "Une hypersécrétion de mucus"
+      },
+      "options": {
+        "A": "A, B, C, D",
+        "B": "B, C, D, E",
+        "C": "A, C, E",
+        "D": "B, D, E",
+        "E": "A, B, E"
+      },
+      "answer": "B",
+      "answer_text": "B, C, D, E"
+    },
+    {
+      "id": 7,
+      "subject": "Physiopathologie",
+      "question": "Concernant la physiopathologie de l'œdème pulmonaire cardiogénique :",
+      "statements": {
+        "A": "Une augmentation massive de la perméabilité de la membrane alvéolo-capillaire",
+        "B": "Une élévation de la pression hydrostatique capillaire pulmonaire (Pc)",
+        "C": "Une diminution brutale de la pression oncotique plasmatique",
+        "D": "Absence de lésion directe de la membrane alvéolo-capillaire",
+        "E": "Une hyperproduction de surfactant"
+      },
+      "options": {
+        "A": "A, B",
+        "B": "B, C",
+        "C": "B, D",
+        "D": "A, D",
+        "E": "C, E"
+      },
+      "answer": "C",
+      "answer_text": "B, D"
+    },
+    {
+      "id": 8,
+      "subject": "Physiopathologie",
+      "question": "La loi de Starling appliquée à la physiologie des capillaires pulmonaires explique :",
+      "statements": {
+        "A": "Les mouvements de fluides à travers la paroi capillaire",
+        "B": "L'équilibre entre les forces hydrostatiques et oncotiques",
+        "C": "La contraction des myocytes cardiaques en fonction de l'étirement",
+        "D": "L'échange actif de protéines à travers la barrière alvéolo-capillaire",
+        "E": "Les conditions favorisant la filtration ou la réabsorption"
+      },
+      "options": {
+        "A": "A, B, C",
+        "B": "B, C, E",
+        "C": "A, B, E",
+        "D": "A, D, E",
+        "E": "B, D"
+      },
+      "answer": "C",
+      "answer_text": "A, B, E"
+    },
+    {
+      "id": 9,
+      "subject": "Physiopathologie",
+      "question": "Concernant la distinction et la progression entre Infection, Sepsis et Choc Septique :",
+      "statements": {
+        "A": "L'infection correspond à la réaction de l'hôte face à l'invasion d'un pathogène, sans dysfonction d'organe obligatoire.",
+        "B": "Le sepsis se distingue de l'infection simple par une réponse dérégulée de l'hôte entraînant une dysfonction d'organe (score SOFA ≥ 2).",
+        "C": "Le choc septique est défini comme un sous-groupe du sepsis où les perturbations circulatoires et métaboliques augmentent significativement la mortalité.",
+        "D": "Pour poser le diagnostic de choc septique, il est impératif d'avoir l'association : besoin de vasopresseurs (pour PAM ≥ 65 mmHg) ET une lactatémie > 2 mmol/L malgré le remplissage vasculaire",
+        "E": "L'hyperlactatémie (> 2 mmol/L) est un critère facultatif (optionnel) pour le diagnostic de choc septique"
+      },
+      "options": {
+        "A": "A, B, C, D",
+        "B": "A, C, D, E",
+        "C": "B, C, E",
+        "D": "A, B, E",
+        "E": "C, D, E"
+      },
+      "answer": "A",
+      "answer_text": "A, B, C, D"
+    },
+    {
+      "id": 10,
+      "subject": "Physiopathologie",
+      "question": "À propos de la réponse immunitaire innée et du syndrome CARS au cours du sepsis :",
+      "statements": {
+        "A": "Les récepteurs PRR (Pattern Recognition Receptors) reconnaissent les motifs PAMPs comme le LPS des bactéries Gram négatif",
+        "B": "La phase anti-inflammatoire (CARS) survient toujours après la résolution complète de la phase pro-inflammatoire (SIRS)",
+        "C": "Le TNF-α et l'Interleukine-1β sont des cytokines pro-inflammatoires majeures libérées initialement.",
+        "D": "Les cellules souches mésenchymateuses (pMSC) sécrètent de la Procalcitonine (PCT) en réponse à l'infection.",
+        "E": "L'évolution péjorative est liée à une intensité de la réponse pro-inflammatoire qui l'emporte sur la réponse anti-inflammatoire."
+      },
+      "options": {
+        "A": "A, B, C",
+        "B": "A, C, D, E",
+        "C": "B, D, E",
+        "D": "A, C, E",
+        "E": "C, D"
+      },
+      "answer": "B",
+      "answer_text": "A, C, D, E"
+    },
+    {
+      "id": 11,
+      "subject": "Physiopathologie",
+      "question": "Concernant la physiopathologie de la défaillance hémodynamique au cours du choc septique :",
+      "statements": {
+        "A": "L'hypovolémie est constante dès le début du choc septique",
+        "B": "La phase hyperkinétique (augmentation du débit cardiaque) est une réponse compensatrice à la baisse des résistances vasculaires systémiques.",
+        "C": "Le mécanisme principal est une nécrose ischémique irréversible par obstruction des artères coronaires.",
+        "D": "On observe au niveau cellulaire une « down-régulation » (baisse de sensibilité) des récepteurs β-adrénergiques.",
+        "E": "Les cytokines inflammatoires exercent un effet inotrope négatif (baisse de la contractilité) sur le myocarde."
+      },
+      "options": {
+        "A": "A, B, C, E",
+        "B": "A, B, D, E",
+        "C": "B, C, D",
+        "D": "A, C, E",
+        "E": "C, D, E"
+      },
+      "answer": "B",
+      "answer_text": "A, B, D, E"
+    },
+    {
+      "id": 12,
+      "subject": "Physiopathologie",
+      "question": "Concernant le syndrome de défaillance multiviscérale (SDMV) au cours du choc septique :",
+      "statements": {
+        "A": "Il se définit par l'altération fonctionnelle d'au moins deux organes ou systèmes.",
+        "B": "C'est un processus physiopathologique caractérisé par son caractère potentiellement réversible.",
+        "C": "Il résulte de la généralisation de la réponse inflammatoire et de l'activation diffuse de l'endothélium.",
+        "D": "Les poumons (SDRA) et les reins (insuffisance rénale aiguë) sont des organes fréquemment atteints.",
+        "E": "Une hyperglycémie est une défaillance endocrinienne, due à la réponse physiologique au stress."
+      },
+      "options": {
+        "A": "A, C, D",
+        "B": "A, B, C, D, E",
+        "C": "B, C, E",
+        "D": "A, D, E",
+        "E": "A, B, D"
+      },
+      "answer": "B",
+      "answer_text": "A, B, C, D, E"
+    },
+    {
+      "id": 13,
+      "subject": "Biochimie",
+      "question": "Parmi les propositions suivantes, laquelle peut donner une élévation de la troponine hypersensible sans cause d'ischémie myocardique athéromateuse :",
+      "options": {
+        "A": "Angor stable",
+        "B": "Angor instable",
+        "C": "Myocardite",
+        "D": "Syndrome coronarien aigu",
+        "E": "Insuffisance hépatocellulaire"
+      },
+      "answer": "C",
+      "answer_text": "Myocardite"
+    },
+    {
+      "id": 14,
+      "subject": "Biochimie",
+      "question": "Quelle enzyme antioxydante catalyse directement la transformation du superoxyde (O2•−) en peroxyde d'hydrogène (H2O2) et en dioxygène (O2) ?",
+      "options": {
+        "A": "Catalase",
+        "B": "Glutathion peroxydase",
+        "C": "Glutathion réductase",
+        "D": "Super-oxyde dismutase (SOD)",
+        "E": "Hème oxygénase"
+      },
+      "answer": "D",
+      "answer_text": "Super-oxyde dismutase (SOD)"
+    },
+    {
+      "id": 15,
+      "subject": "Biochimie",
+      "question": "Homme de 62 ans, opéré il y a 3 semaines pour un carcinome colique droit. Il présente une distension abdominale progressive. L'échographie montre une importante ascite. La ponction révèle un liquide lactescent. Analyse du liquide d'ascite : Triglycérides = 2.80 g/L, Cholestérol = 0.90 g/L, Protéines = 12 g/L, culture bactérienne : négatifs. Au niveau du Plasma : triglycérides = 1.60 g/L, Cholestérol : 1.80 g/L, Protéines 65 g/L. Quel est le diagnostic le plus probable ?",
+      "options": {
+        "A": "Ascite pseudo-chyleuse post-chirurgicale",
+        "B": "Tuberculose péritonéale",
+        "C": "Carcinomatose péritonéale",
+        "D": "Ascite chyleuse post-chirurgicale par rupture d'un canal lymphatique mésentérique",
+        "E": "Pancréatite aiguë compliquée"
+      },
+      "answer": "D",
+      "answer_text": "Ascite chyleuse post-chirurgicale par rupture d'un canal lymphatique mésentérique"
+    },
+    {
+      "id": 16,
+      "subject": "Biochimie",
+      "question": "A propos du transport des lipides via les lipoprotéines, donner la réponse fausse",
+      "type": "RF",
+      "options": {
+        "A": "Les HDL transportent le cholestérol du foie aux tissus",
+        "B": "Les chylomicrons fournissent les lipides alimentaires de l'intestin aux tissus",
+        "C": "Les VLDL transportent les TG et le cholestérol du foie vers les tissus",
+        "D": "Les LDL fournissent le cholestérol du foie aux tissus",
+        "E": "Les HDL transportent le cholestérol tissulaire au foie"
+      },
+      "answer": "A",
+      "answer_text": "Les HDL transportent le cholestérol du foie aux tissus"
+    },
+    {
+      "id": 17,
+      "subject": "Biochimie",
+      "question": "Madame P., 57 ans, 60 kg, 1m65, présente le bilan lipidique suivant: Cholestérol total: 2,78 g/L, Triglycérides: 4,51 g/L, Cholestérol HDL : 0,34 g/L, Absence de chylomicron sur gel d'agarose. La patiente est atteinte d'une hyperlipidémie, de quel type s'agit-il ?",
+      "options": {
+        "A": "Type I",
+        "B": "Type IIa",
+        "C": "Type IIb",
+        "D": "Type IV",
+        "E": "Type V"
+      },
+      "answer": "C",
+      "answer_text": "Type IIb"
+    },
+    {
+      "id": 18,
+      "subject": "Biochimie",
+      "question": "Les hyperlipidémies secondaires incluent toutes les situations suivantes, sauf une laquelle :",
+      "options": {
+        "A": "Syndrome néphrotique",
+        "B": "Hypothyroïdie",
+        "C": "Consommation excessive d'alcool",
+        "D": "Insuffisance hépatique sévère",
+        "E": "Diabète sucré"
+      },
+      "answer": "D",
+      "answer_text": "Insuffisance hépatique sévère"
+    },
+    {
+      "id": 19,
+      "subject": "Biochimie",
+      "question": "Quelles sont les caractéristiques du sang capillaire ?",
+      "statements": {
+        "1": "Moins oxygéné et contient moins de glucose",
+        "2": "Plus oxygéné et le glucose est légèrement plus élevé",
+        "3": "Exclusivement veineux et ne contient pas de sang artériel",
+        "4": "Ne peut être prélevé que chez l'adulte",
+        "5": "Peut être prélevé chez le nourrisson et l'adulte"
+      },
+      "options": {
+        "A": "1",
+        "B": "2 + 5",
+        "C": "3",
+        "D": "2 + 4",
+        "E": "1 + 5"
+      },
+      "answer": "B",
+      "answer_text": "2 + 5"
+    },
+    {
+      "id": 20,
+      "subject": "Biochimie",
+      "question": "Dans quel contexte le sang veineux est-il recommandé ?",
+      "options": {
+        "A": "Pour des tests rapides en pédiatrie",
+        "B": "Pour les analyses de confirmation et de diagnostic au laboratoire",
+        "C": "Pour le prélèvement de liquide de ponction pleurale",
+        "D": "Pour la détermination de la gazométrie",
+        "E": "Pour les analyses de sueur"
+      },
+      "answer": "B",
+      "answer_text": "Pour les analyses de confirmation et de diagnostic au laboratoire"
+    },
+    {
+      "id": 21,
+      "subject": "Radiologie",
+      "question": "Les ultrasons : Cochez la RF.",
+      "type": "RF",
+      "options": {
+        "A": "Sont produites par effet piézomagnétique",
+        "B": "C'est des ondes acoustiques",
+        "C": "D'une fréquence supérieure à 20 000 Hz",
+        "D": "Ne comportent pas de risque pour la santé",
+        "E": "Leur formation est basée sur la déformation de la matière"
+      },
+      "answer": "A",
+      "answer_text": "Sont produites par effet piézomagnétique"
+    },
+    {
+      "id": 22,
+      "subject": "Radiologie",
+      "question": "En échographie les faisceaux perpendiculaires seront : Cochez la RF.",
+      "type": "RF",
+      "options": {
+        "A": "Atténués",
+        "B": "Réfléchies",
+        "C": "Détectées par la sonde d'échographie",
+        "D": "Perdue mais continue à être atténuées",
+        "E": "Se propagent en ligne droite"
+      },
+      "answer": "D",
+      "answer_text": "Perdue mais continue à être atténuées"
+    },
+    {
+      "id": 23,
+      "subject": "Radiologie",
+      "question": "Devenir d'une onde ultrasonore : Cochez la RF.",
+      "type": "RF",
+      "options": {
+        "A": "Atténuées",
+        "B": "Réfléchies",
+        "C": "Diffusée",
+        "D": "Elle va subir une réfraction",
+        "E": "Absorbée"
+      },
+      "answer": "E",
+      "answer_text": "Absorbée"
+    },
+    {
+      "id": 24,
+      "subject": "Radiologie",
+      "question": "Parmi ces propositions, laquelle représente l'impédance la plus élevée : Cochez la RJ",
+      "type": "RJ",
+      "options": {
+        "A": "Eau",
+        "B": "Foie",
+        "C": "Os",
+        "D": "Urine",
+        "E": "Sang"
+      },
+      "answer": "C",
+      "answer_text": "Os"
+    },
+    {
+      "id": 25,
+      "subject": "Radiologie",
+      "question": "Propriétés des rayons X : cochez la RF",
+      "type": "RF",
+      "options": {
+        "A": "Traversent le corps humain",
+        "B": "Ils provoquent une illumination des émulsions photographiques",
+        "C": "Utilisés en radiothérapie",
+        "D": "Ils se propagent en ligne droite",
+        "E": "Provoque l'illumination de certains sels minéraux"
+      },
+      "answer": "B",
+      "answer_text": "Ils provoquent une illumination des émulsions photographiques"
+    },
+    {
+      "id": 26,
+      "subject": "Psychologie médicale",
+      "question": "La relation médecin-malade : (réponse juste)",
+      "type": "RJ",
+      "options": {
+        "A": "Une relation familiale",
+        "B": "Une relation amicale",
+        "C": "Une relation asymétrique",
+        "D": "Une relation symétrique",
+        "E": "Une relation commerciale"
+      },
+      "answer": "C",
+      "answer_text": "Une relation asymétrique"
+    },
+    {
+      "id": 27,
+      "subject": "Psychologie médicale",
+      "question": "Une relation médecin-patient harmonieuse doit permettre : (réponse fausse)",
+      "type": "RF",
+      "options": {
+        "A": "Une démarche diagnostique",
+        "B": "L'amélioration de la qualité de vie du patient",
+        "C": "La prise en compte du point de vue du patient",
+        "D": "Une mauvaise observance thérapeutique",
+        "E": "Un exercice médical le plus confortable possible"
+      },
+      "answer": "D",
+      "answer_text": "Une mauvaise observance thérapeutique"
+    },
+    {
+      "id": 28,
+      "subject": "Psychologie médicale",
+      "question": "Les composantes de la relation médecin-malade : (réponse fausse)",
+      "type": "RF",
+      "options": {
+        "A": "Communication",
+        "B": "Confiance",
+        "C": "Empathie",
+        "D": "Respect",
+        "E": "Transfert et contre transfert"
+      },
+      "answer": "E",
+      "answer_text": "Transfert et contre transfert"
+    },
+    {
+      "id": 29,
+      "subject": "Psychologie médicale",
+      "question": "La prescription médicamenteuse dépend : (réponse fausse)",
+      "type": "RF",
+      "options": {
+        "A": "Médecin",
+        "B": "Patient",
+        "C": "Symptômes",
+        "D": "Pharmacien",
+        "E": "Cadre légal"
+      },
+      "answer": "D",
+      "answer_text": "Pharmacien"
+    },
+    {
+      "id": 30,
+      "subject": "Psychologie médicale",
+      "question": "Déroulement de la prescription : (réponse fausse)",
+      "type": "RF",
+      "options": {
+        "A": "Evaluer et définir le problème du patient",
+        "B": "Spécifier l'objectif thérapeutique",
+        "C": "Evaluer et définir le problème de la prescription",
+        "D": "Choisir le traitement approprié",
+        "E": "Ecrire l'ordonnance"
+      },
+      "answer": "C",
+      "answer_text": "Evaluer et définir le problème de la prescription"
+    },
+    {
+      "id": 31,
+      "subject": "Sémiologie clinique",
+      "question": "Dans l'observation médicale, cocher la réponse fausse :",
+      "type": "RF",
+      "options": {
+        "A": "L'interprétation diagnostique ne doit jamais apparaître dans la partie « évolution ».",
+        "B": "Les antécédents doivent être classés par appareils et datés si possible.",
+        "C": "L'examen clinique doit distinguer signes positifs et signes négatifs recherchés.",
+        "D": "Les traitements en cours doivent inclure posologie, voie et durée.",
+        "E": "Les données paracliniques sont rapportées sans interprétation."
+      },
+      "answer": "A",
+      "answer_text": "L'interprétation diagnostique ne doit jamais apparaître dans la partie « évolution »."
+    },
+    {
+      "id": 32,
+      "subject": "Sémiologie clinique",
+      "question": "Une perte pondérale est jugée pathologique lorsqu'elle dépasse : RJ",
+      "type": "RJ",
+      "options": {
+        "A": "La perte dépasse 10 % du poids habituel en 6 mois",
+        "B": "La perte dépasse 2 % en 1 semaine",
+        "C": "L'IMC chute sous 20 kg/m², quel que soit le contexte",
+        "D": "Le rapport poids/taille évolue de façon non symétrique",
+        "E": "La perte de poids s'accompagne de tachycardie"
+      },
+      "answer": "A",
+      "answer_text": "La perte dépasse 10 % du poids habituel en 6 mois"
+    },
+    {
+      "id": 33,
+      "subject": "Sémiologie clinique",
+      "question": "Quel est le signe clinique le plus précoce évocateur d'une dénutrition protéino-calorique : RJ",
+      "type": "RJ",
+      "options": {
+        "A": "Fonte musculaire des ceintures",
+        "B": "Diminution de la force de préhension",
+        "C": "Hypoalbuminémie isolée",
+        "D": "Œdèmes déclives",
+        "E": "Rétractation des globes oculaires"
+      },
+      "answer": "B",
+      "answer_text": "Diminution de la force de préhension"
+    },
+    {
+      "id": 34,
+      "subject": "Sémiologie clinique",
+      "question": "Parmi ces signes, lequel est le plus spécifique d'une déshydratation intracellulaire : RJ",
+      "type": "RJ",
+      "options": {
+        "A": "Hypotension orthostatique",
+        "B": "Sécheresse des muqueuses",
+        "C": "Pli cutané lent",
+        "D": "Confusion, somnolence, agitation",
+        "E": "Extrémités froides, marbrures"
+      },
+      "answer": "D",
+      "answer_text": "Confusion, somnolence, agitation"
+    },
+    {
+      "id": 35,
+      "subject": "Sémiologie clinique",
+      "question": "Une hyponatrémie aiguë sévère peut donner comme manifestation clinique liée à l'œdème cérébral : RJ",
+      "type": "RJ",
+      "options": {
+        "A": "Bradycardie vagale",
+        "B": "Crises convulsives",
+        "C": "Œdèmes des membres inférieurs",
+        "D": "Paresthésies péribuccales",
+        "E": "Tachypnée compensatrice"
+      },
+      "answer": "B",
+      "answer_text": "Crises convulsives"
+    },
+    {
+      "id": 36,
+      "subject": "Sémiologie clinique",
+      "question": "Lequel de ces éléments sémiologiques est le moins utile dans la caractérisation de la fièvre :",
+      "options": {
+        "A": "Notion de frissons",
+        "B": "Courbe thermique sur 48 heures",
+        "C": "Heures précises des pics fébriles",
+        "D": "Variation de la fréquence cardiaque par degré de température",
+        "E": "Variation du poids corporel"
+      },
+      "answer": "E",
+      "answer_text": "Variation du poids corporel"
+    },
+    {
+      "id": 37,
+      "subject": "Sémiologie clinique",
+      "question": "Une fièvre par poussées séparées caractérisée par des baisses incomplètes rythmées fait évoquer",
+      "options": {
+        "A": "Une fièvre d'une Endocardite infectieuse",
+        "B": "Brucellose",
+        "C": "Pyélonéphrite aiguë",
+        "D": "Tuberculose miliaire",
+        "E": "Lymphome de Hodgkin"
+      },
+      "answer": "B",
+      "answer_text": "Brucellose"
+    },
+    {
+      "id": 38,
+      "subject": "Sémiologie clinique",
+      "question": "L'association fièvre et bradycardie évoquant une dissociation pouls température est caractéristique de",
+      "options": {
+        "A": "Pneumonie à pneumocoque",
+        "B": "Pyélonéphrite aiguë",
+        "C": "Fièvre typhoïde",
+        "D": "Crise drépanocytaire",
+        "E": "Endocardite sur valve native"
+      },
+      "answer": "C",
+      "answer_text": "Fièvre typhoïde"
+    },
+    {
+      "id": 39,
+      "subject": "Sémiologie clinique",
+      "question": "Auscultation cardiaque : cochez la réponse juste",
+      "type": "RJ",
+      "options": {
+        "A": "Utilisation systématique du diaphragme pour les bruits graves",
+        "B": "L'auscultation se fait toujours en décubitus dorsal strict",
+        "C": "Le foyer mitral est mieux entendu en position latérale gauche",
+        "D": "Le foyer aortique accessoire se situe au 2e espace intercostal droit",
+        "E": "L'augmentation physiologique du B2 est pathognomonique d'une HTAP"
+      },
+      "answer": "C",
+      "answer_text": "Le foyer mitral est mieux entendu en position latérale gauche"
+    },
+    {
+      "id": 40,
+      "subject": "Sémiologie clinique",
+      "question": "Concernant les souffles : (1RF)",
+      "type": "RF",
+      "options": {
+        "A": "Les souffles d'éjection sont toujours systoliques",
+        "B": "Le souffle de régurgitation mitrale est un souffle systolique",
+        "C": "Le souffle de communication inter ventriculaire est un souffle systolique",
+        "D": "Le roulement diastolique est un souffle de remplissage",
+        "E": "Le souffle de régurgitation aortique est un souffle systolique"
+      },
+      "answer": "E",
+      "answer_text": "Le souffle de régurgitation aortique est un souffle systolique"
+    },
+    {
+      "id": 41,
+      "subject": "Sémiologie clinique",
+      "question": "La douleur thoracique angineuse typique : RJ",
+      "type": "RJ",
+      "options": {
+        "A": "Augmentée par l'inspiration profonde",
+        "B": "Soulagée par la position assise",
+        "C": "Provoquée par l'effort et cédant rapidement au repos",
+        "D": "Irradiant rarement vers le bras gauche",
+        "E": "Associée systématiquement à une fièvre"
+      },
+      "answer": "C",
+      "answer_text": "Provoquée par l'effort et cédant rapidement au repos"
+    },
+    {
+      "id": 42,
+      "subject": "Sémiologie clinique",
+      "question": "Dans la péricardite aiguë : (1RF)",
+      "type": "RF",
+      "options": {
+        "A": "La douleur s'accentue lors des mouvements respiratoires",
+        "B": "La douleur peut s'accompagner de troubles du rythme supraventriculaire",
+        "C": "L'ECG peut montrer des troubles diffus de la repolarisation",
+        "D": "La douleur peut s'accompagner d'un frottement péricardique disparaissant en apnée",
+        "E": "Le traitement de 1ère intention est l'aspirine"
+      },
+      "answer": "D",
+      "answer_text": "La douleur peut s'accompagner d'un frottement péricardique disparaissant en apnée"
+    },
+    {
+      "id": 43,
+      "subject": "Sémiologie clinique",
+      "question": "Parmi les signes suivants, lequel n'est pas évocateur du syndrome de tamponnade cardiaque (1RF)",
+      "type": "RF",
+      "options": {
+        "A": "Turgescence des veines jugulaires",
+        "B": "Silhouette cardiaque peu mobile en scopie",
+        "C": "Signes d'œdème aigu pulmonaire",
+        "D": "Diminution inspiratoire de la pression artérielle systolique",
+        "E": "Pouls paradoxal"
+      },
+      "answer": "C",
+      "answer_text": "Signes d'œdème aigu pulmonaire"
+    },
+    {
+      "id": 44,
+      "subject": "Sémiologie clinique",
+      "question": "Sur un ECG normal : onde P",
+      "options": {
+        "A": "Durée normalement > 120 ms",
+        "B": "Positive en DII",
+        "C": "Toujours négative en V1",
+        "D": "Absente lors des tachycardies sinusales",
+        "E": "Doit avoir la même amplitude que le QRS"
+      },
+      "answer": "B",
+      "answer_text": "Positive en DII"
+    },
+    {
+      "id": 45,
+      "subject": "Sémiologie clinique",
+      "question": "Quel est le facteur de risque cardiovasculaire majeur : RJ",
+      "type": "RJ",
+      "options": {
+        "A": "Tabagisme actif",
+        "B": "IMC entre 20 et 25",
+        "C": "LDL < 1 g/L",
+        "D": "Antécédent familial d'IDM précoce",
+        "E": "Alcool modéré quotidien"
+      },
+      "answer": "A",
+      "answer_text": "Tabagisme actif"
+    },
+    {
+      "id": 46,
+      "subject": "Sémiologie clinique",
+      "question": "Le signe de Harzer est défini par : (1RF)",
+      "type": "RF",
+      "options": {
+        "A": "Perception des battements cardiaques",
+        "B": "Auscultation des battements cardiaques",
+        "C": "De siège sous xiphoïdien",
+        "D": "Témoin d'une hypertrophie ventriculaire droite",
+        "E": "Signe d'une insuffisance cardiaque droite"
+      },
+      "answer": "B",
+      "answer_text": "Auscultation des battements cardiaques"
+    },
+    {
+      "id": 47,
+      "subject": "Sémiologie clinique",
+      "question": "Dans l'insuffisance cardiaque droite : RF",
+      "type": "RF",
+      "options": {
+        "A": "Œdèmes blancs, mous et prenant le godet",
+        "B": "Crépitants pulmonaires diffus",
+        "C": "Hépatomégalie douloureuse",
+        "D": "Reflux hépato-jugulaire",
+        "E": "Expectoration rosée"
+      },
+      "answer": "A",
+      "answer_text": "Œdèmes blancs, mous et prenant le godet"
+    },
+    {
+      "id": 48,
+      "subject": "Sémiologie clinique",
+      "question": "Quelles sont les anomalies électriques possibles dans les syndromes coronariens aigus sans élévation du segment ST (NSTEMI) : (1RF)",
+      "type": "RF",
+      "options": {
+        "A": "Des ondes T négatives et symétriques",
+        "B": "Une lésion sous épicardique non persistante",
+        "C": "Un sous décalage du segment PQ",
+        "D": "Une onde T biphasique",
+        "E": "Une lésion sous endocardique"
+      },
+      "answer": "C",
+      "answer_text": "Un sous décalage du segment PQ"
+    },
+    {
+      "id": 49,
+      "subject": "Sémiologie clinique",
+      "question": "Parmi les propositions concernant les syndromes coronariens aigus : (1RJ)",
+      "type": "RJ",
+      "options": {
+        "A": "Le syndrome coronarien aigu sans sus décalage du segment ST (SCA ST -) est dû à une occlusion coronaire aiguë",
+        "B": "Aux urgences, le diagnostic de syndrome coronarien aigu ST + est posé sur l'élévation des troponines",
+        "C": "La douleur thoracique peut être absente et remplacée par une dyspnée aiguë",
+        "D": "L'ECG est toujours pathologique",
+        "E": "L'angor instable ne fait pas partie des syndromes coronariens aigus"
+      },
+      "answer": "C",
+      "answer_text": "La douleur thoracique peut être absente et remplacée par une dyspnée aiguë"
+    },
+    {
+      "id": 50,
+      "subject": "Sémiologie clinique",
+      "question": "Dans l'insuffisance cardiaque : classification NYHA",
+      "options": {
+        "A": "Stade I : asymptomatique",
+        "B": "Stade II : symptômes au moindre effort",
+        "C": "Stade III : limitation modérée uniquement",
+        "D": "Stade IV : symptômes de repos",
+        "E": "Stade II : dyspnée de repos"
+      },
+      "answer": "D",
+      "answer_text": "Stade IV : symptômes de repos"
+    },
+    {
+      "id": 51,
+      "subject": "Sémiologie clinique",
+      "question": "Insuffisance respiratoire hypoxémique : cochez la RJ",
+      "type": "RJ",
+      "options": {
+        "A": "PaO2 < 60 mmHg",
+        "B": "PaCO2 > 50 mmHg",
+        "C": "Cyanose possible",
+        "D": "Due uniquement aux BPCO",
+        "E": "Correction immédiate par O2 garantit la guérison"
+      },
+      "answer": "A",
+      "answer_text": "PaO2 < 60 mmHg"
+    },
+    {
+      "id": 52,
+      "subject": "Sémiologie clinique",
+      "question": "Dans le syndrome pleural liquidien : cochez la RJ",
+      "type": "RJ",
+      "options": {
+        "A": "Matité à la percussion",
+        "B": "Murmure vésiculaire augmenté",
+        "C": "Diminution des vibrations vocales",
+        "D": "Toux sèche classique",
+        "E": "Souvent accompagné de tympanisme"
+      },
+      "answer": "A",
+      "answer_text": "Matité à la percussion"
+    },
+    {
+      "id": 53,
+      "subject": "Sémiologie clinique",
+      "question": "Syndrome pleural gazeux (pneumothorax)",
+      "options": {
+        "A": "Tympanisme à la percussion",
+        "B": "VV augmentées",
+        "C": "Murmure vésiculaire aboli",
+        "D": "Déviation trachéale possible en cas de compression",
+        "E": "Matité basithoracique"
+      },
+      "answer": "A",
+      "answer_text": "Tympanisme à la percussion"
+    },
+    {
+      "id": 54,
+      "subject": "Sémiologie clinique",
+      "question": "Dans le syndrome médiastinal postérieur : cochez la RJ",
+      "type": "RJ",
+      "options": {
+        "A": "Dysphonie",
+        "B": "Dyspnée inspiratoire",
+        "C": "Dysphagie",
+        "D": "Hémoptysie massive obligatoire",
+        "E": "Douleur inter-scapulaire"
+      },
+      "answer": "E",
+      "answer_text": "Douleur inter-scapulaire"
+    },
+    {
+      "id": 55,
+      "subject": "Sémiologie clinique",
+      "question": "Dans le syndrome de condensation pulmonaire on retrouve :",
+      "options": {
+        "A": "Matité",
+        "B": "VV diminuées",
+        "C": "Souffle tubaire",
+        "D": "Bronchophonie augmentée",
+        "E": "Murmure vésiculaire normal"
+      },
+      "answer": "C",
+      "answer_text": "Souffle tubaire"
+    },
+    {
+      "id": 56,
+      "subject": "Sémiologie clinique",
+      "question": "Dans le syndrome obstructif sévère : cochez la RJ",
+      "type": "RJ",
+      "options": {
+        "A": "Diminution du VEMS",
+        "B": "Rapport VEMS/CV augmenté",
+        "C": "RV augmenté",
+        "D": "CPT diminuée",
+        "E": "Réversibilité absente dans tous les cas"
+      },
+      "answer": "A",
+      "answer_text": "Diminution du VEMS"
+    },
+    {
+      "id": 57,
+      "subject": "Sémiologie clinique",
+      "question": "La spirométrie permet principalement de mesurer :",
+      "options": {
+        "A": "Le volume résiduel (VR)",
+        "B": "La capacité pulmonaire totale (CPT)",
+        "C": "Le volume expiratoire maximal en 1 seconde (VEMS)",
+        "D": "La diffusion alvéolocapillaire",
+        "E": "L'équilibre acido basique"
+      },
+      "answer": "C",
+      "answer_text": "Le volume expiratoire maximal en 1 seconde (VEMS)"
+    },
+    {
+      "id": 58,
+      "subject": "Sémiologie clinique",
+      "question": "Quelle exploration est la plus adaptée pour évaluer la diffusion alvéolo capillaire",
+      "options": {
+        "A": "Gazométrie artérielle",
+        "B": "Test de marche de 6 minutes",
+        "C": "DLCO (test au CO)",
+        "D": "Radiographie thoracique",
+        "E": "Spirométrie"
+      },
+      "answer": "C",
+      "answer_text": "DLCO (test au CO)"
+    },
+    {
+      "id": 59,
+      "subject": "Sémiologie clinique",
+      "question": "Quel examen est de première intention devant une dyspnée aiguë ?",
+      "options": {
+        "A": "Épreuve d'effort",
+        "B": "Radiographie thoracique",
+        "C": "DLCO",
+        "D": "Tomodensitométrie à haute résolution",
+        "E": "La gazométrie sanguine"
+      },
+      "answer": "B",
+      "answer_text": "Radiographie thoracique"
+    },
+    {
+      "id": 60,
+      "subject": "Sémiologie clinique",
+      "question": "L'oxymétrie de pouls mesure :",
+      "options": {
+        "A": "La SpO2",
+        "B": "La PaO2",
+        "C": "La PaCO2",
+        "D": "Le pH sanguin",
+        "E": "Les bicarbonates"
+      },
+      "answer": "A",
+      "answer_text": "La SpO2"
+    },
+    {
+      "id": 61,
+      "subject": "Partie pratique (cas clinique)",
+      "question": "Quel est le diagnostic le plus probable ?",
+      "options": {
+        "A": "Embolie pulmonaire",
+        "B": "Pneumopathie aiguë",
+        "C": "Œdème aigu du poumon cardiogénique",
+        "D": "Asthme aigu grave",
+        "E": "BPCO décompensée"
+      },
+      "answer": "C",
+      "answer_text": "Œdème aigu du poumon cardiogénique",
+      "context": "Cas clinique : Un homme de 56 ans, diabétique de type 2 mal équilibré, tabagique à 30 PA, consulte aux urgences pour dyspnée progressive évoluant depuis 48 heures. Il décrit une orthopnée, une dyspnée paroxystique nocturne et une toux productive avec expectorations mousseuses. À l'examen : patient polypnéique à 28 c/min, TA 160/95 mmHg, FC 110/min régulière, SpO2 89% à l'air ambiant, température 37,3°C, turgescence jugulaire ++, râles crépitants bilatéraux jusqu'à mi-champs, œdèmes des membres inférieurs mous prenant le godet. Auscultation cardiaque : B3 audible, souffle systolique apexien irradiant vers l'aisselle. ECG : tachycardie sinusale. Radio thorax : opacités floconneuses bilatérales, cardiomégalie. BNP : élevé."
+    },
+    {
+      "id": 62,
+      "subject": "Partie pratique (cas clinique)",
+      "question": "Quel signe oriente le plus vers une insuffisance cardiaque gauche ?",
+      "options": {
+        "A": "Œdèmes des membres inférieurs",
+        "B": "Hépatomégalie douloureuse",
+        "C": "Râles crépitants bilatéraux",
+        "D": "Reflux hépato-jugulaire",
+        "E": "Ascite"
+      },
+      "answer": "C",
+      "answer_text": "Râles crépitants bilatéraux",
+      "context": "Cas clinique : Un homme de 56 ans, diabétique de type 2 mal équilibré, tabagique à 30 PA, consulte aux urgences pour dyspnée progressive évoluant depuis 48 heures. Il décrit une orthopnée, une dyspnée paroxystique nocturne et une toux productive avec expectorations mousseuses. À l'examen : patient polypnéique à 28 c/min, TA 160/95 mmHg, FC 110/min régulière, SpO2 89% à l'air ambiant, température 37,3°C, turgescence jugulaire ++, râles crépitants bilatéraux jusqu'à mi-champs, œdèmes des membres inférieurs mous prenant le godet. Auscultation cardiaque : B3 audible, souffle systolique apexien irradiant vers l'aisselle. ECG : tachycardie sinusale. Radio thorax : opacités floconneuses bilatérales, cardiomégalie. BNP : élevé."
+    },
+    {
+      "id": 63,
+      "subject": "Partie pratique (cas clinique)",
+      "question": "Le B3 correspond à :",
+      "options": {
+        "A": "Un bruit de galop diastolique traduisant une surcharge",
+        "B": "Une fuite aortique sévère",
+        "C": "Un frottement péricardique",
+        "D": "Un phénomène normal chez le sujet sain",
+        "E": "Un signe spécifique de sténose mitrale"
+      },
+      "answer": "A",
+      "answer_text": "Un bruit de galop diastolique traduisant une surcharge",
+      "context": "Cas clinique : Un homme de 56 ans, diabétique de type 2 mal équilibré, tabagique à 30 PA, consulte aux urgences pour dyspnée progressive évoluant depuis 48 heures. Il décrit une orthopnée, une dyspnée paroxystique nocturne et une toux productive avec expectorations mousseuses. À l'examen : patient polypnéique à 28 c/min, TA 160/95 mmHg, FC 110/min régulière, SpO2 89% à l'air ambiant, température 37,3°C, turgescence jugulaire ++, râles crépitants bilatéraux jusqu'à mi-champs, œdèmes des membres inférieurs mous prenant le godet. Auscultation cardiaque : B3 audible, souffle systolique apexien irradiant vers l'aisselle. ECG : tachycardie sinusale. Radio thorax : opacités floconneuses bilatérales, cardiomégalie. BNP : élevé."
+    },
+    {
+      "id": 64,
+      "subject": "Partie pratique (cas clinique)",
+      "question": "Le souffle systolique à l'apex orienterait vers :",
+      "options": {
+        "A": "Sténose aortique",
+        "B": "Insuffisance mitrale",
+        "C": "Communication interventriculaire",
+        "D": "Insuffisance tricuspide",
+        "E": "Sténose pulmonaire"
+      },
+      "answer": "B",
+      "answer_text": "Insuffisance mitrale",
+      "context": "Cas clinique : Un homme de 56 ans, diabétique de type 2 mal équilibré, tabagique à 30 PA, consulte aux urgences pour dyspnée progressive évoluant depuis 48 heures. Il décrit une orthopnée, une dyspnée paroxystique nocturne et une toux productive avec expectorations mousseuses. À l'examen : patient polypnéique à 28 c/min, TA 160/95 mmHg, FC 110/min régulière, SpO2 89% à l'air ambiant, température 37,3°C, turgescence jugulaire ++, râles crépitants bilatéraux jusqu'à mi-champs, œdèmes des membres inférieurs mous prenant le godet. Auscultation cardiaque : B3 audible, souffle systolique apexien irradiant vers l'aisselle. ECG : tachycardie sinusale. Radio thorax : opacités floconneuses bilatérales, cardiomégalie. BNP : élevé."
+    },
+    {
+      "id": 65,
+      "subject": "Partie pratique (cas clinique)",
+      "question": "Quel examen complémentaire est le plus urgent ?",
+      "options": {
+        "A": "Échographie cardiaque",
+        "B": "Scanner thoracique",
+        "C": "Gaz du sang artériel",
+        "D": "Cathétérisme cardiaque",
+        "E": "IRM cardiaque"
+      },
+      "answer": "A",
+      "answer_text": "Échographie cardiaque",
+      "context": "Cas clinique : Un homme de 56 ans, diabétique de type 2 mal équilibré, tabagique à 30 PA, consulte aux urgences pour dyspnée progressive évoluant depuis 48 heures. Il décrit une orthopnée, une dyspnée paroxystique nocturne et une toux productive avec expectorations mousseuses. À l'examen : patient polypnéique à 28 c/min, TA 160/95 mmHg, FC 110/min régulière, SpO2 89% à l'air ambiant, température 37,3°C, turgescence jugulaire ++, râles crépitants bilatéraux jusqu'à mi-champs, œdèmes des membres inférieurs mous prenant le godet. Auscultation cardiaque : B3 audible, souffle systolique apexien irradiant vers l'aisselle. ECG : tachycardie sinusale. Radio thorax : opacités floconneuses bilatérales, cardiomégalie. BNP : élevé."
+    },
+    {
+      "id": 66,
+      "subject": "Partie pratique (cas clinique)",
+      "question": "Quel facteur peut avoir déclenché cette aggravation ?",
+      "options": {
+        "A": "Hypothyroïdie",
+        "B": "Surdosage en bêta-bloquants",
+        "C": "Infection respiratoire",
+        "D": "Hypokaliémie",
+        "E": "Surdosage en IEC"
+      },
+      "answer": "C",
+      "answer_text": "Infection respiratoire",
+      "context": "Cas clinique : Un homme de 56 ans, diabétique de type 2 mal équilibré, tabagique à 30 PA, consulte aux urgences pour dyspnée progressive évoluant depuis 48 heures. Il décrit une orthopnée, une dyspnée paroxystique nocturne et une toux productive avec expectorations mousseuses. À l'examen : patient polypnéique à 28 c/min, TA 160/95 mmHg, FC 110/min régulière, SpO2 89% à l'air ambiant, température 37,3°C, turgescence jugulaire ++, râles crépitants bilatéraux jusqu'à mi-champs, œdèmes des membres inférieurs mous prenant le godet. Auscultation cardiaque : B3 audible, souffle systolique apexien irradiant vers l'aisselle. ECG : tachycardie sinusale. Radio thorax : opacités floconneuses bilatérales, cardiomégalie. BNP : élevé."
+    },
+    {
+      "id": 67,
+      "subject": "Partie pratique (cas clinique)",
+      "question": "Le mécanisme des râles crépitants est :",
+      "options": {
+        "A": "Constriction bronchique",
+        "B": "Vibration des bronches moyennes",
+        "C": "Ouverture brutale des petites bronchioles infiltrées de liquide",
+        "D": "Passage d'air dans du mucus épais",
+        "E": "Turbulence due à un obstacle"
+      },
+      "answer": "C",
+      "answer_text": "Ouverture brutale des petites bronchioles infiltrées de liquide",
+      "context": "Cas clinique : Un homme de 56 ans, diabétique de type 2 mal équilibré, tabagique à 30 PA, consulte aux urgences pour dyspnée progressive évoluant depuis 48 heures. Il décrit une orthopnée, une dyspnée paroxystique nocturne et une toux productive avec expectorations mousseuses. À l'examen : patient polypnéique à 28 c/min, TA 160/95 mmHg, FC 110/min régulière, SpO2 89% à l'air ambiant, température 37,3°C, turgescence jugulaire ++, râles crépitants bilatéraux jusqu'à mi-champs, œdèmes des membres inférieurs mous prenant le godet. Auscultation cardiaque : B3 audible, souffle systolique apexien irradiant vers l'aisselle. ECG : tachycardie sinusale. Radio thorax : opacités floconneuses bilatérales, cardiomégalie. BNP : élevé."
+    },
+    {
+      "id": 68,
+      "subject": "Partie pratique (cas clinique)",
+      "question": "Quelle conduite immédiate est correcte ?",
+      "options": {
+        "A": "Administrer un remplissage IV rapide",
+        "B": "Administrer un diurétique IV (furosémide)",
+        "C": "Administrer un bêta-bloquant pour contrôler la tachycardie",
+        "D": "Allonger complètement le patient",
+        "E": "Donner des corticoïdes IV"
+      },
+      "answer": "B",
+      "answer_text": "Administrer un diurétique IV (furosémide)",
+      "context": "Cas clinique : Un homme de 56 ans, diabétique de type 2 mal équilibré, tabagique à 30 PA, consulte aux urgences pour dyspnée progressive évoluant depuis 48 heures. Il décrit une orthopnée, une dyspnée paroxystique nocturne et une toux productive avec expectorations mousseuses. À l'examen : patient polypnéique à 28 c/min, TA 160/95 mmHg, FC 110/min régulière, SpO2 89% à l'air ambiant, température 37,3°C, turgescence jugulaire ++, râles crépitants bilatéraux jusqu'à mi-champs, œdèmes des membres inférieurs mous prenant le godet. Auscultation cardiaque : B3 audible, souffle systolique apexien irradiant vers l'aisselle. ECG : tachycardie sinusale. Radio thorax : opacités floconneuses bilatérales, cardiomégalie. BNP : élevé."
+    },
+    {
+      "id": 69,
+      "subject": "Partie pratique (cas clinique)",
+      "question": "Quelle anomalie radiologique correspond au tableau ?",
+      "options": {
+        "A": "Signe de Hampton",
+        "B": "Hyperclarté thoracique diffuse",
+        "C": "Opacités en ailes de papillon",
+        "D": "Pneumothorax avec ligne pleurale",
+        "E": "Épanchement pleural pur"
+      },
+      "answer": "C",
+      "answer_text": "Opacités en ailes de papillon",
+      "context": "Cas clinique : Un homme de 56 ans, diabétique de type 2 mal équilibré, tabagique à 30 PA, consulte aux urgences pour dyspnée progressive évoluant depuis 48 heures. Il décrit une orthopnée, une dyspnée paroxystique nocturne et une toux productive avec expectorations mousseuses. À l'examen : patient polypnéique à 28 c/min, TA 160/95 mmHg, FC 110/min régulière, SpO2 89% à l'air ambiant, température 37,3°C, turgescence jugulaire ++, râles crépitants bilatéraux jusqu'à mi-champs, œdèmes des membres inférieurs mous prenant le godet. Auscultation cardiaque : B3 audible, souffle systolique apexien irradiant vers l'aisselle. ECG : tachycardie sinusale. Radio thorax : opacités floconneuses bilatérales, cardiomégalie. BNP : élevé."
+    },
+    {
+      "id": 70,
+      "subject": "Partie pratique (cas clinique)",
+      "question": "Le BNP élevé indique :",
+      "options": {
+        "A": "Une infection sévère",
+        "B": "Une atteinte rénale aiguë",
+        "C": "Une souffrance myocardique avec augmentation de la pression de remplissage",
+        "D": "Une hémolyse",
+        "E": "Une décompensation respiratoire isolée"
+      },
+      "answer": "C",
+      "answer_text": "Une souffrance myocardique avec augmentation de la pression de remplissage",
+      "context": "Cas clinique : Un homme de 56 ans, diabétique de type 2 mal équilibré, tabagique à 30 PA, consulte aux urgences pour dyspnée progressive évoluant depuis 48 heures. Il décrit une orthopnée, une dyspnée paroxystique nocturne et une toux productive avec expectorations mousseuses. À l'examen : patient polypnéique à 28 c/min, TA 160/95 mmHg, FC 110/min régulière, SpO2 89% à l'air ambiant, température 37,3°C, turgescence jugulaire ++, râles crépitants bilatéraux jusqu'à mi-champs, œdèmes des membres inférieurs mous prenant le godet. Auscultation cardiaque : B3 audible, souffle systolique apexien irradiant vers l'aisselle. ECG : tachycardie sinusale. Radio thorax : opacités floconneuses bilatérales, cardiomégalie. BNP : élevé."
+    }
+  ]
+}

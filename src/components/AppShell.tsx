@@ -4,6 +4,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/hooks/useMe";
 import { levelFromXp } from "@/lib/game";
 import { play } from "@/lib/sound";
+import { clearCurrentSession } from "@/lib/profileStore";
+import {
+  formatHeartCountdown,
+  renderHeartsVisual,
+  resolveHeartKey,
+  useHearts,
+} from "@/lib/heartsStore";
 
 
 const NAV = [
@@ -20,7 +27,12 @@ const NAV = [
 ] as const;
 
 async function logout() {
-  await supabase.auth.signOut();
+  clearCurrentSession();
+  try {
+    await supabase.auth.signOut();
+  } catch {
+    // ignore offline signOut
+  }
   window.location.href = "/auth";
 }
 
@@ -28,6 +40,7 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
   const { data: me } = useMe();
   const lv = levelFromXp(me?.xp ?? 0);
   const nav = useNavigate();
+  const hearts = useHearts(me?.email, me?.id, !!me?.isCreator);
   return (
     <div className="min-h-screen pb-24 lg:pb-0 lg:pl-64">
       <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col border-r bg-sidebar p-4 lg:flex">
@@ -58,6 +71,23 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
           <div className="hidden text-sm text-muted-foreground lg:block">Bienvenue{me?.display_name ? `, ${me.display_name}` : ""} 👋</div>
           {me && (
             <div className="flex items-center gap-2">
+              <div
+                title={
+                  hearts.unlimited
+                    ? "قلوب غير محدودة للمصمم"
+                    : hearts.secondsToNext > 0
+                    ? `يتجدد قلب خلال ${formatHeartCountdown(hearts.secondsToNext)}`
+                    : "قلوب المحاولات (2 كل ساعتين)"
+                }
+                className="flex items-center gap-1.5 rounded-full bg-card px-2.5 py-1 text-xs font-semibold shadow-sm border border-border/60"
+              >
+                <span>{renderHeartsVisual(hearts.hearts, hearts.unlimited)}</span>
+                {!hearts.unlimited && hearts.secondsToNext > 0 && (
+                  <span className="font-mono text-[10px] text-amber-700">
+                    {formatHeartCountdown(hearts.secondsToNext)}
+                  </span>
+                )}
+              </div>
               <button onClick={() => nav({ to: "/profile" })} className="flex items-center gap-3 rounded-full bg-card px-2 py-1 shadow-sm">
                 <span className="rounded-full bg-primary-soft px-2 py-0.5 text-xs font-bold text-primary">Nv {me.isCreator ? "∞" : lv.level}</span>
                 <span className="text-xs font-semibold">🪙 {me.isCreator ? "∞" : me.coins}</span>

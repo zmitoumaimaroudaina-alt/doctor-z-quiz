@@ -11,6 +11,8 @@ import { useMe, useRefreshMe } from "@/hooks/useMe";
 import { levelFromXp } from "@/lib/game";
 import type { Database } from "@/integrations/supabase/types";
 import { deleteMyAccount } from "@/lib/account.functions";
+import { clearCurrentSession, saveProfileDurable } from "@/lib/profileStore";
+import { play } from "@/lib/sound";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   head: () => pageMetadata("Profil", "Ton personnage et ton compte Z QCM GAME."),
@@ -31,10 +33,32 @@ function Profile() {
   async function save(patch: Database["public"]["Tables"]["profiles"]["Update"]) {
     if (!me) return;
     setSaving(true);
-    const { error } = await supabase.from("profiles").update(patch).eq("id", me.id);
+
+    // 1. Persist durably by email so updates survive logout/login
+    try {
+      saveProfileDurable(
+        me.email,
+        patch as Record<string, unknown>,
+        me.display_name ?? undefined,
+      );
+    } catch {
+      // ignore
+    }
+
+    // 2. Optimistically update UI cache immediately
+    qc.setQueryData(["me"], (old: unknown) => (old ? { ...(old as Record<string, unknown>), ...patch } : old));
+
+    // 3. Sync to Supabase if available
+    try {
+      await supabase.from("profiles").update(patch).eq("id", me.id);
+    } catch {
+      // durable local save already succeeded
+    }
+
     setSaving(false);
-    if (error) { toast.error(error.message); return; }
-    toast.success("Enregistré ✅"); refresh();
+    play("reward");
+    toast.success("Avatar et profil enregistrés avec succès ! ✨");
+    refresh();
   }
 
   return (
@@ -53,7 +77,7 @@ function Profile() {
           <p className="mt-1 text-sm text-muted-foreground">Action définitive : ton compte, ton avatar, tes scores et ton rang disparaissent complètement du jeu.</p>
           <input value={confirmText} onChange={(e) => setConfirmText(e.target.value)} placeholder="Tape SUPPRIMER" className="mt-3 w-full rounded-xl border px-3 py-2 text-sm" />
           <button disabled={confirmText !== "SUPPRIMER"} onClick={async () => {
-            try { await del(); await qc.cancelQueries(); qc.clear(); await supabase.auth.signOut(); nav({ to: "/", replace: true }); toast.success("Compte supprimé."); }
+            try { await del(); clearCurrentSession(); await qc.cancelQueries(); qc.clear(); await supabase.auth.signOut(); nav({ to: "/", replace: true }); toast.success("Compte supprimé."); }
             catch (e) { toast.error((e as Error).message); }
           }} className="mt-3 rounded-xl bg-destructive px-4 py-2 font-semibold text-destructive-foreground disabled:opacity-40">Supprimer définitivement</button>
         </div>

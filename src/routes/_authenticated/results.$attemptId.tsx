@@ -20,14 +20,34 @@ function Results() {
   const { data, error } = useQuery({
     queryKey: ["results", attemptId],
     queryFn: async () => {
-      const { data: a, error: attemptError } = await supabase.from("attempts").select("*").eq("id", attemptId).single();
-      if (attemptError || !a || !a.exam_id || !a.submitted_at) throw new Error("Résultats introuvables.");
-      const [{ data: lb }, { data: prev }, { data: exam }] = await Promise.all([
-        supabase.rpc("leaderboard", { _exam: a.exam_id }),
-        supabase.from("attempts").select("score20").eq("exam_id", a.exam_id).eq("user_id", a.user_id).not("submitted_at", "is", null).neq("id", attemptId),
-        supabase.from("exams").select("title").eq("id", a.exam_id).single(),
-      ]);
-      return { a, lb: lb ?? [], prevBest: Math.max(0, ...(prev ?? []).map((p) => Number(p.score20))), hadPrev: !!prev?.length, exam };
+      try {
+        const { data: a, error: attemptError } = await supabase.from("attempts").select("*").eq("id", attemptId).single();
+        if (a && a.exam_id && a.submitted_at) {
+          const [{ data: lb }, { data: prev }, { data: exam }] = await Promise.all([
+            supabase.rpc("leaderboard", { _exam: a.exam_id }),
+            supabase.from("attempts").select("score20").eq("exam_id", a.exam_id).eq("user_id", a.user_id).not("submitted_at", "is", null).neq("id", attemptId),
+            supabase.from("exams").select("title").eq("id", a.exam_id).single(),
+          ]);
+          return { a, lb: lb ?? [], prevBest: Math.max(0, ...(prev ?? []).map((p) => Number(p.score20))), hadPrev: !!prev?.length, exam };
+        }
+      } catch {
+        // fallback below
+      }
+
+      const resStr = localStorage.getItem(`result_${attemptId}`);
+      if (!resStr) throw new Error("Résultats introuvables.");
+      const a = JSON.parse(resStr);
+      const { getBundledExam } = await import("@/lib/medicalData");
+      const bundled = getBundledExam(a.exam_id);
+      return {
+        a,
+        lb: [
+          { user_id: me?.id || "me", display_name: me?.display_name || "Moi", rnk: 1, score20: a.score20, duration_sec: a.duration_sec, avatar: me?.avatar, pet: me?.pet }
+        ],
+        prevBest: a.score20,
+        hadPrev: false,
+        exam: bundled.exam ? { title: bundled.exam.title } : { title: "Examen Médical" },
+      };
     },
   });
   useEffect(() => { if (data) play(data.hadPrev && Number(data.a.score20) > data.prevBest ? "best" : "reveal"); }, [data]);

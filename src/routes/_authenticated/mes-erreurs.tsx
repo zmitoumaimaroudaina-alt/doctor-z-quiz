@@ -17,11 +17,27 @@ function MesErreurs() {
   const { data } = useQuery({
     queryKey: ["my-mistakes"],
     queryFn: async () => {
-      const { data: m } = await supabase.from("question_mistakes").select("question_id, corrected_at, wrong_count").order("last_wrong_at", { ascending: false }).limit(500);
-      const ids = (m ?? []).map((x) => x.question_id);
-      const { data: qs } = ids.length ? await supabase.from("questions").select("*").in("id", ids) : { data: [] };
-      const byId = new Map((qs ?? []).map((q) => [q.id, q]));
-      return (m ?? []).map((x) => ({ ...x, q: byId.get(x.question_id) as unknown as Question })).filter((x) => x.q);
+      try {
+        const { data: m } = await supabase.from("question_mistakes").select("question_id, corrected_at, wrong_count").order("last_wrong_at", { ascending: false }).limit(500);
+        const ids = (m ?? []).map((x) => x.question_id);
+        if (ids.length) {
+          const { data: qs } = await supabase.from("questions").select("*").in("id", ids);
+          const byId = new Map((qs ?? []).map((q) => [q.id, q]));
+          const remoteList = (m ?? []).map((x) => ({ ...x, q: byId.get(x.question_id) as unknown as Question })).filter((x) => x.q);
+          if (remoteList.length) return remoteList;
+        }
+      } catch {
+        // fallback
+      }
+
+      const { getStoredMistakeQuestions } = await import("@/lib/medicalData");
+      const localMistakes = getStoredMistakeQuestions();
+      return localMistakes.map((q) => ({
+        question_id: q.id,
+        corrected_at: null,
+        wrong_count: 1,
+        q,
+      }));
     },
   });
   const list = (data ?? []).filter((x) => filter === "all" || !x.corrected_at);

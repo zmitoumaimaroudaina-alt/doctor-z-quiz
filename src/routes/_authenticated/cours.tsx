@@ -19,12 +19,23 @@ function Cours() {
   const { data } = useQuery({
     queryKey: ["courses"],
     queryFn: async () => {
-      const [{ data: c }, { data: n }] = await Promise.all([
-        supabase.from("courses").select("*").order("sort"),
-        supabase.rpc("my_course_counts"),
-      ]);
-      const counts = new Map((n ?? []).map((x) => [x.course_id, Number(x.n)]));
-      return (c ?? []).map((x) => ({ ...x, n: counts.get(x.id) ?? 0 }));
+      const { getBundledCourses } = await import("@/lib/medicalData");
+      const bundled = getBundledCourses();
+      try {
+        const [{ data: c }, { data: n }] = await Promise.all([
+          supabase.from("courses").select("*").order("sort"),
+          supabase.rpc("my_course_counts"),
+        ]);
+        if (c && c.length > 0) {
+          const counts = new Map((n ?? []).map((x) => [x.course_id, Number(x.n)]));
+          const remote = (c ?? []).map((x) => ({ ...x, n: counts.get(x.id) ?? 0 }));
+          const remoteIds = new Set(remote.map((r) => r.id));
+          return [...bundled.filter((b) => b.id.startsWith("course-uei1-2025") || !remoteIds.has(b.id)), ...remote];
+        }
+      } catch {
+        // use fallback
+      }
+      return bundled;
     },
   });
   const subj = subjects?.find((s) => s.id === sel);

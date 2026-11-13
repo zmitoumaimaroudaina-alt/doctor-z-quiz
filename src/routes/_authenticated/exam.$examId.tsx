@@ -5,55 +5,115 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell, PageTitle } from "@/components/AppShell";
-import { rpcError } from "@/lib/game";
+import { normalizeExamTitle, getBundledExam } from "@/lib/medicalData";
+import { useMe } from "@/hooks/useMe";
+import {
+  consumeHeart,
+  formatHeartCountdown,
+  renderHeartsVisual,
+  resolveHeartKey,
+  useHearts,
+} from "@/lib/heartsStore";
 import { play } from "@/lib/sound";
 
 export const Route = createFileRoute("/_authenticated/exam/$examId")({
-  head: () => pageMetadata("Commencer un examen", "Examen médical de Blida : une heure et tentatives sauvegardées."),
+  head: () => pageMetadata("Commencer un examen", "Examen médical de Blida : 60 minutes et système de cœurs."),
   component: ExamIntro,
 });
 
 function ExamIntro() {
   const { examId } = Route.useParams();
   const nav = useNavigate();
+  const { data: me } = useMe();
   const [busy, setBusy] = useState(false);
+
+  const heartKey = resolveHeartKey(me?.email, me?.id);
+  const heartStatus = useHearts(me?.email, me?.id, !!me?.isCreator);
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["exam-intro", examId],
     queryFn: async () => {
-      const [{ data: exam, error: examErr }, { count }, { data: st }] = await Promise.all([
-        supabase.from("exams").select("*").eq("id", examId).maybeSingle(),
-        supabase.from("questions").select("id", { count: "exact", head: true }).eq("exam_id", examId),
-        supabase.rpc("exam_status", { _exam: examId }),
-      ]);
+      const bundled = getBundledExam(examId);
+      if (examId.startsWith("exam-uei1-2025") && bundled.exam) {
+        return {
+          exam: bundled.exam,
+          count: bundled.questions.length,
+        };
+      }
 
-      if (examErr || !exam) throw new Error("Examen introuvable");
+      try {
+        const [{ data: exam }, { count }] = await Promise.all([
+          supabase.from("exams").select("*").eq("id", examId).maybeSingle(),
+          supabase.from("questions").select("id", { count: "exact", head: true }).eq("exam_id", examId),
+        ]);
 
-      const statusObj = Array.isArray(st) ? st[0] : st;
+        if (exam) {
+          return {
+            exam: {
+              ...exam,
+              title: normalizeExamTitle(exam),
+            },
+            count: count ?? bundled.questions.length,
+          };
+        }
+      } catch {
+        // fallback
+      }
 
-      return { exam, count: count ?? 0, st: statusObj };
+      if (bundled.exam) {
+        return {
+          exam: bundled.exam,
+          count: bundled.questions.length,
+        };
+      }
+
+      throw new Error("Examen introuvable");
     },
   });
 
   async function start() {
+    if (!heartStatus.canPlay) {
+      toast.error(
+        `لا توجد قلوب متبقية! يتجدد قلب بعد ${formatHeartCountdown(heartStatus.secondsToNext)}`,
+      );
+      return;
+    }
+
     try {
       setBusy(true);
-      const { data: id, error } = await supabase.rpc("start_attempt", { _exam: examId });
-
-      if (error) {
+      const consumed = consumeHeart(heartKey, !!me?.isCreator);
+      if (!consumed.ok) {
+        toast.error("لا توجد قلوب متبقية! انتظر تجدد القلوب كل ساعتين.");
         setBusy(false);
-        { toast.error(rpcError(error)); return; }
+        return;
       }
 
-      if (!id) {
-        setBusy(false);
-        { toast.error("Impossible de créer une tentative."); return; }
+      let attemptId: string | null = null;
+      if (!examId.startsWith("exam-uei1-2025")) {
+        try {
+          const { data: id, error } = await supabase.rpc("start_attempt", { _exam: examId });
+          if (!error && id) attemptId = String(id);
+        } catch {
+          // fallback
+        }
+      }
+
+      if (!attemptId) {
+        attemptId = `local_exam_${examId}_${Date.now()}`;
+        const initialAttempt = {
+          id: attemptId,
+          exam_id: examId,
+          started_at: new Date().toISOString(),
+          answers: {},
+          duration_sec: 3600,
+        };
+        localStorage.setItem(`attempt_${attemptId}`, JSON.stringify(initialAttempt));
       }
 
       play("submit");
       nav({
         to: "/play/$attemptId",
-        params: { attemptId: String(id) },
+        params: { attemptId },
       });
     } catch (e) {
       console.error("Start attempt error:", e);
@@ -80,30 +140,48 @@ function ExamIntro() {
     );
   }
 
-  const { exam, st } = data;
-  const locked = !st?.unlimited && ((st?.hearts_left ?? 0) <= 0 || (st?.locked_until && new Date(st.locked_until) > new Date()));
+  const { exam } = data;
+  const locked = !heartStatus.canPlay;
 
   return (
     <AppShell>
-      <PageTitle title={exam.title} />
+      <PageTitle title={exam.title} ar="اختبار شامل (60 دقيقة)" />
       <div className="card-game space-y-4 p-6">
         <div className="grid grid-cols-3 gap-3 text-center">
           <Stat label="Questions" value={String(data.count)} />
           <Stat label="Durée" value="60:00" />
-          <Stat label="Cœurs" value={st?.unlimited ? "∞" : "❤️".repeat(Math.max(0, st?.hearts_left ?? 0)) + "🤍".repeat(Math.max(0, 2 - (st?.hearts_left ?? 0)))} />
+          <Stat
+            label="Cœurs"
+            value={renderHeartsVisual(heartStatus.hearts, heartStatus.unlimited)}
+          />
         </div>
+
+        {!heartStatus.unlimited && heartStatus.secondsToNext > 0 && (
+          <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 text-center text-xs font-semibold text-amber-900">
+            ⏳ يتجدد القلب التالي تلقائياً خلال:{" "}
+            <span className="font-mono text-sm">{formatHeartCountdown(heartStatus.secondsToNext)}</span>{" "}
+            (كل ساعتين +1 ❤️)
+          </div>
+        )}
+
         <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
-          <li>Réponds dans l'ordre que tu veux, saute et reviens, modifie tes réponses.</li>
-          <li>Soumission automatique à 00:00.</li>
-          <li>Chaque tentative terminée consomme un cœur ❤️. Après 2 tentatives, cet examen est verrouillé 24 h.</li>
+          <li>الاختبار يشمل جميع المواد في مدة 60 دقيقة (soumission automatique à 00:00).</li>
+          <li>لديك محاولتان (قلبان ❤️❤️) تستهلك محاولة عند البدء، ويتجدد كل قلب كل ساعتين.</li>
+          <li>يمكن لحساب المصمم إضافة قلوب إضافية لأي طالب من لوحة Creator.</li>
         </ul>
+
         {locked ? (
-          <div className="rounded-xl bg-destructive/10 p-4 text-center text-sm font-medium text-destructive">
-            🔒 Verrouillé jusqu'à {st?.locked_until ? new Date(st.locked_until).toLocaleString("fr-DZ") : "—"}
+          <div className="rounded-xl bg-destructive/10 border border-destructive/30 p-4 text-center text-sm font-medium text-destructive">
+            🔒 نفدت قلوبك (🤍🤍). يتجدد قلب جديد بعد{" "}
+            <b className="font-mono">{formatHeartCountdown(heartStatus.secondsToNext)}</b>
           </div>
         ) : (
-          <button disabled={busy} onClick={start} className="w-full rounded-xl bg-hero py-3 text-lg font-semibold text-primary-foreground shadow-pop transition active:scale-95">
-            {busy ? "Lancement…" : "Commencer l'examen · ابدأ"}
+          <button
+            disabled={busy}
+            onClick={start}
+            className="w-full rounded-xl bg-hero py-3 text-lg font-semibold text-primary-foreground shadow-pop transition active:scale-95"
+          >
+            {busy ? "Lancement…" : "Commencer l'examen · ابدأ (-1 ❤️)"}
           </button>
         )}
       </div>

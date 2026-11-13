@@ -42,10 +42,12 @@ function Home() {
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <Tile to="/examens" icon="📝" title="QCM Examens" sub="Matière → Année → Examen · 60 min" />
         <Tile to="/cours" icon="📚" title="QCM par Cours" sub="Matière → Cours → QCM" />
+        <Tile to="/mes-cours" icon="📄" title="Mes cours PDF" sub="Générer des QCM IA depuis tes cours" />
         <Tile to="/mes-erreurs" icon="🔁" title="QCM أخطائي السابقة" sub="Rejoue tes anciennes erreurs" />
         <Tile to="/leaderboard" icon="🏆" title="Leaderboard" sub="Top 5 + tomates 🍅" />
         <Tile to="/missions" icon="🎯" title="Missions" sub="Quotidiennes & hebdomadaires" />
-        <Tile to="/profile" icon="👤" title="Mon profil" sub="Avatar, animal, bulle" />
+        <Tile to="/profile" icon="👤" title="Mon profil" sub="Avatar, animal, styles & bulle" />
+        <Tile to="/settings" icon="⚙️" title="Paramètres & Sons" sub="Volume, test des effets sonores & ressources" />
       </div>
 
       <Link to="/questions-a-verifier" className="mt-6 block text-sm font-semibold text-warning-foreground">⚠ Questions à vérifier · أسئلة تحتاج مراجعة</Link>
@@ -68,6 +70,6 @@ function Home() {
   );
 }
 
-function Tile({ to, icon, title, sub }: { to: "/examens" | "/cours" | "/mes-erreurs" | "/leaderboard" | "/missions" | "/profile"; icon: string; title: string; sub: string }) {
-  return <Link to={to} className="card-game flex items-center gap-3 p-4"><span className="text-3xl">{icon}</span><div><h2 className="font-display font-bold">{title}</h2><p className="text-sm text-muted-foreground">{sub}</p></div></Link>;
+function Tile({ to, icon, title, sub }: { to: "/examens" | "/cours" | "/mes-cours" | "/mes-erreurs" | "/leaderboard" | "/missions" | "/profile" | "/settings"; icon: string; title: string; sub: string }) {
+  return <Link to={to} className="card-game flex items-center gap-3 p-4 hover:shadow-pop transition-shadow"><span className="text-3xl">{icon}</span><div><h2 className="font-display font-bold">{title}</h2><p className="text-sm text-muted-foreground">{sub}</p></div></Link>;
 }
