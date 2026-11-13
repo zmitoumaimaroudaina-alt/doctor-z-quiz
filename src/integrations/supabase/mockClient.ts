@@ -4,7 +4,6 @@ import type {
   SeedCourse,
   SeedData,
   SeedExam,
-  SeedExamSubject,
   SeedQuestion,
   SeedQuestionKey,
   SeedSubject,
@@ -15,6 +14,7 @@ type Row = Record<string, unknown>;
 interface MockUser {
   id: string;
   email: string;
+  password?: string;
   aud: string;
   role: string;
   created_at: string;
@@ -106,14 +106,98 @@ function emptyDb(): MockDb {
   };
 }
 
+interface SeedIndex {
+  seed: SeedData;
+  subjectsById: Map<number, SeedSubject>;
+  coursesById: Map<string, SeedCourse>;
+  examsById: Map<string, SeedExam>;
+  examSubjectsByExamId: Map<string, { subject_id: number }[]>;
+  questionsById: Map<string, SeedQuestion>;
+  questionsByExamId: Map<string, SeedQuestion[]>;
+  keysByQuestionId: Map<string, SeedQuestionKey>;
+  courseCounts: { course_id: string; n: number }[];
+}
+
+function buildSeedIndex(seed: SeedData): SeedIndex {
+  const subjectsById = new Map<number, SeedSubject>();
+  for (const s of seed.subjects) subjectsById.set(s.id, s);
+
+  const coursesById = new Map<string, SeedCourse>();
+  for (const c of seed.courses) coursesById.set(c.id, c);
+
+  const examsById = new Map<string, SeedExam>();
+  for (const e of seed.exams) examsById.set(e.id, e);
+
+  const examSubjectsByExamId = new Map<string, { subject_id: number }[]>();
+  for (const es of seed.exam_subjects) {
+    let arr = examSubjectsByExamId.get(es.exam_id);
+    if (!arr) {
+      arr = [];
+      examSubjectsByExamId.set(es.exam_id, arr);
+    }
+    arr.push({ subject_id: es.subject_id });
+  }
+
+  const questionsById = new Map<string, SeedQuestion>();
+  const questionsByExamId = new Map<string, SeedQuestion[]>();
+  const counts = new Map<string, number>();
+  for (const q of seed.questions) {
+    questionsById.set(q.id, q);
+    if (q.exam_id) {
+      let arr = questionsByExamId.get(q.exam_id);
+      if (!arr) {
+        arr = [];
+        questionsByExamId.set(q.exam_id, arr);
+      }
+      arr.push(q);
+    }
+    if (q.course_id) {
+      counts.set(q.course_id, (counts.get(q.course_id) ?? 0) + 1);
+    }
+  }
+  for (const arr of questionsByExamId.values()) {
+    arr.sort((a, b) => a.pos - b.pos);
+  }
+
+  const keysByQuestionId = new Map<string, SeedQuestionKey>();
+  for (const k of seed.question_keys) keysByQuestionId.set(k.question_id, k);
+
+  const courseCounts = [...counts.entries()].map(([course_id, n]) => ({ course_id, n }));
+
+  return {
+    seed,
+    subjectsById,
+    coursesById,
+    examsById,
+    examSubjectsByExamId,
+    questionsById,
+    questionsByExamId,
+    keysByQuestionId,
+    courseCounts,
+  };
+}
+
+const EMPTY_SEED_INDEX = buildSeedIndex({
+  subjects: [],
+  courses: [],
+  exams: [],
+  exam_subjects: [],
+  questions: [],
+  question_keys: [],
+});
+
 let memoryDb: MockDb = emptyDb();
+let dbLoaded = false;
 let memorySession: MockSession | null = null;
-let seedPromise: Promise<SeedData> | null = null;
-let cachedSeed: SeedData | null = null;
+let sessionLoaded = false;
+let seedPromise: Promise<SeedIndex> | null = null;
+let cachedSeedIndex: SeedIndex | null = null;
 const storageFiles = new Map<string, Blob>();
 
 function loadDb(): MockDb {
   if (typeof window === "undefined") return memoryDb;
+  if (dbLoaded) return memoryDb;
+  dbLoaded = true;
   try {
     const raw = localStorage.getItem(STORAGE_DB_KEY);
     if (raw) {
@@ -128,6 +212,7 @@ function loadDb(): MockDb {
 
 function saveDb(db: MockDb): void {
   memoryDb = db;
+  dbLoaded = true;
   if (typeof window !== "undefined") {
     try {
       localStorage.setItem(STORAGE_DB_KEY, JSON.stringify(db));
@@ -139,6 +224,8 @@ function saveDb(db: MockDb): void {
 
 function loadSession(): MockSession | null {
   if (typeof window === "undefined") return memorySession;
+  if (sessionLoaded) return memorySession;
+  sessionLoaded = true;
   try {
     const raw = localStorage.getItem(STORAGE_SESSION_KEY);
     if (raw) {
@@ -153,6 +240,7 @@ function loadSession(): MockSession | null {
 
 function saveSession(session: MockSession | null): void {
   memorySession = session;
+  sessionLoaded = true;
   if (typeof window !== "undefined") {
     try {
       if (session) {
@@ -168,24 +256,18 @@ function saveSession(session: MockSession | null): void {
   }
 }
 
-async function getSeed(): Promise<SeedData> {
-  if (cachedSeed) return cachedSeed;
+async function getSeed(): Promise<SeedIndex> {
+  if (cachedSeedIndex) return cachedSeedIndex;
   if (typeof window === "undefined") {
-    return {
-      subjects: [],
-      courses: [],
-      exams: [],
-      exam_subjects: [],
-      questions: [],
-      question_keys: [],
-    };
+    return EMPTY_SEED_INDEX;
   }
   if (!seedPromise) {
     seedPromise = (async () => {
       const res = await fetch("/api/seed-data");
       if (!res.ok) throw new Error("Impossible de charger les questions.");
-      cachedSeed = (await res.json()) as SeedData;
-      return cachedSeed;
+      const data = (await res.json()) as SeedData;
+      cachedSeedIndex = buildSeedIndex(data);
+      return cachedSeedIndex;
     })();
   }
   return seedPromise;
@@ -237,7 +319,7 @@ function isoWeekKey(d = new Date()): string {
   return `${dt.getFullYear()}-${String(wk).padStart(2, "0")}`;
 }
 
-function ensureUserRecords(emailRaw: string): MockSession {
+function ensureUserRecords(emailRaw: string, password?: string): MockSession {
   const email = emailRaw.trim().toLowerCase() || "etudiant@univ-blida.dz";
   const db = loadDb();
   let user = db.users[email];
@@ -246,8 +328,17 @@ function ensureUserRecords(emailRaw: string): MockSession {
 
   if (!user) {
     const id = deterministicUuid(email);
-    user = { id, email, aud: "authenticated", role: "authenticated", created_at: now };
+    user = {
+      id,
+      email,
+      ...(password !== undefined ? { password } : {}),
+      aud: "authenticated",
+      role: "authenticated",
+      created_at: now,
+    };
     db.users[email] = user;
+  } else if (password !== undefined && user.password === undefined) {
+    user.password = password;
   }
 
   if (!db.profiles.some((p) => p["id"] === user.id)) {
@@ -295,20 +386,43 @@ function isCorrectSelection(key: SeedQuestionKey | undefined, sel: string[]): bo
   return a === b;
 }
 
-function getEffectiveQuestions(seed: SeedData, db: MockDb): SeedQuestion[] {
-  return seed.questions.map((q) => {
+function getEffectiveQuestionById(idx: SeedIndex, db: MockDb, qid: string): SeedQuestion | undefined {
+  const q = idx.questionsById.get(qid);
+  if (!q) return undefined;
+  const ov = db.question_overrides[qid];
+  return ov ? { ...q, ...ov } : q;
+}
+
+function getEffectiveKeyById(idx: SeedIndex, db: MockDb, qid: string): SeedQuestionKey | undefined {
+  const k = idx.keysByQuestionId.get(qid);
+  if (!k) return undefined;
+  const ov = db.key_overrides[qid];
+  return ov ? { ...k, ...ov } : k;
+}
+
+function getEffectiveExamQuestions(idx: SeedIndex, db: MockDb, examId: string): SeedQuestion[] {
+  const base = idx.questionsByExamId.get(examId) ?? [];
+  if (Object.keys(db.question_overrides).length === 0) return base;
+  return base.map((q) => {
     const ov = db.question_overrides[q.id];
     return ov ? { ...q, ...ov } : q;
   });
 }
 
-function getEffectiveKeys(seed: SeedData, db: MockDb): Map<string, SeedQuestionKey> {
-  const m = new Map<string, SeedQuestionKey>();
-  for (const k of seed.question_keys) {
+function getEffectiveQuestions(idx: SeedIndex, db: MockDb): SeedQuestion[] {
+  if (Object.keys(db.question_overrides).length === 0) return idx.seed.questions;
+  return idx.seed.questions.map((q) => {
+    const ov = db.question_overrides[q.id];
+    return ov ? { ...q, ...ov } : q;
+  });
+}
+
+function getEffectiveKeysList(idx: SeedIndex, db: MockDb): SeedQuestionKey[] {
+  if (Object.keys(db.key_overrides).length === 0) return idx.seed.question_keys;
+  return idx.seed.question_keys.map((k) => {
     const ov = db.key_overrides[k.question_id];
-    m.set(k.question_id, ov ? { ...k, ...ov } : k);
-  }
-  return m;
+    return ov ? { ...k, ...ov } : k;
+  });
 }
 
 function grantXp(db: MockDb, uid: string, xp: number, coins: number): void {
@@ -361,48 +475,60 @@ function isCreatorUser(db: MockDb, uid: string | undefined): boolean {
   return db.user_roles.some((r) => r["user_id"] === uid && r["role"] === "admin");
 }
 
-function hydrateRows(table: string, rows: Row[], selectCols: string, seed: SeedData, db: MockDb): Row[] {
-  const subjectsMap = new Map<number, SeedSubject>(seed.subjects.map((s) => [s.id, s]));
-  const coursesMap = new Map<string, SeedCourse>(seed.courses.map((c) => [c.id, c]));
-  const examsMap = new Map<string, SeedExam>(seed.exams.map((e) => [e.id, e]));
-  const keysMap = getEffectiveKeys(seed, db);
-  const questionsMap = new Map<string, SeedQuestion>(
-    getEffectiveQuestions(seed, db).map((q) => [q.id, q]),
-  );
+function hydrateRows(table: string, rows: Row[], selectCols: string, idx: SeedIndex, db: MockDb): Row[] {
+  if (!rows.length) return [];
+  const needExamSubjects = table === "exams" && selectCols.includes("exam_subjects");
+  const needCourseSubject = table === "courses" && selectCols.includes("subjects");
+  const needQuestionCourses = table === "questions" && selectCols.includes("courses");
+  const needQuestionExams = table === "questions" && selectCols.includes("exams");
+  const needQuestionKeys = table === "questions" && selectCols.includes("question_keys");
+  const needDiscussionProfile = table === "discussion_messages" && selectCols.includes("profiles");
+  const needCorrectionQuestion = table === "question_corrections" && selectCols.includes("questions");
+
+  if (
+    !needExamSubjects &&
+    !needCourseSubject &&
+    !needQuestionCourses &&
+    !needQuestionExams &&
+    !needQuestionKeys &&
+    !needDiscussionProfile &&
+    !needCorrectionQuestion
+  ) {
+    return rows.map((row) => ({ ...row }));
+  }
 
   return rows.map((row) => {
     const out: Row = { ...row };
-    if (table === "exams" && selectCols.includes("exam_subjects")) {
-      out["exam_subjects"] = seed.exam_subjects
-        .filter((es: SeedExamSubject) => es.exam_id === row["id"])
-        .map((es) => ({ subject_id: es.subject_id }));
+    if (needExamSubjects) {
+      out["exam_subjects"] = idx.examSubjectsByExamId.get(String(row["id"])) ?? [];
     }
-    if (table === "courses" && selectCols.includes("subjects")) {
-      const s = subjectsMap.get(Number(row["subject_id"]));
+    if (needCourseSubject) {
+      const s = idx.subjectsById.get(Number(row["subject_id"]));
       out["subjects"] = s ? { name: s.name } : null;
     }
     if (table === "questions") {
-      if (selectCols.includes("courses")) {
-        const c = row["course_id"] ? coursesMap.get(String(row["course_id"])) : undefined;
-        const s = c ? subjectsMap.get(c.subject_id) : undefined;
+      if (needQuestionCourses) {
+        const c = row["course_id"] ? idx.coursesById.get(String(row["course_id"])) : undefined;
+        const s = c ? idx.subjectsById.get(c.subject_id) : undefined;
         out["courses"] = c ? { title: c.title, subjects: s ? { name: s.name } : null } : null;
       }
-      if (selectCols.includes("exams")) {
-        const e = row["exam_id"] ? examsMap.get(String(row["exam_id"])) : undefined;
+      if (needQuestionExams) {
+        const e = row["exam_id"] ? idx.examsById.get(String(row["exam_id"])) : undefined;
         out["exams"] = e ? { title: e.title, year: e.year } : null;
       }
-      if (selectCols.includes("question_keys")) {
-        const k = keysMap.get(String(row["id"]));
+      if (needQuestionKeys) {
+        const k = getEffectiveKeyById(idx, db, String(row["id"]));
         out["question_keys"] = k ?? null;
       }
     }
-    if (table === "discussion_messages" && selectCols.includes("profiles")) {
+    if (needDiscussionProfile) {
       const p = db.profiles.find((x) => x["id"] === row["user_id"]);
       out["profiles"] = p ? { display_name: p["display_name"] ?? "Étudiant" } : { display_name: "Étudiant" };
     }
-    if (table === "question_corrections" && selectCols.includes("questions")) {
-      const q = questionsMap.get(String(row["question_id"]));
-      const k = q ? keysMap.get(q.id) : undefined;
+    if (needCorrectionQuestion) {
+      const qid = String(row["question_id"]);
+      const q = getEffectiveQuestionById(idx, db, qid);
+      const k = q ? getEffectiveKeyById(idx, db, qid) : undefined;
       out["questions"] = q
         ? {
             stem: q.stem,
@@ -431,7 +557,7 @@ function createQueryBuilder(table: string) {
   let mode: "many" | "single" | "maybeSingle" = "many";
 
   async function exec(): Promise<{ data: unknown; error: { message: string } | null; count?: number }> {
-    const seed = await getSeed();
+    const idx = await getSeed();
     const db = loadDb();
     const session = loadSession();
     const uid = session?.user.id;
@@ -439,17 +565,17 @@ function createQueryBuilder(table: string) {
     const getTableRef = (): { rows: Row[]; readonly: boolean } => {
       switch (table) {
         case "subjects":
-          return { rows: seed.subjects as unknown as Row[], readonly: true };
+          return { rows: idx.seed.subjects as unknown as Row[], readonly: true };
         case "courses":
-          return { rows: seed.courses as unknown as Row[], readonly: true };
+          return { rows: idx.seed.courses as unknown as Row[], readonly: true };
         case "exams":
-          return { rows: seed.exams as unknown as Row[], readonly: true };
+          return { rows: idx.seed.exams as unknown as Row[], readonly: true };
         case "exam_subjects":
-          return { rows: seed.exam_subjects as unknown as Row[], readonly: true };
+          return { rows: idx.seed.exam_subjects as unknown as Row[], readonly: true };
         case "questions":
-          return { rows: getEffectiveQuestions(seed, db) as unknown as Row[], readonly: false };
+          return { rows: getEffectiveQuestions(idx, db) as unknown as Row[], readonly: false };
         case "question_keys":
-          return { rows: [...getEffectiveKeys(seed, db).values()] as unknown as Row[], readonly: false };
+          return { rows: getEffectiveKeysList(idx, db) as unknown as Row[], readonly: false };
         case "profiles":
           return { rows: db.profiles, readonly: false };
         case "user_roles":
@@ -513,7 +639,7 @@ function createQueryBuilder(table: string) {
       }
       const totalCount = list.length;
       if (maxLimit !== null) list = list.slice(0, maxLimit);
-      const hydrated = countOnly ? [] : hydrateRows(table, list, selectCols, seed, db);
+      const hydrated = countOnly ? [] : hydrateRows(table, list, selectCols, idx, db);
 
       if (mode === "single") {
         if (!hydrated.length) return { data: null, error: { message: "Row not found" } };
@@ -554,7 +680,7 @@ function createQueryBuilder(table: string) {
     if (op === "update") {
       const patch = (Array.isArray(payload) ? payload[0] : payload) ?? {};
       if (table === "questions") {
-        const matched = getEffectiveQuestions(seed, db).filter((r) =>
+        const matched = getEffectiveQuestions(idx, db).filter((r) =>
           filters.every((f) => f(r as unknown as Row)),
         );
         for (const q of matched) {
@@ -602,11 +728,35 @@ function createQueryBuilder(table: string) {
 
     if (op === "delete") {
       const { rows } = getTableRef();
-      for (let idx = rows.length - 1; idx >= 0; idx--) {
-        if (filters.every((f) => f(rows[idx]!))) {
-          const [removed] = rows.splice(idx, 1);
-          if (removed) emitRealtime(table, "DELETE", removed);
+      const deletedIds = new Set<string>();
+      for (let i = rows.length - 1; i >= 0; i--) {
+        if (filters.every((f) => f(rows[i]!))) {
+          const [removed] = rows.splice(i, 1);
+          if (removed) {
+            if (table === "profiles" && typeof removed["id"] === "string") {
+              deletedIds.add(removed["id"]);
+            }
+            emitRealtime(table, "DELETE", removed);
+          }
         }
+      }
+      if (table === "profiles" && deletedIds.size > 0) {
+        for (const [emailKey, u] of Object.entries(db.users)) {
+          if (deletedIds.has(u.id)) delete db.users[emailKey];
+        }
+        db.user_roles = db.user_roles.filter((r) => !deletedIds.has(String(r["user_id"])));
+        db.attempts = db.attempts.filter((a) => !deletedIds.has(String(a["user_id"])));
+        db.practice_attempts = db.practice_attempts.filter((pa) => !deletedIds.has(String(pa["user_id"])));
+        db.exam_hearts = db.exam_hearts.filter((h) => !deletedIds.has(String(h["user_id"])));
+        db.question_mistakes = db.question_mistakes.filter((m) => !deletedIds.has(String(m["user_id"])));
+        db.tomatoes = db.tomatoes.filter(
+          (t) => !deletedIds.has(String(t["thrower_id"])) && !deletedIds.has(String(t["target_id"])),
+        );
+        db.mission_claims = db.mission_claims.filter((c) => !deletedIds.has(String(c["user_id"])));
+        db.discussion_messages = db.discussion_messages.filter((m) => !deletedIds.has(String(m["user_id"])));
+        db.discussion_reactions = db.discussion_reactions.filter((r) => !deletedIds.has(String(r["user_id"])));
+        db.lesson_quizzes = db.lesson_quizzes.filter((q) => !deletedIds.has(String(q["user_id"])));
+        if (uid && deletedIds.has(uid)) saveSession(null);
       }
       saveDb(db);
       return { data: null, error: null };
@@ -719,13 +869,10 @@ function createQueryBuilder(table: string) {
 }
 
 async function handleRpc(fn: string, args: Row = {}): Promise<{ data: unknown; error: { message: string } | null }> {
-  const seed = await getSeed();
+  const idx = await getSeed();
   const db = loadDb();
   const session = loadSession();
   const uid = session?.user.id;
-  const keysMap = getEffectiveKeys(seed, db);
-  const questionsList = getEffectiveQuestions(seed, db);
-  const questionsMap = new Map(questionsList.map((q) => [q.id, q]));
 
   switch (fn) {
     case "is_creator":
@@ -744,8 +891,11 @@ async function handleRpc(fn: string, args: Row = {}): Promise<{ data: unknown; e
       };
 
     case "my_course_counts": {
+      if (Object.keys(db.question_overrides).length === 0) {
+        return { data: idx.courseCounts, error: null };
+      }
       const counts = new Map<string, number>();
-      for (const q of questionsList) {
+      for (const q of getEffectiveQuestions(idx, db)) {
         if (q.course_id) counts.set(q.course_id, (counts.get(q.course_id) ?? 0) + 1);
       }
       return {
@@ -827,7 +977,7 @@ async function handleRpc(fn: string, args: Row = {}): Promise<{ data: unknown; e
       const qid = String(args["_q"]);
       const sel = (args["_sel"] as string[]) ?? [];
       const record = Boolean(args["_record"]);
-      const k = keysMap.get(qid);
+      const k = getEffectiveKeyById(idx, db, qid);
       const ok = isCorrectSelection(k, sel);
       if (!record) return { data: { correct: ok }, error: null };
       recordMistake(db, uid, qid, ok);
@@ -851,7 +1001,7 @@ async function handleRpc(fn: string, args: Row = {}): Promise<{ data: unknown; e
       if (a["submitted_at"]) return { data: { attempt_id: a["id"] }, error: null };
 
       const answers = (args["_answers"] as Record<string, string[]>) ?? {};
-      const qs = questionsList.filter((q) => q.exam_id === a["exam_id"]);
+      const qs = getEffectiveExamQuestions(idx, db, String(a["exam_id"]));
       let tot = 0;
       let c = 0;
       let w = 0;
@@ -863,7 +1013,7 @@ async function handleRpc(fn: string, args: Row = {}): Promise<{ data: unknown; e
           u++;
           recordMistake(db, uid, q.id, false);
         } else {
-          const ok = isCorrectSelection(keysMap.get(q.id), sel);
+          const ok = isCorrectSelection(getEffectiveKeyById(idx, db, q.id), sel);
           if (ok) c++;
           else w++;
           recordMistake(db, uid, q.id, ok);
@@ -915,12 +1065,10 @@ async function handleRpc(fn: string, args: Row = {}): Promise<{ data: unknown; e
       );
       if (!a) return { data: [], error: null };
       const answers = (a["answers"] as Record<string, string[]>) ?? {};
-      const qs = questionsList
-        .filter((q) => q.exam_id === a["exam_id"])
-        .sort((x, y) => x.pos - y.pos);
+      const qs = getEffectiveExamQuestions(idx, db, String(a["exam_id"]));
       const rows = qs.map((q) => {
         const sel = answers[q.id] ?? [];
-        const k = keysMap.get(q.id);
+        const k = getEffectiveKeyById(idx, db, q.id);
         return {
           question_id: q.id,
           pos: q.pos,
@@ -1086,7 +1234,7 @@ async function handleRpc(fn: string, args: Row = {}): Promise<{ data: unknown; e
       if (!a) return { data: null, error: { message: "invalid attempt" } };
       const qid = String(args["_q"]);
       const sel = (args["_sel"] as string[]) ?? [];
-      const k = keysMap.get(qid);
+      const k = getEffectiveKeyById(idx, db, qid);
       const ok = isCorrectSelection(k, sel);
       const answers = (a["answers"] as Record<string, string[]>) ?? {};
       if (!(qid in answers)) {
@@ -1122,7 +1270,7 @@ async function handleRpc(fn: string, args: Row = {}): Promise<{ data: unknown; e
           u++;
           errors.push(qid);
           if (!a["submitted_at"]) recordMistake(db, uid, qid, false);
-        } else if (isCorrectSelection(keysMap.get(qid), sel)) {
+        } else if (isCorrectSelection(getEffectiveKeyById(idx, db, qid), sel)) {
           c++;
         } else {
           w++;
@@ -1195,8 +1343,8 @@ async function handleRpc(fn: string, args: Row = {}): Promise<{ data: unknown; e
         return { data: null, error: null };
       }
       const qid = String(c["question_id"]);
-      const q = questionsMap.get(qid);
-      const k = keysMap.get(qid);
+      const q = getEffectiveQuestionById(idx, db, qid);
+      const k = getEffectiveKeyById(idx, db, qid);
       c["status"] = "applied";
       c["reviewed_at"] = new Date().toISOString();
       c["original"] = q ? { stem: q.stem, case_text: q.case_text, options: q.options, correct: k?.correct ?? [] } : null;
@@ -1245,13 +1393,30 @@ export function createMockSupabaseClient(): SupabaseClient<Database> {
           },
         };
       },
-      async signInWithPassword({ email }: { email: string; password: string }) {
-        const session = ensureUserRecords(email);
+      async signInWithPassword({ email, password }: { email: string; password: string }) {
+        const normalized = email.trim().toLowerCase();
+        const db = loadDb();
+        const existing = db.users[normalized];
+        if (existing?.password !== undefined && existing.password !== password) {
+          return {
+            data: { user: null, session: null },
+            error: { message: "Email ou mot de passe incorrect." },
+          };
+        }
+        const session = ensureUserRecords(email, password);
         emitAuth("SIGNED_IN", session);
         return { data: { user: session.user, session }, error: null };
       },
-      async signUp({ email }: { email: string; password: string }) {
-        const session = ensureUserRecords(email);
+      async signUp({ email, password }: { email: string; password: string }) {
+        const normalized = email.trim().toLowerCase();
+        const db = loadDb();
+        if (db.users[normalized]) {
+          return {
+            data: { user: null, session: null },
+            error: { message: "Cet email est déjà utilisé." },
+          };
+        }
+        const session = ensureUserRecords(email, password);
         emitAuth("SIGNED_IN", session);
         return { data: { user: session.user, session }, error: null };
       },

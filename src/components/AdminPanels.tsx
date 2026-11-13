@@ -19,6 +19,10 @@ export function Corrections() {
       .select("*, questions(stem, case_text, options, question_keys(correct))").eq("status", "pending").order("created_at")).data ?? [],
   });
   async function runAll() {
+    if (!import.meta.env["VITE_SUPABASE_URL"]) {
+      toast.error("L'audit IA nécessite la configuration serveur Supabase + clé IA.");
+      return;
+    }
     setRunning(true);
     try {
       for (let i = 0; i < 60; i++) {
@@ -71,12 +75,28 @@ export function StudentsPanel() {
   const qc = useQueryClient();
   const del = useServerFn(deleteStudent);
   const [sort, setSort] = useState<"avg" | "exams" | "xp">("avg");
+  const [confirmId, setConfirmId] = useState<string | null>(null);
   const { data } = useQuery({ queryKey: ["admin-students"], queryFn: async () => (await supabase.rpc("admin_student_stats")).data ?? [] });
   const rows = [...(data ?? [])].sort((a, b) => sort === "avg" ? Number(b.avg_score ?? -1) - Number(a.avg_score ?? -1) : sort === "exams" ? Number(b.exams_done) - Number(a.exams_done) : b.xp - a.xp);
   async function resetHearts(id: string) {
     const { error } = await supabase.from("exam_hearts").delete().eq("user_id", id);
     if (error) { toast.error(error.message); return; }
     toast.success("Cœurs restaurés ❤️❤️");
+  }
+  async function removeStudent(userId: string) {
+    try {
+      if (import.meta.env["VITE_SUPABASE_URL"]) {
+        await del({ data: { userId } });
+      } else {
+        const { error } = await supabase.from("profiles").delete().eq("id", userId);
+        if (error) throw new Error(error.message);
+      }
+      setConfirmId(null);
+      toast.success("Supprimé");
+      qc.invalidateQueries({ queryKey: ["admin-students"] });
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
   }
   return <div className="space-y-3">
     <div className="flex flex-wrap gap-2 text-sm"><span className="self-center text-muted-foreground">{rows.length} étudiants · trier par</span>
@@ -89,7 +109,14 @@ export function StudentsPanel() {
           <div className="text-xs text-muted-foreground">Moy. {s.avg_score ?? "—"}/20 · Meilleur {s.best_score ?? "—"} · {s.exams_done} examens · {s.practice_done} séries · {s.mistakes_open} erreurs · {s.xp} XP · 🔥 {s.streak}
             {s.last_active ? ` · actif ${new Date(s.last_active).toLocaleDateString("fr-DZ")}` : ""}</div></div>
         <Button size="sm" variant="outline" onClick={() => void resetHearts(s.user_id)}>Restaurer cœurs</Button>
-        <Button size="sm" variant="destructive" onClick={async () => { if (!confirm("Supprimer définitivement cet étudiant ?")) return; try { await del({ data: { userId: s.user_id } }); toast.success("Supprimé"); qc.invalidateQueries({ queryKey: ["admin-students"] }); } catch (e) { toast.error((e as Error).message); } }}>Supprimer</Button>
+        {confirmId === s.user_id ? (
+          <div className="flex gap-1">
+            <Button size="sm" variant="destructive" onClick={() => void removeStudent(s.user_id)}>Confirmer</Button>
+            <Button size="sm" variant="outline" onClick={() => setConfirmId(null)}>Annuler</Button>
+          </div>
+        ) : (
+          <Button size="sm" variant="destructive" onClick={() => setConfirmId(s.user_id)}>Supprimer</Button>
+        )}
       </div>))}</div>
   </div>;
 }

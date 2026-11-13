@@ -3,24 +3,18 @@ import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { Avatar } from "@/components/Avatar";
 import { useMe } from "@/hooks/useMe";
-import { levelFromXp } from "@/lib/game";
+import { levelFromXp, RESOURCES } from "@/lib/game";
 
 export const Route = createFileRoute("/_authenticated/home")({
   head: () => pageMetadata("Accueil", "Ton espace QCM de médecine à Blida."),
   component: Home,
 });
 
-const CHANNELS = [
-  { icon: "▶️", label: "Doctor Z — YouTube", href: "https://youtube.com/@doctorz-i2007?si=nZg18vbKQGGshfbu" },
-  { icon: "▶️", label: "Med Support — YouTube", href: "https://youtube.com/@medisuppor1?si=YL2jAcqpSdClp0ep" },
-  { icon: "✈️", label: "Med Support — Telegram", href: "https://t.me/+ubEdEFjoMtllYZcE8" },
-];
-
 function Home() {
   const { data: me, isLoading } = useMe();
   if (isLoading) return <div className="p-8 text-center">Chargement…</div>;
-  if (me && !me.onboarded) return <Navigate to="/onboarding" />;
-  if (!me) return <div className="p-8 text-center">Chargement du profil…</div>;
+  if (!me) return <Navigate to="/auth" />;
+  if (!me.onboarded) return <Navigate to="/onboarding" />;
   const lv = levelFromXp(me.xp);
   return (
     <AppShell>
@@ -55,7 +49,7 @@ function Home() {
       <section dir="rtl" className="card-game mt-8 p-4">
         <h2 className="font-display text-base font-bold">📢 تابعوا Doctor Z و Med Support</h2>
         <div className="mt-3 flex flex-wrap gap-2">
-          {CHANNELS.map((c) => (
+          {RESOURCES.map((c) => (
             <a
               key={c.href}
               href={c.href}

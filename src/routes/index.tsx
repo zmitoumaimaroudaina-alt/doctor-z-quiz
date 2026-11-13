@@ -1,7 +1,8 @@
 import { pageMetadata } from "@/lib/metadata";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import medicalChessImg from "@/assets/images/medical_chess_1794580446834.jpg";
 import { Brand } from "@/components/AppShell";
+
+const HERO_IMAGE = "/assets/aistudio/file_0000000023e4820a859975af5c21e86b_c9398207.png";
 
 export const Route = createFileRoute("/")({
   head: () => pageMetadata("QCM médicaux Blida 1", "Questions de la Faculté de Médecine de l’Université de Blida, examens et entraînement par cours."),
@@ -31,7 +32,7 @@ function Landing() {
           </div>
         </div>
         <img
-          src={medicalChessImg}
+          src={HERO_IMAGE}
           alt="Étudiante en médecine jouant aux échecs contre la mort"
           referrerPolicy="no-referrer"
           className="w-full rounded-3xl shadow-pop"

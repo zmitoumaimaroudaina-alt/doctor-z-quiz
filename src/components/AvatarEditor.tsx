@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Avatar, type AvatarConfig, SKINS, HAIR_COLORS, HIJAB_COLORS, OUTFITS, OPTIONS } from "./Avatar";
 import { PETS } from "@/lib/game";
 import { play } from "@/lib/sound";
+import { useAvatarSettings, type AvatarDisabled } from "@/hooks/useAvatarSettings";
 
 type Props = {
   initial: AvatarConfig;
@@ -71,6 +72,7 @@ const STYLE_PRESETS = [
 ];
 
 export function AvatarEditor({ initial, pet: initialPet, level, unlockAll, onSave, saving }: Props) {
+  const { data: disabled } = useAvatarSettings();
   const [c, setC] = useState<AvatarConfig>({ gender: "m", skin: 1, accessory: 1, ...initial });
   const [pet, setPet] = useState<string | null>(initialPet ?? "cat");
 
@@ -79,6 +81,8 @@ export function AvatarEditor({ initial, pet: initialPet, level, unlockAll, onSav
     setC((p) => ({ ...p, [k]: v }));
   };
   const locked = (lvl: number) => !unlockAll && level < lvl;
+  const isHidden = (k: keyof AvatarConfig, idx: number) =>
+    !unlockAll && idx > 0 && (disabled?.[k as keyof AvatarDisabled]?.includes(idx) ?? false);
 
   function applyPreset(preset: typeof STYLE_PRESETS[number]) {
     play("unlock");
@@ -91,6 +95,7 @@ export function AvatarEditor({ initial, pet: initialPet, level, unlockAll, onSav
       <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
       <div className="flex flex-wrap gap-1.5">
         {items.map((it, i) => {
+          if (isHidden(k, i)) return null;
           const lk = lockAt[i] ? locked(lockAt[i]) : false;
           return (
             <Button

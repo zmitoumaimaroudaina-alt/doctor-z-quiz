@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
 const Body = z.object({
@@ -10,10 +9,21 @@ const Body = z.object({
     .max(20),
 });
 
-function streamLocalSse(text: string): Response {
-  const enc = new TextEncoder();
-  const payload = `data: ${JSON.stringify({ type: "response.output_text.delta", delta: text })}\n\n`;
-  return new Response(enc.encode(payload), {
+function sseEvent(payload: Record<string, unknown>): Uint8Array {
+  return new TextEncoder().encode(`data: ${JSON.stringify(payload)}\n\n`);
+}
+
+function streamLocalSse(text: string, quota?: unknown): Response {
+  const chunks = [sseEvent({ type: "response.output_text.delta", delta: text })];
+  if (quota) chunks.push(sseEvent({ type: "quota", quota }));
+  const totalLen = chunks.reduce((s, c) => s + c.length, 0);
+  const out = new Uint8Array(totalLen);
+  let offset = 0;
+  for (const c of chunks) {
+    out.set(c, offset);
+    offset += c.length;
+  }
+  return new Response(out, {
     headers: { "Content-Type": "text/event-stream", "Cache-Control": "no-store" },
   });
 }
@@ -26,17 +36,67 @@ export const Route = createFileRoute("/api/ai-explain")({
         if (!parsed.success) return new Response("Bad request", { status: 400 });
         const { questionId, selected, messages } = parsed.data;
 
+        const {
+          authenticateStudentRequest,
+          consumeStudentQuota,
+          getCachedExplanation,
+          setCachedExplanation,
+        } = await import("@/lib/ai-quota.server");
+        const {
+          classifyGeminiError,
+          hasGeminiApiKey,
+          streamMedicalExplanation,
+        } = await import("@/lib/gemini.server");
+
+        const student = await authenticateStudentRequest(request);
+        if (!student) {
+          return new Response("Connexion requise.", { status: 401 });
+        }
+
         const url = process.env["SUPABASE_URL"];
         const pub = process.env["SUPABASE_PUBLISHABLE_KEY"];
-        const apiKey = process.env["LOVABLE_API_KEY"];
 
-        if (!url || !pub) {
+        let q: { stem: string; case_text: string | null; options: { key: string; text: string }[] } | null = null;
+        let k: { correct: string[]; explanation: string | null; note: string | null } | null = null;
+
+        if (url && pub) {
+          const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+          const qRes = await supabaseAdmin
+            .from("questions")
+            .select("stem, case_text, options")
+            .eq("id", questionId)
+            .single();
+          const kRes = await supabaseAdmin
+            .from("question_keys")
+            .select("correct, explanation, note")
+            .eq("question_id", questionId)
+            .single();
+          if (qRes.data && kRes.data) {
+            q = {
+              stem: qRes.data.stem,
+              case_text: qRes.data.case_text,
+              options: qRes.data.options as { key: string; text: string }[],
+            };
+            k = {
+              correct: kRes.data.correct,
+              explanation: kRes.data.explanation,
+              note: kRes.data.note,
+            };
+          }
+        } else {
           const { loadSeedData } = await import("@/lib/seed-loader.server");
           const seed = await loadSeedData();
-          const q = seed.questions.find((x) => x.id === questionId);
-          const k = seed.question_keys.find((x) => x.question_id === questionId);
-          if (!q || !k) return new Response("Not found", { status: 404 });
+          const foundQ = seed.questions.find((x) => x.id === questionId);
+          const foundK = seed.question_keys.find((x) => x.question_id === questionId);
+          if (foundQ && foundK) {
+            q = { stem: foundQ.stem, case_text: foundQ.case_text, options: foundQ.options };
+            k = { correct: foundK.correct, explanation: foundK.explanation, note: foundK.note };
+          }
+        }
 
+        if (!q || !k) return new Response("Not found", { status: 404 });
+
+        if (!hasGeminiApiKey()) {
           const officialText = k.correct.length ? k.correct.join(", ") : "non disponible";
           const selText = selected.length ? selected.join(", ") : "aucune réponse";
           const parts = [
@@ -50,41 +110,39 @@ export const Route = createFileRoute("/api/ai-explain")({
           return streamLocalSse(parts.join("\n\n"));
         }
 
-        const token = request.headers.get("authorization")?.replace("Bearer ", "");
-        if (!token) return new Response("Unauthorized", { status: 401 });
-        const userClient = createClient(url, pub, { auth: { persistSession: false } });
-        const { data: u } = await userClient.auth.getUser(token);
-        if (!u.user) return new Response("Unauthorized", { status: 401 });
+        const sortedSel = [...selected].sort().join(",") || "none";
+        const isInitial = messages.length === 0;
+        const cacheKey = `${questionId}:${sortedSel}`;
+        const dedupeKey = isInitial ? `init:${cacheKey}` : undefined;
 
-        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const { data: q } = await supabaseAdmin
-          .from("questions")
-          .select("stem, case_text, options")
-          .eq("id", questionId)
-          .single();
-        const { data: k } = await supabaseAdmin
-          .from("question_keys")
-          .select("correct, explanation, note")
-          .eq("question_id", questionId)
-          .single();
-        if (!q || !k) return new Response("Not found", { status: 404 });
+        const quotaCheck = await consumeStudentQuota({
+          userId: student.userId,
+          kind: "explain",
+          isCreator: student.isCreator,
+          ...(dedupeKey ? { dedupeKey } : {}),
+        });
 
-        if (!apiKey) {
-          const officialText = k.correct.length ? k.correct.join(", ") : "non disponible";
-          return streamLocalSse(
-            `Réponse officielle : ${officialText}.\n\n${k.explanation ?? "Aucune explication supplémentaire disponible hors-ligne."}`,
+        if (!quotaCheck.allowed) {
+          return new Response(
+            `Limite quotidienne atteinte (${quotaCheck.status.explain.limit} explications IA/jour). Renouvellement demain à 00h.`,
+            { status: 429 },
           );
         }
 
-        const opts = (q.options as { key: string; text: string }[])
-          .map((o) => `${o.key}. ${o.text}`)
-          .join("\n");
-        const system = `Tu es Dr Z-Bot, tuteur de médecine pour des étudiants de 3e année (Faculté de Médecine de Blida 1).
+        if (isInitial) {
+          const cached = await getCachedExplanation(cacheKey);
+          if (cached) {
+            return streamLocalSse(cached, quotaCheck.status);
+          }
+        }
+
+        const opts = q.options.map((o) => `${o.key}. ${o.text}`).join("\n");
+        const systemInstruction = `Tu es Dr Z-Bot, tuteur de médecine précis et rigoureux pour des étudiants de 3e année (Faculté de Médecine de Blida 1).
 RÈGLES ABSOLUES :
 - La RÉPONSE OFFICIELLE ci-dessous est définitive. Ne la modifie jamais, ne la contredis jamais, ne suggère jamais qu'elle serait fausse.
-- Explique pourquoi la réponse officielle est correcte et pourquoi le choix de l'étudiant ne l'est pas, de façon claire et concise (≤ 200 mots).
-- Ne réécris pas la question ni les options.
-- Réponds en français, tu peux ajouter une touche d'arabe dialectal algérien amicale.
+- Explique clairement la physiopathologie ou le mécanisme médical qui justifie chaque item vrai et pourquoi les autres items (ou le choix de l'étudiant) sont faux, de façon structurée et concise (≤ 220 mots).
+- Ne réécris pas l'énoncé complet ni la liste brute des options.
+- Réponds en français médical précis, avec éventuellement une courte touche chaleureuse d'arabe dialectal algérien.
 
 ${q.case_text ? `CAS CLINIQUE : ${q.case_text}\n` : ""}QUESTION : ${q.stem}
 OPTIONS :
@@ -96,37 +154,48 @@ NOTE DE LA SOURCE : ${k.note ?? "aucune"}
 ORIGINE : Questions de la Faculté de Médecine de l’Université de Blida.
 Ne mentionne aucun nom de fichier ou de recueil.`;
 
-        const input = [
-          { role: "system", content: system },
-          ...(messages.length
-            ? messages
-            : [{ role: "user" as const, content: "Explique-moi cette question." }]),
-        ];
         try {
-          const res = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
-            method: "POST",
+          const geminiStream = await streamMedicalExplanation({
+            systemInstruction,
+            messages,
             signal: request.signal,
-            headers: {
-              "Content-Type": "application/json",
-              "Lovable-API-Key": apiKey,
-              "X-Lovable-AIG-SDK": "fetch",
-            },
-            body: JSON.stringify({
-              model: "openai/gpt-6-astra",
-              input,
-              stream: true,
-              store: false,
-              reasoning: { effort: "low", summary: "auto" },
-              include: ["reasoning.encrypted_content"],
-            }),
           });
-          if (!res.ok) return new Response(await res.text(), { status: res.status });
-          return new Response(res.body, {
+
+          const stream = new ReadableStream({
+            async start(controller) {
+              let fullText = "";
+              try {
+                controller.enqueue(sseEvent({ type: "quota", quota: quotaCheck.status }));
+                for await (const chunk of geminiStream) {
+                  const delta = chunk.text ?? "";
+                  if (delta) {
+                    fullText += delta;
+                    controller.enqueue(
+                      sseEvent({ type: "response.output_text.delta", delta }),
+                    );
+                  }
+                }
+                if (isInitial && fullText.trim()) {
+                  await setCachedExplanation(cacheKey, fullText);
+                }
+                controller.close();
+              } catch (err) {
+                if (!request.signal.aborted) {
+                  const gErr = classifyGeminiError(err);
+                  controller.enqueue(sseEvent({ type: "error", message: gErr.message }));
+                }
+                controller.close();
+              }
+            },
+          });
+
+          return new Response(stream, {
             headers: { "Content-Type": "text/event-stream", "Cache-Control": "no-store" },
           });
-        } catch (e) {
+        } catch (err) {
           if (request.signal.aborted) return new Response(null, { status: 499 });
-          throw e;
+          const gErr = classifyGeminiError(err);
+          return new Response(gErr.message, { status: gErr.status });
         }
       },
     },

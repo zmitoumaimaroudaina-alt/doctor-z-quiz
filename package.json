@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev --host 0.0.0.0 --port 3000",
-    "build": "vite build",
-    "start": "node .output/server/index.mjs",
+    "build": "NODE_ENV=production vite build",
+    "start": "NODE_ENV=production node .output/server/index.mjs",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
@@ -19,6 +19,7 @@
     "rolldown": "1.2.1"
   },
   "dependencies": {
+    "@google/genai": "^3.3.0",
     "@hookform/resolvers": "^5.2.2",
     "@lovable.dev/ai-gateway": "^0.1.11",
     "@lovable.dev/cloud-auth-js": "^1.1.2",
