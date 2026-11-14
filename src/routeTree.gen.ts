@@ -26,6 +26,9 @@ import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedQuestionsAVerifierRouteImport } from './routes/_authenticated/questions-a-verifier'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as ApiAiExplainRouteImport } from './routes/api/ai-explain'
+import { Route as ApiAiQuotaRouteImport } from './routes/api/ai-quota'
+import { Route as ApiLessonQuizRouteImport } from './routes/api/lesson-quiz'
+import { Route as ApiSeedDataRouteImport } from './routes/api/seed-data'
 import { Route as AuthenticatedCourseCourseIdRouteImport } from './routes/_authenticated/course.$courseId'
 import { Route as AuthenticatedErreursAttemptIdRouteImport } from './routes/_authenticated/erreurs.$attemptId'
 import { Route as AuthenticatedExamExamIdRouteImport } from './routes/_authenticated/exam.$examId'
@@ -118,6 +121,21 @@ const ApiAiExplainRoute = ApiAiExplainRouteImport.update({
   path: '/api/ai-explain',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAiQuotaRoute = ApiAiQuotaRouteImport.update({
+  id: '/api/ai-quota',
+  path: '/api/ai-quota',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiLessonQuizRoute = ApiLessonQuizRouteImport.update({
+  id: '/api/lesson-quiz',
+  path: '/api/lesson-quiz',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSeedDataRoute = ApiSeedDataRouteImport.update({
+  id: '/api/seed-data',
+  path: '/api/seed-data',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedCourseCourseIdRoute =
   AuthenticatedCourseCourseIdRouteImport.update({
     id: '/course/$courseId',
@@ -165,6 +183,9 @@ export interface FileRoutesByFullPath {
   '/questions-a-verifier': typeof AuthenticatedQuestionsAVerifierRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/api/ai-explain': typeof ApiAiExplainRoute
+  '/api/ai-quota': typeof ApiAiQuotaRoute
+  '/api/lesson-quiz': typeof ApiLessonQuizRoute
+  '/api/seed-data': typeof ApiSeedDataRoute
   '/course/$courseId': typeof AuthenticatedCourseCourseIdRoute
   '/erreurs/$attemptId': typeof AuthenticatedErreursAttemptIdRoute
   '/exam/$examId': typeof AuthenticatedExamExamIdRoute
@@ -188,6 +209,9 @@ export interface FileRoutesByTo {
   '/questions-a-verifier': typeof AuthenticatedQuestionsAVerifierRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/api/ai-explain': typeof ApiAiExplainRoute
+  '/api/ai-quota': typeof ApiAiQuotaRoute
+  '/api/lesson-quiz': typeof ApiLessonQuizRoute
+  '/api/seed-data': typeof ApiSeedDataRoute
   '/course/$courseId': typeof AuthenticatedCourseCourseIdRoute
   '/erreurs/$attemptId': typeof AuthenticatedErreursAttemptIdRoute
   '/exam/$examId': typeof AuthenticatedExamExamIdRoute
@@ -213,6 +237,9 @@ export interface FileRoutesById {
   '/_authenticated/questions-a-verifier': typeof AuthenticatedQuestionsAVerifierRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/api/ai-explain': typeof ApiAiExplainRoute
+  '/api/ai-quota': typeof ApiAiQuotaRoute
+  '/api/lesson-quiz': typeof ApiLessonQuizRoute
+  '/api/seed-data': typeof ApiSeedDataRoute
   '/_authenticated/course/$courseId': typeof AuthenticatedCourseCourseIdRoute
   '/_authenticated/erreurs/$attemptId': typeof AuthenticatedErreursAttemptIdRoute
   '/_authenticated/exam/$examId': typeof AuthenticatedExamExamIdRoute
@@ -238,6 +265,9 @@ export interface FileRouteTypes {
     | '/questions-a-verifier'
     | '/settings'
     | '/api/ai-explain'
+    | '/api/ai-quota'
+    | '/api/lesson-quiz'
+    | '/api/seed-data'
     | '/course/$courseId'
     | '/erreurs/$attemptId'
     | '/exam/$examId'
@@ -261,6 +291,9 @@ export interface FileRouteTypes {
     | '/questions-a-verifier'
     | '/settings'
     | '/api/ai-explain'
+    | '/api/ai-quota'
+    | '/api/lesson-quiz'
+    | '/api/seed-data'
     | '/course/$courseId'
     | '/erreurs/$attemptId'
     | '/exam/$examId'
@@ -285,6 +318,9 @@ export interface FileRouteTypes {
     | '/_authenticated/questions-a-verifier'
     | '/_authenticated/settings'
     | '/api/ai-explain'
+    | '/api/ai-quota'
+    | '/api/lesson-quiz'
+    | '/api/seed-data'
     | '/_authenticated/course/$courseId'
     | '/_authenticated/erreurs/$attemptId'
     | '/_authenticated/exam/$examId'
@@ -297,6 +333,9 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   ApiAiExplainRoute: typeof ApiAiExplainRoute
+  ApiAiQuotaRoute: typeof ApiAiQuotaRoute
+  ApiLessonQuizRoute: typeof ApiLessonQuizRoute
+  ApiSeedDataRoute: typeof ApiSeedDataRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -420,6 +459,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAiExplainRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/ai-quota': {
+      id: '/api/ai-quota'
+      path: '/api/ai-quota'
+      fullPath: '/api/ai-quota'
+      preLoaderRoute: typeof ApiAiQuotaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/lesson-quiz': {
+      id: '/api/lesson-quiz'
+      path: '/api/lesson-quiz'
+      fullPath: '/api/lesson-quiz'
+      preLoaderRoute: typeof ApiLessonQuizRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/seed-data': {
+      id: '/api/seed-data'
+      path: '/api/seed-data'
+      fullPath: '/api/seed-data'
+      preLoaderRoute: typeof ApiSeedDataRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/course/$courseId': {
       id: '/_authenticated/course/$courseId'
       path: '/course/$courseId'
@@ -508,6 +568,9 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   ApiAiExplainRoute: ApiAiExplainRoute,
+  ApiAiQuotaRoute: ApiAiQuotaRoute,
+  ApiLessonQuizRoute: ApiLessonQuizRoute,
+  ApiSeedDataRoute: ApiSeedDataRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

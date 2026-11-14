@@ -2,11 +2,26 @@ import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 
 const Body = z.object({
-  questionId: z.string().uuid(),
-  selected: z.array(z.string().max(2)).max(6),
+  questionId: z.string().min(1).max(160),
+  selected: z.array(z.string().max(4)).max(10),
   messages: z
     .array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().max(4000) }))
     .max(20),
+  question: z
+    .object({
+      id: z.string().optional(),
+      stem: z.string(),
+      case_text: z.string().nullable().optional(),
+      options: z.array(z.object({ key: z.string(), text: z.string() })),
+    })
+    .optional(),
+  official: z
+    .object({
+      correct: z.array(z.string()),
+      explanation: z.string().nullable().optional(),
+      note: z.string().nullable().optional(),
+    })
+    .optional(),
 });
 
 function sseEvent(payload: Record<string, unknown>): Uint8Array {
@@ -34,7 +49,7 @@ export const Route = createFileRoute("/api/ai-explain")({
       POST: async ({ request }) => {
         const parsed = Body.safeParse(await request.json());
         if (!parsed.success) return new Response("Bad request", { status: 400 });
-        const { questionId, selected, messages } = parsed.data;
+        const { questionId, selected, messages, question: bodyQ, official: bodyK } = parsed.data;
 
         const {
           authenticateStudentRequest,
@@ -59,7 +74,7 @@ export const Route = createFileRoute("/api/ai-explain")({
         let q: { stem: string; case_text: string | null; options: { key: string; text: string }[] } | null = null;
         let k: { correct: string[]; explanation: string | null; note: string | null } | null = null;
 
-        if (url && pub) {
+        if (url && pub && /^[0-9a-f-]{36}$/i.test(questionId)) {
           const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
           const qRes = await supabaseAdmin
             .from("questions")
@@ -84,14 +99,33 @@ export const Route = createFileRoute("/api/ai-explain")({
             };
           }
         } else {
-          const { loadSeedData } = await import("@/lib/seed-loader.server");
-          const seed = await loadSeedData();
-          const foundQ = seed.questions.find((x) => x.id === questionId);
-          const foundK = seed.question_keys.find((x) => x.question_id === questionId);
-          if (foundQ && foundK) {
-            q = { stem: foundQ.stem, case_text: foundQ.case_text, options: foundQ.options };
-            k = { correct: foundK.correct, explanation: foundK.explanation, note: foundK.note };
+          try {
+            const { loadSeedData } = await import("@/lib/seed-loader.server");
+            const seed = await loadSeedData();
+            const foundQ = seed.questions.find((x) => x.id === questionId);
+            const foundK = seed.question_keys.find((x) => x.question_id === questionId);
+            if (foundQ && foundK) {
+              q = { stem: foundQ.stem, case_text: foundQ.case_text, options: foundQ.options };
+              k = { correct: foundK.correct, explanation: foundK.explanation, note: foundK.note };
+            }
+          } catch {
+            // fallback to bodyQ / bodyK below
           }
+        }
+
+        if (!q && bodyQ) {
+          q = {
+            stem: bodyQ.stem,
+            case_text: bodyQ.case_text ?? null,
+            options: bodyQ.options,
+          };
+        }
+        if (!k && bodyK) {
+          k = {
+            correct: bodyK.correct,
+            explanation: bodyK.explanation ?? null,
+            note: bodyK.note ?? null,
+          };
         }
 
         if (!q || !k) return new Response("Not found", { status: 404 });
