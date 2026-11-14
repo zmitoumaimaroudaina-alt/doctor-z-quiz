@@ -246,7 +246,9 @@ export function AiExplain({
 
       {/* Quick Prompt Chips */}
       <div className="mt-3 flex flex-wrap gap-1.5 pt-2 border-t border-border/40">
-        <span className="text-[11px] font-semibold text-muted-foreground self-center">أسئلة مقترحة:</span>
+        <span className="text-[11px] font-semibold text-muted-foreground self-center">
+          أسئلة مقترحة:
+        </span>
         {QUICK_PROMPTS.map((qp) => (
           <button
             key={qp}

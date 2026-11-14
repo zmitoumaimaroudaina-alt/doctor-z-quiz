@@ -4,10 +4,7 @@ import path from "node:path";
 
 export const AI_DAILY_EXPLAIN_LIMIT = 60;
 export const AI_DAILY_PDF_LIMIT = 30;
-const CREATOR_EMAILS = new Set([
-  "doctorzmit@gmail.com",
-  "zmitoumaimaroudaina@gmail.com",
-]);
+const CREATOR_EMAILS = new Set(["doctorzmit@gmail.com", "zmitoumaimaroudaina@gmail.com"]);
 
 export type AiQuotaKind = "explain" | "pdf";
 
@@ -214,7 +211,10 @@ export interface AuthenticatedStudent {
 export async function authenticateStudentRequest(
   request: Request,
 ): Promise<AuthenticatedStudent | null> {
-  const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "").trim();
+  const token = request.headers
+    .get("authorization")
+    ?.replace(/^Bearer\s+/i, "")
+    .trim();
   if (!token) return null;
 
   const url = process.env["SUPABASE_URL"];

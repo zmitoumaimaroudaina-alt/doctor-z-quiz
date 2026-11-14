@@ -76,9 +76,20 @@ export const OPTIONS = {
   nose: ["Fin", "Rond", "Droit"],
   mouth: ["Sourire", "Neutre", "Grand sourire", "Concentré"],
   hair: [
-    "Court classique", "Bouclé", "Long fluide", "Chignon haut", "Rasé",
-    "Carré soigné", "Queue de cheval", "Ondulé", "Tresses", "Dégradé moderne",
-    "Afro", "Mèche latérale", "Frange droite", "Mi-long structuré"
+    "Court classique",
+    "Bouclé",
+    "Long fluide",
+    "Chignon haut",
+    "Rasé",
+    "Carré soigné",
+    "Queue de cheval",
+    "Ondulé",
+    "Tresses",
+    "Dégradé moderne",
+    "Afro",
+    "Mèche latérale",
+    "Frange droite",
+    "Mi-long structuré",
   ],
   beard: ["Aucune", "Barbe courte", "Barbe pleine", "Bouc soigné", "Collier", "Barbe longue"],
   moustache: ["Aucune", "Fine taillée", "Épaisse classique"],
@@ -138,9 +149,7 @@ function Eyes({ v, mood }: { v: number; mood: Mood }) {
       <ellipse cx="116" cy="96" rx="5" ry={ry} />
       <circle cx="86" cy="94" r="1.6" fill="#ffffff" />
       <circle cx="118" cy="94" r="1.6" fill="#ffffff" />
-      {v === 3 && (
-        <path d="M78 92 h12 M110 92 h12" stroke="#18181b" strokeWidth="1" />
-      )}
+      {v === 3 && <path d="M78 92 h12 M110 92 h12" stroke="#18181b" strokeWidth="1" />}
     </g>
   );
 }
@@ -150,8 +159,8 @@ function Brows({ mood, color }: { mood: Mood; color: string }) {
     mood === "angry"
       ? ["M74 81 l18 7", "M126 81 l-18 7"] // Annoyed deep furrow
       : mood === "sad"
-      ? ["M74 86 l18 -5", "M126 86 l-18 -5"]
-      : ["M75 83 q9 -5 18 0", "M107 83 q9 -5 18 0"];
+        ? ["M74 86 l18 -5", "M126 86 l-18 -5"]
+        : ["M75 83 q9 -5 18 0", "M107 83 q9 -5 18 0"];
   return (
     <g stroke={color} strokeWidth="3.5" fill="none" strokeLinecap="round">
       {d.map((x) => (
@@ -163,11 +172,27 @@ function Brows({ mood, color }: { mood: Mood; color: string }) {
 
 function Mouth({ v, mood }: { v: number; mood: Mood }) {
   if (mood === "sad") {
-    return <path d="M88 124 q12 -8 24 0" stroke="#be123c" strokeWidth="3.5" fill="none" strokeLinecap="round" />;
+    return (
+      <path
+        d="M88 124 q12 -8 24 0"
+        stroke="#be123c"
+        strokeWidth="3.5"
+        fill="none"
+        strokeLinecap="round"
+      />
+    );
   }
   if (mood === "angry") {
     // Annoyed wavy grimace
-    return <path d="M86 124 q7 -4 14 0 q7 4 14 -2" stroke="#be123c" strokeWidth="3.5" fill="none" strokeLinecap="round" />;
+    return (
+      <path
+        d="M86 124 q7 -4 14 0 q7 4 14 -2"
+        stroke="#be123c"
+        strokeWidth="3.5"
+        fill="none"
+        strokeLinecap="round"
+      />
+    );
   }
   if (mood === "veryHappy" || v === 2) {
     return (
@@ -183,7 +208,15 @@ function Mouth({ v, mood }: { v: number; mood: Mood }) {
   if (v === 3) {
     return <path d="M92 121 h16" stroke="#be123c" strokeWidth="2.5" strokeLinecap="round" />;
   }
-  return <path d="M88 116 q12 11 24 0" stroke="#be123c" strokeWidth="3.5" fill="none" strokeLinecap="round" />;
+  return (
+    <path
+      d="M88 116 q12 11 24 0"
+      stroke="#be123c"
+      strokeWidth="3.5"
+      fill="none"
+      strokeLinecap="round"
+    />
+  );
 }
 
 export function Avatar({
@@ -217,8 +250,8 @@ export function Avatar({
     mood === "veryHappy"
       ? "animate-bounce-big"
       : mood === "angry" && !tomato
-      ? "animate-shake"
-      : "animate-float";
+        ? "animate-shake"
+        : "animate-float";
 
   return (
     <div
@@ -263,16 +296,10 @@ export function Avatar({
             </g>
           ) : c.hijabStyle === 3 ? (
             /* Style 3: Châle turc - structured high back with peak */
-            <path
-              d="M44 98 q0 -68 56 -68 q56 0 56 68 l10 88 h-122 z"
-              fill={hijab}
-            />
+            <path d="M44 98 q0 -68 56 -68 q56 0 56 68 l10 88 h-122 z" fill={hijab} />
           ) : c.hijabStyle === 4 ? (
             /* Style 4: Bonnet chirurgical bloc - snug round back */
-            <path
-              d="M50 96 q0 -58 50 -58 q50 0 50 58 l4 70 h-108 z"
-              fill={hijab}
-            />
+            <path d="M50 96 q0 -58 50 -58 q50 0 50 58 l4 70 h-108 z" fill={hijab} />
           ) : (
             /* Style 0 & 5: Hijab médical classique / épaule - standard back cape */
             <path
@@ -289,9 +316,7 @@ export function Avatar({
         )}
 
         {/* Ponytail back */}
-        {!hijab && c.hair === 6 && (
-          <ellipse cx="145" cy="118" rx="16" ry="56" fill={hc} />
-        )}
+        {!hijab && c.hair === 6 && <ellipse cx="145" cy="118" rx="16" ry="56" fill={hc} />}
 
         {/* ======================================================== */}
         {/* 2. BODY & MEDICAL OUTFIT                                 */}
@@ -309,7 +334,16 @@ export function Avatar({
             <path d="M84 172 l16 32 l16 -32" fill="none" stroke={o.trim} strokeWidth="3" />
             <path d="M72 186 l28 42 l28 -42" fill="none" stroke="#cbd5e1" strokeWidth="1.5" />
             {/* Pocket with pen */}
-            <rect x="122" y="202" width="18" height="14" rx="2" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="1.5" />
+            <rect
+              x="122"
+              y="202"
+              width="18"
+              height="14"
+              rx="2"
+              fill="#f8fafc"
+              stroke="#cbd5e1"
+              strokeWidth="1.5"
+            />
             <rect x="126" y="196" width="3" height="10" rx="1" fill="#2563eb" />
             <rect x="131" y="198" width="3" height="8" rx="1" fill="#dc2626" />
           </>
@@ -363,9 +397,25 @@ export function Avatar({
         <Eyes v={c.eyes} mood={mood} />
 
         {/* Nose */}
-        {c.nose === 0 && <path d="M98 104 q4 6 0 8" stroke="#a16207" strokeWidth="2.2" fill="none" strokeLinecap="round" />}
+        {c.nose === 0 && (
+          <path
+            d="M98 104 q4 6 0 8"
+            stroke="#a16207"
+            strokeWidth="2.2"
+            fill="none"
+            strokeLinecap="round"
+          />
+        )}
         {c.nose === 1 && <ellipse cx="100" cy="108" rx="5" ry="3.8" fill="#a16207" opacity="0.3" />}
-        {c.nose === 2 && <path d="M100 98 v12 h-4" stroke="#a16207" strokeWidth="2.2" fill="none" strokeLinecap="round" />}
+        {c.nose === 2 && (
+          <path
+            d="M100 98 v12 h-4"
+            stroke="#a16207"
+            strokeWidth="2.2"
+            fill="none"
+            strokeLinecap="round"
+          />
+        )}
 
         {/* Cheeks blush if happy */}
         {(mood === "happy" || mood === "veryHappy") && !tomato && (
@@ -409,11 +459,15 @@ export function Avatar({
                 filter="url(#shadow-drape)"
               />
               {/* Flowing front chest draping with gentle V-folds */}
-              <path
-                d="M52 102 q4 52 48 58 q44 -6 48 -58 l18 138 h-134 z"
-              />
+              <path d="M52 102 q4 52 48 58 q44 -6 48 -58 l18 138 h-134 z" />
               {/* Pleats / Fabric crease highlights */}
-              <path d="M82 156 q18 42 18 84 M118 156 q-18 42 -18 84" stroke="#ffffff" strokeWidth="1.5" opacity="0.25" fill="none" />
+              <path
+                d="M82 156 q18 42 18 84 M118 156 q-18 42 -18 84"
+                stroke="#ffffff"
+                strokeWidth="1.5"
+                opacity="0.25"
+                fill="none"
+              />
             </g>
           ) : c.hijabStyle === 2 ? (
             /* Style 2: Turban chic moderne - high fashion & clinical comfort */
@@ -425,7 +479,13 @@ export function Avatar({
               />
               {/* Central turban knot twist */}
               <ellipse cx="100" cy="46" rx="14" ry="12" />
-              <path d="M92 46 q8 -8 16 0 q-8 8 -16 0" stroke="#000000" strokeWidth="1.5" opacity="0.25" fill="none" />
+              <path
+                d="M92 46 q8 -8 16 0 q-8 8 -16 0"
+                stroke="#000000"
+                strokeWidth="1.5"
+                opacity="0.25"
+                fill="none"
+              />
               {/* Hairline under-cap */}
               <path d="M64 78 q36 -12 72 0 q-36 -4 -72 0" fill="#0f172a" opacity="0.4" />
             </g>
@@ -440,9 +500,7 @@ export function Avatar({
               {/* Peak fold line */}
               <path d="M100 36 v18" stroke="#ffffff" strokeWidth="1.8" opacity="0.35" />
               {/* Asymmetrical diagonal neck crossover */}
-              <path
-                d="M52 102 q4 50 48 56 q44 -6 48 -56 l10 32 q-16 48 -58 52 q-42 -4 -48 -44 z"
-              />
+              <path d="M52 102 q4 50 48 56 q44 -6 48 -56 l10 32 q-16 48 -58 52 q-42 -4 -48 -44 z" />
               {/* Flowing scarf tail over left shoulder */}
               <path d="M60 180 q-10 32 -6 60 h22 q-4 -30 2 -60 z" />
             </g>
@@ -450,15 +508,17 @@ export function Avatar({
             /* Style 4: Bonnet bloc chirurgical / hijab de bloc - aerodynamic & professional */
             <g fill={hijab}>
               {/* Snug forehead coverage */}
-              <path
-                d="M54 100 q-2 -58 46 -58 q48 0 46 58 q-8 -38 -46 -40 q-38 2 -46 40 z"
-              />
+              <path d="M54 100 q-2 -58 46 -58 q48 0 46 58 q-8 -38 -46 -40 q-38 2 -46 40 z" />
               {/* Clean fitted surgical collar tucked under scrubs */}
-              <path
-                d="M54 100 q4 48 46 52 q42 -4 46 -52 v18 q-12 34 -46 36 q-34 -2 -46 -36 z"
-              />
+              <path d="M54 100 q4 48 46 52 q42 -4 46 -52 v18 q-12 34 -46 36 q-34 -2 -46 -36 z" />
               {/* Medical elastic brow band */}
-              <path d="M60 74 q40 -12 80 0" stroke="#ffffff" strokeWidth="2.5" opacity="0.3" fill="none" />
+              <path
+                d="M60 74 q40 -12 80 0"
+                stroke="#ffffff"
+                strokeWidth="2.5"
+                opacity="0.3"
+                fill="none"
+              />
             </g>
           ) : c.hijabStyle === 5 ? (
             /* Style 5: Foulard drapé d'épaule algérien - chic side-throw */
@@ -469,15 +529,16 @@ export function Avatar({
                 filter="url(#shadow-drape)"
               />
               {/* Base chin wrap */}
-              <path
-                d="M52 102 q4 50 48 56 q44 -6 48 -56 l8 26 q-12 42 -56 46 q-44 -4 -54 -42 z"
-              />
+              <path d="M52 102 q4 50 48 56 q44 -6 48 -56 l8 26 q-12 42 -56 46 q-44 -4 -54 -42 z" />
               {/* Scarf draped stylishly over left shoulder */}
+              <path d="M60 168 q-18 20 -14 72 h28 q-4 -36 10 -68 z" filter="url(#shadow-drape)" />
               <path
-                d="M60 168 q-18 20 -14 72 h28 q-4 -36 10 -68 z"
-                filter="url(#shadow-drape)"
+                d="M68 180 q-10 30 2 60"
+                stroke="#ffffff"
+                strokeWidth="1.5"
+                opacity="0.25"
+                fill="none"
               />
-              <path d="M68 180 q-10 30 2 60" stroke="#ffffff" strokeWidth="1.5" opacity="0.25" fill="none" />
             </g>
           ) : (
             /* Style 0: Hijab médical classique élégant - clean, balanced, beautifully framed */
@@ -488,60 +549,73 @@ export function Avatar({
                 filter="url(#shadow-drape)"
               />
               {/* Chin wrap & neat chest V-drape */}
-              <path
-                d="M52 102 q4 50 48 56 q44 -6 48 -56 l6 30 q-12 40 -54 44 q-42 -4 -54 -44 z"
-              />
+              <path d="M52 102 q4 50 48 56 q44 -6 48 -56 l6 30 q-12 40 -54 44 q-42 -4 -54 -44 z" />
               {/* Soft central fold crease */}
               <path d="M100 158 v42" stroke="#ffffff" strokeWidth="1.8" opacity="0.3" />
             </g>
           )
+        ) : /* Front Hair Styles (non-hijab) */
+        c.hair === 5 ? (
+          <path
+            d="M54 125 V88 q0 -45 46 -45 q46 0 46 45 v37 l-13 10 v-48 q-15 -18 -33 -18 q-24 17 -33 17 v49z"
+            fill={hc}
+          />
+        ) : c.hair === 7 ? (
+          <path
+            d="M54 112 q-9 -65 46 -69 q55 4 46 69 l-15 -16 q-2 -27 -21 -26 q-8 16 -32 10 l-9 25z"
+            fill={hc}
+          />
+        ) : c.hair === 8 ? (
+          <g fill={hc}>
+            <path d="M58 88 q0 -45 42 -45 q42 0 42 45 q-16 -20 -42 -22 q-26 2 -42 22z" />
+            {[126, 140, 154, 168].map((y) => (
+              <g key={y}>
+                <ellipse cx="61" cy={y} rx="8" ry="10" />
+                <ellipse cx="139" cy={y} rx="8" ry="10" />
+              </g>
+            ))}
+          </g>
+        ) : c.hair === 9 ? (
+          <path
+            d="M58 89 q0 -45 42 -45 q42 0 42 45 l-7 -4 v-15 q-19 -17 -40 3 q-16 7 -30 5 v11z"
+            fill={hc}
+          />
+        ) : c.hair === 10 ? (
+          <g fill={hc}>
+            {[
+              [64, 74],
+              [80, 56],
+              [100, 50],
+              [120, 56],
+              [136, 74],
+              [58, 96],
+              [142, 96],
+            ].map(([x, y]) => (
+              <circle key={`${x}${y}`} cx={x} cy={y} r="18" />
+            ))}
+          </g>
+        ) : c.hair === 11 ? (
+          <path d="M58 90 q0 -46 42 -46 q46 0 44 44 q-34 -16 -76 20z" fill={hc} />
+        ) : c.hair === 1 ? (
+          <g fill={hc}>
+            {[62, 76, 90, 104, 118, 132].map((x, i) => (
+              <circle key={x} cx={x + 4} cy={62 - (i % 2) * 6} r="14" />
+            ))}
+          </g>
+        ) : c.hair === 3 ? (
+          <g fill={hc}>
+            <circle cx="100" cy="38" r="16" />
+            <path d="M58 92 q0 -46 42 -46 q42 0 42 46 q-14 -28 -42 -28 q-28 0 -42 28z" />
+          </g>
         ) : (
-          /* Front Hair Styles (non-hijab) */
-          c.hair === 5 ? (
-            <path d="M54 125 V88 q0 -45 46 -45 q46 0 46 45 v37 l-13 10 v-48 q-15 -18 -33 -18 q-24 17 -33 17 v49z" fill={hc} />
-          ) : c.hair === 7 ? (
-            <path d="M54 112 q-9 -65 46 -69 q55 4 46 69 l-15 -16 q-2 -27 -21 -26 q-8 16 -32 10 l-9 25z" fill={hc} />
-          ) : c.hair === 8 ? (
-            <g fill={hc}>
-              <path d="M58 88 q0 -45 42 -45 q42 0 42 45 q-16 -20 -42 -22 q-26 2 -42 22z" />
-              {[126, 140, 154, 168].map((y) => (
-                <g key={y}>
-                  <ellipse cx="61" cy={y} rx="8" ry="10" />
-                  <ellipse cx="139" cy={y} rx="8" ry="10" />
-                </g>
-              ))}
-            </g>
-          ) : c.hair === 9 ? (
-            <path d="M58 89 q0 -45 42 -45 q42 0 42 45 l-7 -4 v-15 q-19 -17 -40 3 q-16 7 -30 5 v11z" fill={hc} />
-          ) : c.hair === 10 ? (
-            <g fill={hc}>
-              {[[64, 74], [80, 56], [100, 50], [120, 56], [136, 74], [58, 96], [142, 96]].map(([x, y]) => (
-                <circle key={`${x}${y}`} cx={x} cy={y} r="18" />
-              ))}
-            </g>
-          ) : c.hair === 11 ? (
-            <path d="M58 90 q0 -46 42 -46 q46 0 44 44 q-34 -16 -76 20z" fill={hc} />
-          ) : c.hair === 1 ? (
-            <g fill={hc}>
-              {[62, 76, 90, 104, 118, 132].map((x, i) => (
-                <circle key={x} cx={x + 4} cy={62 - (i % 2) * 6} r="14" />
-              ))}
-            </g>
-          ) : c.hair === 3 ? (
-            <g fill={hc}>
-              <circle cx="100" cy="38" r="16" />
-              <path d="M58 92 q0 -46 42 -46 q42 0 42 46 q-14 -28 -42 -28 q-28 0 -42 28z" />
-            </g>
-          ) : (
-            <path
-              d={
-                c.gender === "f" || c.hair === 2
-                  ? "M56 100 q-4 -56 44 -56 q48 0 44 56 q-8 -30 -30 -34 q-10 14 -40 16 q-12 4 -18 18z"
-                  : "M58 88 q0 -44 42 -44 q42 0 42 44 q-10 -20 -30 -22 q-20 10 -54 22z"
-              }
-              fill={hc}
-            />
-          )
+          <path
+            d={
+              c.gender === "f" || c.hair === 2
+                ? "M56 100 q-4 -56 44 -56 q48 0 44 56 q-8 -30 -30 -34 q-10 14 -40 16 q-12 4 -18 18z"
+                : "M58 88 q0 -44 42 -44 q42 0 42 44 q-10 -20 -30 -22 q-20 10 -54 22z"
+            }
+            fill={hc}
+          />
         )}
 
         {/* Glasses - perfectly centered on pupils (cy=96, cx=84 & 116) */}
@@ -575,12 +649,22 @@ export function Avatar({
         {/* Accessories */}
         {c.accessory === 1 && (
           /* Stéthoscope cardiologique réaliste autour du cou */
-          <g fill="none" stroke="#0284c7" strokeWidth="4" strokeLinecap="round" filter="url(#shadow-drape)">
+          <g
+            fill="none"
+            stroke="#0284c7"
+            strokeWidth="4"
+            strokeLinecap="round"
+            filter="url(#shadow-drape)"
+          >
             <path d="M74 168 q-4 44 26 48 q30 -4 26 -48" />
             <circle cx="100" cy="216" r="8" fill="#e2e8f0" stroke="#0369a1" strokeWidth="2.5" />
             <circle cx="100" cy="216" r="3.5" fill="#0284c7" />
             {/* Ear pieces */}
-            <path d="M72 166 q-4 -12 2 -24 M128 166 q4 -12 -2 -24" stroke="#64748b" strokeWidth="2.5" />
+            <path
+              d="M72 166 q-4 -12 2 -24 M128 166 q4 -12 -2 -24"
+              stroke="#64748b"
+              strokeWidth="2.5"
+            />
           </g>
         )}
         {c.accessory === 2 && !hijab && (
@@ -633,14 +717,32 @@ export function Avatar({
             <ellipse cx="104" cy="80" rx="2.5" ry="4" fill="#fef08a" />
 
             {/* Broken green tomato vine fragment */}
-            <path d="M96 58 l6 -10 l6 10 M92 56 l14 -4" stroke="#15803d" strokeWidth="2.5" strokeLinecap="round" />
+            <path
+              d="M96 58 l6 -10 l6 10 M92 56 l14 -4"
+              stroke="#15803d"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+            />
 
             {/* ANIMATED HAND WITH WHITE MEDICAL TISSUE WIPING FACE */}
             <g className="animate-wipe">
               {/* Doctor coat sleeve */}
-              <path d="M148 150 l16 -30 l18 8 l-12 34 z" fill={o.color} stroke={o.trim} strokeWidth="2" />
+              <path
+                d="M148 150 l16 -30 l18 8 l-12 34 z"
+                fill={o.color}
+                stroke={o.trim}
+                strokeWidth="2"
+              />
               {/* Hand */}
-              <ellipse cx="136" cy="108" rx="13" ry="10" fill={skin} stroke="#a16207" strokeWidth="1.5" />
+              <ellipse
+                cx="136"
+                cy="108"
+                rx="13"
+                ry="10"
+                fill={skin}
+                stroke="#a16207"
+                strokeWidth="1.5"
+              />
               {/* White medical tissue */}
               <path
                 d="M124 94 l24 -8 l8 20 l-26 12 z"

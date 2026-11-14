@@ -90,6 +90,47 @@ export function recordChallengeParticipation(input: {
   } catch {
     // ignore storage quota errors
   }
+
+  // Sync to server leaderboard store
+  void fetch("/api/leaderboard", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ action: "record_challenge", record: rec }),
+  }).catch(() => {});
+}
+
+export function syncProfileToServer(profile: {
+  user_id: string;
+  email?: string | null;
+  display_name: string;
+  avatar: AvatarConfig;
+  pet?: string | null;
+  bubble?: string | null;
+  xp?: number;
+  isCreator?: boolean;
+}): void {
+  if (!isBrowser()) return;
+  void fetch("/api/leaderboard", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ action: "upsert_profile", profile }),
+  }).catch(() => {});
+}
+
+export async function syncAllLocalRecordsToServer(): Promise<void> {
+  if (!isBrowser()) return;
+  try {
+    const records = getChallengeRecords();
+    for (const rec of records.slice(0, 100)) {
+      void fetch("/api/leaderboard", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "record_challenge", record: rec }),
+      }).catch(() => {});
+    }
+  } catch {
+    // ignore
+  }
 }
 
 function getLocalTomatoUntil(userId: string): string | null {
@@ -105,6 +146,30 @@ function getLocalTomatoUntil(userId: string): string | null {
     }
   } catch {
     // ignore
+  }
+  return null;
+}
+
+export async function fetchServerLeaderboard(
+  examId?: string,
+): Promise<ParticipantStanding[] | null> {
+  try {
+    await syncAllLocalRecordsToServer();
+    const url = examId
+      ? `/api/leaderboard?examId=${encodeURIComponent(examId)}`
+      : "/api/leaderboard";
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) return null;
+    const data = (await res.json()) as ParticipantStanding[];
+    if (Array.isArray(data)) {
+      // Re-attach local tomato hits state
+      return data.map((item) => ({
+        ...item,
+        tomato_until: getLocalTomatoUntil(item.user_id) || item.tomato_until,
+      }));
+    }
+  } catch {
+    // fallback
   }
   return null;
 }
@@ -187,7 +252,8 @@ export function buildLocalParticipantsLeaderboard(params: {
         existing?.display_name ||
         emailKey.split("@")[0] ||
         "Étudiant",
-      avatar: params.currentUser.avatar || existing?.avatar || { gender: "m", skin: 1, outfit: 0, accessory: 1 },
+      avatar: params.currentUser.avatar ||
+        existing?.avatar || { gender: "m", skin: 1, outfit: 0, accessory: 1 },
       pet: params.currentUser.pet ?? existing?.pet ?? null,
       bubble: params.currentUser.bubble ?? existing?.bubble ?? null,
       xp: Math.max(params.currentUser.xp ?? 0, existing?.xp ?? 0),
@@ -275,10 +341,7 @@ export function buildLocalParticipantsLeaderboard(params: {
     });
   }
 
-  // 5. Sort by challenge participation & performance:
-  //    - Active participants (challenges_count > 0) before non-participants
-  //    - In "overall": higher challenges_count + best/avg score, then XP
-  //    - In "exam": higher best_score, then lower best_time, then challenges_count
+  // 5. Sort standings
   standings.sort((a, b) => {
     const aActive = a.challenges_count > 0 ? 1 : 0;
     const bActive = b.challenges_count > 0 ? 1 : 0;

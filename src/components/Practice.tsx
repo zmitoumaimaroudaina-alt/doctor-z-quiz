@@ -12,9 +12,23 @@ import { play } from "@/lib/sound";
 import { saveProfileDurable } from "@/lib/profileStore";
 import { recordChallengeParticipation } from "@/lib/leaderboardStore";
 import { getKeyOverride, getQuestionOverride } from "@/lib/questionOverrides";
+import { addStudentScore } from "@/lib/studentService";
 
-type Feedback = { correct: boolean; official: string[] | null; explanation: string | null; note: string | null };
-type Summary = { id: string; total: number; correct: number; wrong: number; unanswered: number; score20: number; errors: string[] };
+type Feedback = {
+  correct: boolean;
+  official: string[] | null;
+  explanation: string | null;
+  note: string | null;
+};
+type Summary = {
+  id: string;
+  total: number;
+  correct: number;
+  wrong: number;
+  unanswered: number;
+  score20: number;
+  errors: string[];
+};
 
 export function Practice({
   questions,
@@ -54,7 +68,9 @@ export function Practice({
     void (async () => {
       let id: string | null = null;
       try {
-        const { data, error } = await supabase.rpc("start_practice", { _questions: active.map((q) => q.id) });
+        const { data, error } = await supabase.rpc("start_practice", {
+          _questions: active.map((q) => q.id),
+        });
         if (!error && data) id = data;
       } catch {
         // fallback
@@ -66,7 +82,11 @@ export function Practice({
 
       let savedAnswers = {};
       try {
-        const { data: saved } = await supabase.from("practice_attempts").select("answers").eq("id", id).single();
+        const { data: saved } = await supabase
+          .from("practice_attempts")
+          .select("answers")
+          .eq("id", id)
+          .single();
         if (saved?.answers) savedAnswers = saved.answers;
       } catch {
         // ignore
@@ -100,7 +120,7 @@ export function Practice({
         ...(qOv?.options !== undefined ? { options: qOv.options } : {}),
       }
     : undefined;
-  const sel = q ? answers[q.id] ?? [] : [];
+  const sel = q ? (answers[q.id] ?? []) : [];
   const fb = q ? feedback[q.id] : undefined;
 
   async function validate() {
@@ -111,7 +131,11 @@ export function Practice({
     try {
       let r: Feedback | null = null;
       try {
-        const { data, error } = await supabase.rpc("answer_practice", { _attempt: attempt, _q: q.id, _sel: sel });
+        const { data, error } = await supabase.rpc("answer_practice", {
+          _attempt: attempt,
+          _q: q.id,
+          _sel: sel,
+        });
         if (!error && data) r = data as unknown as Feedback;
       } catch {
         // fallback
@@ -132,8 +156,14 @@ export function Practice({
         const kOv = getKeyOverride(q.id);
         if (kOv) {
           const official = kOv.correct ?? r.official ?? [];
-          const sortedSel = [...sel].map((s) => s.toUpperCase()).sort().join(",");
-          const sortedOff = [...official].map((s) => s.toUpperCase()).sort().join(",");
+          const sortedSel = [...sel]
+            .map((s) => s.toUpperCase())
+            .sort()
+            .join(",");
+          const sortedOff = [...official]
+            .map((s) => s.toUpperCase())
+            .sort()
+            .join(",");
           r = {
             correct: sortedSel.length > 0 && sortedSel === sortedOff,
             official,
@@ -219,6 +249,14 @@ export function Practice({
           correctCount: sum.correct,
           totalCount: sum.total,
         });
+
+        if (sum.correct > 0) {
+          try {
+            await addStudentScore(me.id, Math.round(sum.score20), sum.correct * 10);
+          } catch (err) {
+            console.error("Failed to increment student score in Practice:", err);
+          }
+        }
       }
 
       setSummary(sum);
@@ -258,17 +296,23 @@ export function Practice({
         <h2 className="font-display text-2xl font-bold">Résultats · نتائج المحاولة</h2>
         <p className="text-success font-semibold">✓ Tentative enregistrée avec succès</p>
         <div className="flex items-baseline gap-2">
-          <strong className="font-display text-5xl font-bold text-primary">{summary.score20.toFixed(2)}</strong>
+          <strong className="font-display text-5xl font-bold text-primary">
+            {summary.score20.toFixed(2)}
+          </strong>
           <span className="text-2xl text-muted-foreground">/ 20</span>
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <div className="bg-success/10 border border-success/30 rounded-xl p-3 text-center">
             <span className="block text-xs text-muted-foreground">Correctes</span>
-            <span className="font-display text-xl font-bold text-success">✅ {summary.correct}</span>
+            <span className="font-display text-xl font-bold text-success">
+              ✅ {summary.correct}
+            </span>
           </div>
           <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-3 text-center">
             <span className="block text-xs text-muted-foreground">Fausses</span>
-            <span className="font-display text-xl font-bold text-destructive">❌ {summary.wrong}</span>
+            <span className="font-display text-xl font-bold text-destructive">
+              ❌ {summary.wrong}
+            </span>
           </div>
           <div className="bg-muted border border-border rounded-xl p-3 text-center">
             <span className="block text-xs text-muted-foreground">Sans réponse</span>
@@ -326,8 +370,12 @@ export function Practice({
         {fb && (
           <div className="mt-4 space-y-3 border-t border-border pt-4 card-game p-4">
             <div className="flex items-center gap-2">
-              <span className={`text-base font-bold ${fb.correct ? "text-success" : "text-destructive"}`}>
-                {fb.correct ? "✓ Bonne réponse !" : `❌ Réponse officielle : ${fb.official?.join(", ") || "A"}`}
+              <span
+                className={`text-base font-bold ${fb.correct ? "text-success" : "text-destructive"}`}
+              >
+                {fb.correct
+                  ? "✓ Bonne réponse !"
+                  : `❌ Réponse officielle : ${fb.official?.join(", ") || "A"}`}
               </span>
             </div>
             {fb.explanation && (
@@ -335,7 +383,9 @@ export function Practice({
                 💡 {fb.explanation}
               </p>
             )}
-            {fb.note && <p className="whitespace-pre-line text-xs text-muted-foreground">📌 {fb.note}</p>}
+            {fb.note && (
+              <p className="whitespace-pre-line text-xs text-muted-foreground">📌 {fb.note}</p>
+            )}
             <AiExplain
               key={q.id}
               questionId={q.id}

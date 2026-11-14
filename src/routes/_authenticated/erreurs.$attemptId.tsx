@@ -12,7 +12,11 @@ import { evaluateQuestionAnswer, getBundledExam, getBundledKey } from "@/lib/med
 import { getKeyOverride, getQuestionOverride } from "@/lib/questionOverrides";
 
 export const Route = createFileRoute("/_authenticated/erreurs/$attemptId")({
-  head: () => pageMetadata("Correction de ma tentative", "Questions fausses et sans réponse de ta tentative."),
+  head: () =>
+    pageMetadata(
+      "Correction de ma tentative",
+      "Questions fausses et sans réponse de ta tentative.",
+    ),
   component: Erreurs,
 });
 
@@ -31,8 +35,14 @@ function Erreurs() {
               const kOv = getKeyOverride(row.question_id);
               const official = kOv?.correct ?? row.official ?? [];
               const sel = (row.selected as string[] | null) ?? [];
-              const sortedSel = [...sel].map((s) => s.toUpperCase()).sort().join(",");
-              const sortedOff = [...official].map((s) => s.toUpperCase()).sort().join(",");
+              const sortedSel = [...sel]
+                .map((s) => s.toUpperCase())
+                .sort()
+                .join(",");
+              const sortedOff = [...official]
+                .map((s) => s.toUpperCase())
+                .sort()
+                .join(",");
               return {
                 ...row,
                 stem: qOv?.stem ?? row.stem,
@@ -85,7 +95,11 @@ function Erreurs() {
   const wrong = (data ?? []).filter((r) => !r.ok);
   return (
     <AppShell>
-      <PageTitle title="❌ Mes erreurs" ar="أخطائي" sub={`${wrong.length} question(s) fausse(s) ou sans réponse`} />
+      <PageTitle
+        title="❌ Mes erreurs"
+        ar="أخطائي"
+        sub={`${wrong.length} question(s) fausse(s) ou sans réponse`}
+      />
       {wrong.length > 0 && (
         <Button onClick={() => setRetry(!retry)} className="mb-4">
           {retry ? "Voir la correction" : "Rejouer mes erreurs"}
@@ -117,7 +131,9 @@ function Erreurs() {
                   </div>
                 )}
                 <div className="mb-2 flex items-center gap-2">
-                  <span className="rounded-lg bg-primary-soft px-2 py-0.5 text-xs font-bold text-primary">Q{r.pos}</span>
+                  <span className="rounded-lg bg-primary-soft px-2 py-0.5 text-xs font-bold text-primary">
+                    Q{r.pos}
+                  </span>
                   <span
                     className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
                       sel.length ? "bg-destructive/15 text-destructive" : "bg-muted"
@@ -135,7 +151,11 @@ function Erreurs() {
                       <div
                         key={o.key}
                         className={`rounded-lg border p-2 text-sm ${
-                          ok ? "border-success bg-success/10" : mine ? "border-destructive bg-destructive/10" : ""
+                          ok
+                            ? "border-success bg-success/10"
+                            : mine
+                              ? "border-destructive bg-destructive/10"
+                              : ""
                         }`}
                       >
                         <b>{o.key}.</b> {o.text} {ok && "✅"} {mine && !ok && "❌"}
@@ -148,17 +168,26 @@ function Erreurs() {
                     Ta réponse : <b>{sel.join(", ") || "—"}</b>
                   </div>
                   <div className="rounded-lg bg-success/10 p-2">
-                    Réponse officielle : <b>{r.official?.join(", ") || "non disponible dans la source"}</b>
+                    Réponse officielle :{" "}
+                    <b>{r.official?.join(", ") || "non disponible dans la source"}</b>
                   </div>
                 </div>
-                <p className="ar mt-3 font-semibold text-warning-foreground">⚠️ ركز! راجع درسك مليح.</p>
+                <p className="ar mt-3 font-semibold text-warning-foreground">
+                  ⚠️ ركز! راجع درسك مليح.
+                </p>
                 {r.explanation && (
                   <p className="mt-2 whitespace-pre-line rounded-lg bg-secondary p-2 text-sm">
                     <b>Explication officielle :</b> {r.explanation}
                   </p>
                 )}
-                {r.note && <p className="ar mt-2 rounded-lg bg-warning/20 p-2 text-sm">📝 ملاحظة: {r.note}</p>}
-                <p className="mt-2 text-[11px] text-muted-foreground">Questions de la Faculté de Médecine de l’Université de Blida</p>
+                {r.note && (
+                  <p className="ar mt-2 rounded-lg bg-warning/20 p-2 text-sm">
+                    📝 ملاحظة: {r.note}
+                  </p>
+                )}
+                <p className="mt-2 text-[11px] text-muted-foreground">
+                  Questions de la Faculté de Médecine de l’Université de Blida
+                </p>
                 <AiExplain
                   questionId={r.question_id}
                   selected={sel}
@@ -178,7 +207,9 @@ function Erreurs() {
               </div>
             );
           })}
-          {data && !wrong.length && <div className="card-game p-8 text-center">Aucune erreur 🎉</div>}
+          {data && !wrong.length && (
+            <div className="card-game p-8 text-center">Aucune erreur 🎉</div>
+          )}
         </div>
       )}
       <Link to="/examens" className="mt-6 inline-block text-primary">

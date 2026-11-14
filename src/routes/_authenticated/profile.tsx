@@ -13,6 +13,10 @@ import type { Database } from "@/integrations/supabase/types";
 import { deleteMyAccount } from "@/lib/account.functions";
 import { clearCurrentSession, saveProfileDurable } from "@/lib/profileStore";
 import { play } from "@/lib/sound";
+import { saveStudentAvatar } from "@/lib/studentService";
+import { auth } from "@/lib/firebase";
+import { signOut } from "firebase/auth";
+import type { AvatarConfig } from "@/components/Avatar";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   head: () => pageMetadata("Profil", "Ton personnage et ton compte Z QCM GAME."),
@@ -28,31 +32,42 @@ function Profile() {
   const [name, setName] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [confirmText, setConfirmText] = useState("");
-  if (!me) return <AppShell><p>…</p></AppShell>;
+  if (!me)
+    return (
+      <AppShell>
+        <p>…</p>
+      </AppShell>
+    );
 
   async function save(patch: Database["public"]["Tables"]["profiles"]["Update"]) {
     if (!me) return;
     setSaving(true);
 
-    // 1. Persist durably by email so updates survive logout/login
+    // 1. Persist directly to Firestore
     try {
-      saveProfileDurable(
-        me.email,
-        patch as Record<string, unknown>,
-        me.display_name ?? undefined,
-      );
-    } catch {
-      // ignore
+      const updatedAvatar = (patch.avatar as unknown as AvatarConfig) || me.avatar;
+      const updatedPet = patch.pet !== undefined ? (patch.pet as string | null) : me.pet;
+      const updatedName = patch.display_name || me.display_name || "Étudiant";
+      if (updatedAvatar) {
+        await saveStudentAvatar(me.id, updatedAvatar, updatedPet, updatedName);
+      }
+    } catch (e) {
+      console.error("Failed to save avatar to Firestore:", e);
+      toast.error("فشل حفظ الأفاتار في قاعدة البيانات.");
+      setSaving(false);
+      return;
     }
 
     // 2. Optimistically update UI cache immediately
-    qc.setQueryData(["me"], (old: unknown) => (old ? { ...(old as Record<string, unknown>), ...patch } : old));
+    qc.setQueryData(["me"], (old: unknown) =>
+      old ? { ...(old as Record<string, unknown>), ...patch } : old,
+    );
 
     // 3. Sync to Supabase if available
     try {
       await supabase.from("profiles").update(patch).eq("id", me.id);
     } catch {
-      // durable local save already succeeded
+      // durable save already succeeded
     }
 
     setSaving(false);
@@ -63,35 +78,78 @@ function Profile() {
 
   return (
     <AppShell wide>
-      <PageTitle title="👤 Profil" ar="الملف الشخصي" sub={me.isCreator ? "👑 Doctor Z — Creator" : undefined} />
+      <PageTitle
+        title="👤 Profil"
+        ar="الملف الشخصي"
+        sub={me.isCreator ? "👑 Doctor Z — Creator" : undefined}
+      />
       <div className="card-game mb-5 flex flex-wrap items-end gap-3 p-4">
-        <label className="flex-1"><span className="text-xs text-muted-foreground">Nom affiché</span>
-          <input value={name ?? me.display_name ?? ""} onChange={(e) => setName(e.target.value)} maxLength={24} className="mt-1 w-full rounded-xl border px-3 py-2" /></label>
-        <button onClick={() => name && name.trim().length >= 2 && save({ display_name: name.trim() })} className="rounded-xl bg-primary px-4 py-2 text-primary-foreground">Enregistrer</button>
+        <label className="flex-1">
+          <span className="text-xs text-muted-foreground">Nom affiché</span>
+          <input
+            value={name ?? me.display_name ?? ""}
+            onChange={(e) => setName(e.target.value)}
+            maxLength={24}
+            className="mt-1 w-full rounded-xl border px-3 py-2"
+          />
+        </label>
+        <button
+          onClick={() => name && name.trim().length >= 2 && save({ display_name: name.trim() })}
+          className="rounded-xl bg-primary px-4 py-2 text-primary-foreground"
+        >
+          Enregistrer
+        </button>
       </div>
-      <AvatarEditor initial={me.avatar} pet={me.pet} level={levelFromXp(me.xp).level} unlockAll={me.isCreator} saving={saving} onSave={(avatar, pet) => save({ avatar, pet })} />
+      <AvatarEditor
+        initial={me.avatar}
+        pet={me.pet}
+        level={levelFromXp(me.xp).level}
+        unlockAll={me.isCreator}
+        saving={saving}
+        onSave={(avatar, pet) => save({ avatar, pet })}
+      />
 
       {!me.isCreator && (
         <div className="card-game mt-8 border-destructive/40 p-5">
           <h2 className="font-display text-lg font-bold text-destructive">Supprimer mon compte</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Action définitive : ton compte, ton avatar, tes scores et ton rang disparaissent complètement du jeu.</p>
-          <input value={confirmText} onChange={(e) => setConfirmText(e.target.value)} placeholder="Tape SUPPRIMER" className="mt-3 w-full rounded-xl border px-3 py-2 text-sm" />
-          <button disabled={confirmText !== "SUPPRIMER"} onClick={async () => {
-            try {
-              if (import.meta.env["VITE_SUPABASE_URL"]) {
-                await del();
-              } else {
-                const { error } = await supabase.from("profiles").delete().eq("id", me.id);
-                if (error) throw new Error(error.message);
+          <p className="mt-1 text-sm text-muted-foreground">
+            Action définitive : ton compte, ton avatar, tes scores et ton rang disparaissent
+            complètement du jeu.
+          </p>
+          <input
+            value={confirmText}
+            onChange={(e) => setConfirmText(e.target.value)}
+            placeholder="Tape SUPPRIMER"
+            className="mt-3 w-full rounded-xl border px-3 py-2 text-sm"
+          />
+          <button
+            disabled={confirmText !== "SUPPRIMER"}
+            onClick={async () => {
+              try {
+                if (import.meta.env["VITE_SUPABASE_URL"]) {
+                  await del();
+                } else {
+                  const { error } = await supabase.from("profiles").delete().eq("id", me.id);
+                  if (error) throw new Error(error.message);
+                }
+                clearCurrentSession();
+                await qc.cancelQueries();
+                qc.clear();
+                try {
+                  await signOut(auth);
+                } catch {
+                  // ignore
+                }
+                nav({ to: "/", replace: true });
+                toast.success("Compte supprimé.");
+              } catch (e) {
+                toast.error((e as Error).message);
               }
-              clearCurrentSession();
-              await qc.cancelQueries();
-              qc.clear();
-              await supabase.auth.signOut();
-              nav({ to: "/", replace: true });
-              toast.success("Compte supprimé.");
-            } catch (e) { toast.error((e as Error).message); }
-          }} className="mt-3 rounded-xl bg-destructive px-4 py-2 font-semibold text-destructive-foreground disabled:opacity-40">Supprimer définitivement</button>
+            }}
+            className="mt-3 rounded-xl bg-destructive px-4 py-2 font-semibold text-destructive-foreground disabled:opacity-40"
+          >
+            Supprimer définitivement
+          </button>
         </div>
       )}
     </AppShell>

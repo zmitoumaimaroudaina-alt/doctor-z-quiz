@@ -8,11 +8,15 @@ const CREATOR = "doctorzmit@gmail.com";
 export const deleteMyAccount = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data: isCreator } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+    const { data: isCreator } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
     if (isCreator) throw new Error("Le compte Creator ne peut pas être supprimé.");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: u } = await supabaseAdmin.auth.admin.getUserById(context.userId);
-    if (u.user?.email?.toLowerCase() === CREATOR) throw new Error("Le compte Creator ne peut pas être supprimé.");
+    if (u.user?.email?.toLowerCase() === CREATOR)
+      throw new Error("Le compte Creator ne peut pas être supprimé.");
     const { error } = await supabaseAdmin.auth.admin.deleteUser(context.userId);
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -23,11 +27,18 @@ export const deleteStudent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ userId: z.string().uuid() }).parse(d))
   .handler(async ({ context, data }) => {
-    const { data: isCreator } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+    const { data: isCreator } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
     if (!isCreator) throw new Error("Forbidden");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: target } = await supabaseAdmin.from("user_roles").select("role").eq("user_id", data.userId);
-    if (target?.some((r) => r.role === "admin")) throw new Error("Impossible de supprimer le Creator.");
+    const { data: target } = await supabaseAdmin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", data.userId);
+    if (target?.some((r) => r.role === "admin"))
+      throw new Error("Impossible de supprimer le Creator.");
     const { error } = await supabaseAdmin.auth.admin.deleteUser(data.userId);
     if (error) throw new Error(error.message);
     return { ok: true };

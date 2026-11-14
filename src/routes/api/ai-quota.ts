@@ -4,9 +4,8 @@ export const Route = createFileRoute("/api/ai-quota")({
   server: {
     handlers: {
       GET: async ({ request }) => {
-        const { authenticateStudentRequest, getStudentQuotaStatus } = await import(
-          "@/lib/ai-quota.server"
-        );
+        const { authenticateStudentRequest, getStudentQuotaStatus } =
+          await import("@/lib/ai-quota.server");
         const { hasGeminiApiKey } = await import("@/lib/gemini.server");
         const student = await authenticateStudentRequest(request);
         if (!student) {

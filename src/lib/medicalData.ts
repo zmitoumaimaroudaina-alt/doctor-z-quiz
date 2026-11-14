@@ -53,47 +53,45 @@ type Exam2025RawFile = {
 
 const exam2025Data = exam2025Raw as Exam2025RawFile;
 
-const SUBJECT_2025_MAP: Record<
-  string,
-  { id: number; slug: string; label: string; emoji: string }
-> = {
-  Physiopathologie: {
-    id: 2,
-    slug: "physiopathologie",
-    label: "Physiopathologie",
-    emoji: "🫀",
-  },
-  Biochimie: {
-    id: 1,
-    slug: "biochimie",
-    label: "Biochimie",
-    emoji: "🧪",
-  },
-  Radiologie: {
-    id: 5,
-    slug: "radiologie",
-    label: "Radiologie",
-    emoji: "🩻",
-  },
-  "Psychologie médicale": {
-    id: 4,
-    slug: "psychologie",
-    label: "Psychologie médicale",
-    emoji: "🧠",
-  },
-  "Sémiologie clinique": {
-    id: 3,
-    slug: "semiologie",
-    label: "Sémiologie clinique",
-    emoji: "🩺",
-  },
-  "Partie pratique (cas clinique)": {
-    id: 9,
-    slug: "pratique",
-    label: "Partie pratique (cas clinique)",
-    emoji: "🏥",
-  },
-};
+const SUBJECT_2025_MAP: Record<string, { id: number; slug: string; label: string; emoji: string }> =
+  {
+    Physiopathologie: {
+      id: 2,
+      slug: "physiopathologie",
+      label: "Physiopathologie",
+      emoji: "🫀",
+    },
+    Biochimie: {
+      id: 1,
+      slug: "biochimie",
+      label: "Biochimie",
+      emoji: "🧪",
+    },
+    Radiologie: {
+      id: 5,
+      slug: "radiologie",
+      label: "Radiologie",
+      emoji: "🩻",
+    },
+    "Psychologie médicale": {
+      id: 4,
+      slug: "psychologie",
+      label: "Psychologie médicale",
+      emoji: "🧠",
+    },
+    "Sémiologie clinique": {
+      id: 3,
+      slug: "semiologie",
+      label: "Sémiologie clinique",
+      emoji: "🩺",
+    },
+    "Partie pratique (cas clinique)": {
+      id: 9,
+      slug: "pratique",
+      label: "Partie pratique (cas clinique)",
+      emoji: "🏥",
+    },
+  };
 
 const baseSubjects = medicalData.subjects as MedicalSubject[];
 const pratiqueSubject: MedicalSubject = {
@@ -166,8 +164,8 @@ for (const rawQ of exam2025Data.questions) {
     rawQ.type === "RF"
       ? "Type : Réponse Fausse (RF)"
       : rawQ.type === "RJ"
-      ? "Type : Réponse Juste (RJ)"
-      : "Type : QCM officiel";
+        ? "Type : Réponse Juste (RJ)"
+        : "Type : QCM officiel";
   baseKeysMap[qId] = {
     correct: [rawQ.answer],
     explanation: `Matière : ${rawQ.subject} (${typeLabel}).\nRéponse officielle : ${rawQ.answer} — ${rawQ.answer_text}.`,
@@ -215,12 +213,14 @@ const exam2025SubjectCourses: MedicalCourse[] = Object.values(SUBJECT_2025_MAP).
 const coursesList: MedicalCourse[] = [...exam2025SubjectCourses, ...baseCourses];
 
 // Normalize all pre-existing year exams under the requested unified title
-const existingExamsNormalized: MedicalExam[] = (medicalData.exams as MedicalExam[]).map((ex, i) => ({
-  ...ex,
-  title: `${UNIFIED_EXAM_NAME} — ${ex.year}`,
-  unit: UNIFIED_EXAM_NAME,
-  sort: 10 + i,
-}));
+const existingExamsNormalized: MedicalExam[] = (medicalData.exams as MedicalExam[]).map(
+  (ex, i) => ({
+    ...ex,
+    title: `${UNIFIED_EXAM_NAME} — ${ex.year}`,
+    unit: UNIFIED_EXAM_NAME,
+    sort: 10 + i,
+  }),
+);
 
 const examsList: MedicalExam[] = [exam2025Full, ...existingExamsNormalized].sort(
   (a, b) => b.year - a.year || a.sort - b.sort,
@@ -230,10 +230,7 @@ const questionsMap = baseQuestionsMap;
 const questionsByExamMap = baseQuestionsByExamMap;
 const keysMap = baseKeysMap;
 
-import {
-  getKeyOverride,
-  getQuestionOverride,
-} from "./questionOverrides";
+import { getKeyOverride, getQuestionOverride } from "./questionOverrides";
 
 export function normalizeExamTitle(exam: { title: string; year: number; unit?: string | null }) {
   if (exam.title.includes(UNIFIED_EXAM_NAME)) return exam.title;
@@ -301,7 +298,11 @@ export function getAllBundledQuestions(): Question[] {
 }
 
 export function getBundledKey(id: string): MedicalKey {
-  const base = keysMap[id] ?? { correct: ["A"], explanation: "Réponse officielle validée.", note: null };
+  const base = keysMap[id] ?? {
+    correct: ["A"],
+    explanation: "Réponse officielle validée.",
+    note: null,
+  };
   const ov = getKeyOverride(id);
   if (!ov) return base;
   return {

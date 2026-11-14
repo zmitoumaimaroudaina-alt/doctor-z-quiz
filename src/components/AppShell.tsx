@@ -13,6 +13,8 @@ import {
   useHearts,
 } from "@/lib/heartsStore";
 
+import { auth } from "@/lib/firebase";
+import { signOut } from "firebase/auth";
 
 const NAV = [
   { to: "/home", icon: "🏠", label: "Home" },
@@ -30,6 +32,7 @@ const NAV = [
 async function logout() {
   clearCurrentSession();
   try {
+    await signOut(auth);
     await supabase.auth.signOut();
   } catch {
     // ignore offline signOut
@@ -53,33 +56,60 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
         <Brand />
         <nav className="mt-6 flex flex-col gap-1">
           {NAV.map((n) => (
-            <Link key={n.to} to={n.to} onClick={() => play("nav")}
+            <Link
+              key={n.to}
+              to={n.to}
+              onClick={() => play("nav")}
               className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent"
-              activeProps={{ className: "bg-primary-soft text-primary" }}>
-              <span className="text-lg">{n.icon}</span><span className={"ar" in n && n.ar ? "ar" : ""}>{n.label}</span>
+              activeProps={{ className: "bg-primary-soft text-primary" }}
+            >
+              <span className="text-lg">{n.icon}</span>
+              <span className={"ar" in n && n.ar ? "ar" : ""}>{n.label}</span>
             </Link>
           ))}
           {me?.isCreator && (
             <>
-              <Link to="/admin" className="mt-2 flex items-center gap-3 rounded-xl border border-gold px-3 py-2.5 text-sm font-semibold" activeProps={{ className: "bg-gold/20" }}>
+              <Link
+                to="/admin"
+                className="mt-2 flex items-center gap-3 rounded-xl border border-gold px-3 py-2.5 text-sm font-semibold"
+                activeProps={{ className: "bg-gold/20" }}
+              >
                 <span>👑</span>Panneau Creator
               </Link>
-              <Link to="/creator-questions" className="mt-1 flex items-center gap-3 rounded-xl border border-primary/30 bg-primary/5 px-3 py-2.5 text-sm font-semibold text-primary" activeProps={{ className: "bg-primary/15" }}>
-                <span>🛠️</span><span className="ar">تصحيح الأسئلة يدوياً</span>
+              <Link
+                to="/creator-questions"
+                className="mt-1 flex items-center gap-3 rounded-xl border border-primary/30 bg-primary/5 px-3 py-2.5 text-sm font-semibold text-primary"
+                activeProps={{ className: "bg-primary/15" }}
+              >
+                <span>🛠️</span>
+                <span className="ar">تصحيح الأسئلة يدوياً</span>
               </Link>
             </>
           )}
-          <button onClick={logout} className="mt-2 flex items-center gap-3 rounded-xl border px-3 py-2.5 text-left text-sm font-medium hover:bg-sidebar-accent">
-            <span className="text-lg">🚪</span><span>Se déconnecter</span>
+          <button
+            onClick={logout}
+            className="mt-2 flex items-center gap-3 rounded-xl border px-3 py-2.5 text-left text-sm font-medium hover:bg-sidebar-accent"
+          >
+            <span className="text-lg">🚪</span>
+            <span>Se déconnecter</span>
           </button>
         </nav>
-        <div className="mt-auto text-xs text-muted-foreground">Université Saad Dahleb – Blida 1<br />Faculté de Médecine</div>
+        <div className="mt-auto text-xs text-muted-foreground">
+          Université Saad Dahleb – Blida 1<br />
+          Faculté de Médecine
+        </div>
       </aside>
 
       <header className="sticky top-0 z-30 border-b bg-background/85 backdrop-blur">
-        <div className={`mx-auto flex items-center justify-between gap-3 px-4 py-3 ${wide ? "max-w-6xl" : "max-w-4xl"}`}>
-          <div className="lg:hidden"><Brand small /></div>
-          <div className="hidden text-sm text-muted-foreground lg:block">Bienvenue{me?.display_name ? `, ${me.display_name}` : ""} 👋</div>
+        <div
+          className={`mx-auto flex items-center justify-between gap-3 px-4 py-3 ${wide ? "max-w-6xl" : "max-w-4xl"}`}
+        >
+          <div className="lg:hidden">
+            <Brand small />
+          </div>
+          <div className="hidden text-sm text-muted-foreground lg:block">
+            Bienvenue{me?.display_name ? `, ${me.display_name}` : ""} 👋
+          </div>
           {me && (
             <div className="flex items-center gap-2">
               <div
@@ -87,8 +117,8 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
                   hearts.unlimited
                     ? "قلوب غير محدودة للمصمم"
                     : hearts.secondsToNext > 0
-                    ? `يتجدد قلب خلال ${formatHeartCountdown(hearts.secondsToNext)}`
-                    : "قلوب المحاولات (2 كل ساعتين)"
+                      ? `يتجدد قلب خلال ${formatHeartCountdown(hearts.secondsToNext)}`
+                      : "قلوب المحاولات (2 كل ساعتين)"
                 }
                 className="flex items-center gap-1.5 rounded-full bg-card px-2.5 py-1 text-xs font-semibold shadow-sm border border-border/60"
               >
@@ -99,13 +129,25 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
                   </span>
                 )}
               </div>
-              <button onClick={() => nav({ to: "/profile" })} className="flex items-center gap-3 rounded-full bg-card px-2 py-1 shadow-sm">
-                <span className="rounded-full bg-primary-soft px-2 py-0.5 text-xs font-bold text-primary">Nv {me.isCreator ? "∞" : lv.level}</span>
+              <button
+                onClick={() => nav({ to: "/profile" })}
+                className="flex items-center gap-3 rounded-full bg-card px-2 py-1 shadow-sm"
+              >
+                <span className="rounded-full bg-primary-soft px-2 py-0.5 text-xs font-bold text-primary">
+                  Nv {me.isCreator ? "∞" : lv.level}
+                </span>
                 <span className="text-xs font-semibold">🪙 {me.isCreator ? "∞" : me.coins}</span>
                 <span className="text-xs font-semibold">🔥 {me.streak}</span>
                 <span aria-hidden="true">👤</span>
               </button>
-              <button onClick={logout} aria-label="Se déconnecter" title="Se déconnecter" className="grid h-9 w-9 place-items-center rounded-full bg-card text-lg shadow-sm lg:hidden">🚪</button>
+              <button
+                onClick={logout}
+                aria-label="Se déconnecter"
+                title="Se déconnecter"
+                className="grid h-9 w-9 place-items-center rounded-full bg-card text-lg shadow-sm lg:hidden"
+              >
+                🚪
+              </button>
             </div>
           )}
         </div>
@@ -124,10 +166,15 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
                 ]
               : []),
           ].map((n) => (
-            <Link key={n.to} to={n.to} onClick={() => play("nav")}
+            <Link
+              key={n.to}
+              to={n.to}
+              onClick={() => play("nav")}
               className="flex min-w-[72px] flex-1 flex-col items-center gap-0.5 px-1 py-2 text-[10px] text-muted-foreground"
-              activeProps={{ className: "text-primary font-semibold" }}>
-              <span className="text-xl">{n.icon}</span><span className="truncate">{n.label.replace("QCM ", "")}</span>
+              activeProps={{ className: "text-primary font-semibold" }}
+            >
+              <span className="text-xl">{n.icon}</span>
+              <span className="truncate">{n.label.replace("QCM ", "")}</span>
             </Link>
           ))}
         </div>
@@ -139,19 +186,33 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
 export function Brand({ small = false }: { small?: boolean }) {
   return (
     <Link to="/home" className="flex items-center gap-2">
-      <span className="grid h-10 w-10 place-items-center rounded-2xl bg-hero font-display text-xl font-bold text-primary-foreground shadow-pop">Z</span>
+      <span className="grid h-10 w-10 place-items-center rounded-2xl bg-hero font-display text-xl font-bold text-primary-foreground shadow-pop">
+        Z
+      </span>
       <span className="leading-tight">
         <span className="block font-display text-lg font-bold">Z QCM GAME</span>
-        {!small && <span className="block text-[11px] text-muted-foreground">Blida 1 · Médecine</span>}
+        {!small && (
+          <span className="block text-[11px] text-muted-foreground">Blida 1 · Médecine</span>
+        )}
       </span>
     </Link>
   );
 }
 
-export function PageTitle({ title, ar, sub }: { title: string; ar?: string; sub?: string | undefined }) {
+export function PageTitle({
+  title,
+  ar,
+  sub,
+}: {
+  title: string;
+  ar?: string;
+  sub?: string | undefined;
+}) {
   return (
     <div className="mb-5">
-      <h1 className="font-display text-2xl font-bold sm:text-3xl">{title} {ar && <span className="ar text-primary">· {ar}</span>}</h1>
+      <h1 className="font-display text-2xl font-bold sm:text-3xl">
+        {title} {ar && <span className="ar text-primary">· {ar}</span>}
+      </h1>
       {sub && <p className="mt-1 text-sm text-muted-foreground">{sub}</p>}
     </div>
   );

@@ -6,9 +6,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { AppShell, PageTitle } from "@/components/AppShell";
 import { useMe } from "@/hooks/useMe";
 import { RESOURCES } from "@/lib/game";
-import { getSoundVolume, isSoundOn, play, setSoundOn, setSoundVolume, SOUND_EFFECTS_LIST } from "@/lib/sound";
+import {
+  getSoundVolume,
+  isSoundOn,
+  play,
+  setSoundOn,
+  setSoundVolume,
+  SOUND_EFFECTS_LIST,
+} from "@/lib/sound";
 import { clearCurrentSession, saveProfileDurable } from "@/lib/profileStore";
 import { toast } from "sonner";
+import { auth } from "@/lib/firebase";
+import { signOut as fbSignOut } from "firebase/auth";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => pageMetadata("Paramètres", "Sons et ressources éducatives Z QCM GAME."),
@@ -49,6 +58,7 @@ function Settings() {
     await qc.cancelQueries();
     qc.clear();
     try {
+      await fbSignOut(auth);
       await supabase.auth.signOut();
     } catch {
       // ignore offline
@@ -59,13 +69,19 @@ function Settings() {
 
   return (
     <AppShell>
-      <PageTitle title="⚙️ Paramètres" ar="الإعدادات والأصوات" sub="Personnalisation des effets sonores et ressources de la faculté." />
+      <PageTitle
+        title="⚙️ Paramètres"
+        ar="الإعدادات والأصوات"
+        sub="Personnalisation des effets sonores et ressources de la faculté."
+      />
 
       <div className="card-game space-y-4 p-5">
         <div className="flex items-center justify-between">
           <div>
             <div className="font-semibold text-base">🔊 Effets sonores · المؤثرات الصوتية</div>
-            <div className="text-xs text-muted-foreground">تفعيل أو كتم جميع أصوات اللعبة (إجابات، ترقيات، طماطم).</div>
+            <div className="text-xs text-muted-foreground">
+              تفعيل أو كتم جميع أصوات اللعبة (إجابات، ترقيات، طماطم).
+            </div>
           </div>
           <button
             onClick={toggle}

@@ -78,7 +78,14 @@ function uuidv5(name: string): string {
 }
 
 const SUBJECTS: SeedSubject[] = [
-  { id: 1, slug: "biochimie", name: "Biochimie", name_ar: "الكيمياء الحيوية", emoji: "🧪", sort: 1 },
+  {
+    id: 1,
+    slug: "biochimie",
+    name: "Biochimie",
+    name_ar: "الكيمياء الحيوية",
+    emoji: "🧪",
+    sort: 1,
+  },
   {
     id: 2,
     slug: "physiopathologie",
@@ -97,7 +104,14 @@ const SUBJECTS: SeedSubject[] = [
     sort: 4,
   },
   { id: 5, slug: "radiologie", name: "Radiologie", name_ar: "الأشعة", emoji: "🩻", sort: 5 },
-  { id: 6, slug: "physiologie", name: "Physiologie", name_ar: "الفيزيولوجيا", emoji: "⚡", sort: 6 },
+  {
+    id: 6,
+    slug: "physiologie",
+    name: "Physiologie",
+    name_ar: "الفيزيولوجيا",
+    emoji: "⚡",
+    sort: 6,
+  },
   { id: 7, slug: "immunologie", name: "Immunologie", name_ar: "المناعة", emoji: "🛡️", sort: 7 },
   {
     id: 8,

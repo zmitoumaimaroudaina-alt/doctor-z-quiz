@@ -8,7 +8,14 @@ import {
   type MedicalExam,
 } from "./medicalData";
 
-export type Subject = { id: number; slug: string; name: string; name_ar: string | null; emoji: string | null; sort: number };
+export type Subject = {
+  id: number;
+  slug: string;
+  name: string;
+  name_ar: string | null;
+  emoji: string | null;
+  sort: number;
+};
 export type Option = { key: string; text: string };
 export type Question = {
   id: string;
@@ -77,7 +84,10 @@ export function useExams() {
 export async function fetchMistakesFor(ids: string[]) {
   if (!ids.length) return new Map<string, { corrected_at: string | null }>();
   try {
-    const { data } = await supabase.from("question_mistakes").select("question_id, corrected_at").in("question_id", ids);
+    const { data } = await supabase
+      .from("question_mistakes")
+      .select("question_id, corrected_at")
+      .in("question_id", ids);
     if (data && data.length) return new Map((data ?? []).map((m) => [m.question_id, m]));
   } catch {
     // fallback to local storage

@@ -73,10 +73,15 @@ export function getProfilesMap(): Record<string, StoredProfile> {
   }
 }
 
-export function buildDefaultProfile(email: string, displayName?: string, isCreator = false): StoredProfile {
+export function buildDefaultProfile(
+  email: string,
+  displayName?: string,
+  isCreator = false,
+): StoredProfile {
   const normalized = normalizeEmail(email);
   const creator = isCreator || normalized === "doctorzmit@gmail.com";
-  const fallbackName = displayName?.trim() || (creator ? "Doctor Z" : normalized.split("@")[0] || "Étudiant Dr. Z");
+  const fallbackName =
+    displayName?.trim() || (creator ? "Doctor Z" : normalized.split("@")[0] || "Étudiant Dr. Z");
   return {
     display_name: fallbackName,
     email: normalized,
@@ -116,7 +121,11 @@ export function getSavedProfileByEmail(email: string | null | undefined): Stored
     if (activeRaw) {
       const parsed = JSON.parse(activeRaw) as Partial<StoredProfile>;
       if (normalizeEmail(parsed.email) === key) {
-        const merged = { ...buildDefaultProfile(key, parsed.display_name, parsed.isCreator), ...parsed, email: key };
+        const merged = {
+          ...buildDefaultProfile(key, parsed.display_name, parsed.isCreator),
+          ...parsed,
+          email: key,
+        };
         map[key] = merged;
         localStorage.setItem(KEY_PROFILES_BY_EMAIL, JSON.stringify(map));
         return merged;
@@ -146,7 +155,11 @@ export function saveProfileDurable(
 
   const resolvedEmail = key || normalizeEmail(activeParsed.email);
   if (!resolvedEmail) {
-    const updated = { ...activeParsed, ...patch, updated_at: new Date().toISOString() } as StoredProfile;
+    const updated = {
+      ...activeParsed,
+      ...patch,
+      updated_at: new Date().toISOString(),
+    } as StoredProfile;
     localStorage.setItem(KEY_ACTIVE_PROFILE, JSON.stringify(updated));
     return updated;
   }
@@ -155,7 +168,10 @@ export function saveProfileDurable(
   const base =
     map[resolvedEmail] ??
     (normalizeEmail(activeParsed.email) === resolvedEmail
-      ? { ...buildDefaultProfile(resolvedEmail, fallbackDisplayName, activeParsed.isCreator), ...activeParsed }
+      ? {
+          ...buildDefaultProfile(resolvedEmail, fallbackDisplayName, activeParsed.isCreator),
+          ...activeParsed,
+        }
       : buildDefaultProfile(resolvedEmail, fallbackDisplayName));
 
   const updated: StoredProfile = {
@@ -183,10 +199,36 @@ export function saveProfileDurable(
     // ignore
   }
 
+  // Sync to server leaderboard store
+  try {
+    const userRaw = isBrowser() ? localStorage.getItem(KEY_USER) : null;
+    const userId = userRaw ? JSON.parse(userRaw).id : `user-${resolvedEmail}`;
+    import("./leaderboardStore")
+      .then(({ syncProfileToServer }) => {
+        syncProfileToServer({
+          user_id: userId,
+          email: resolvedEmail,
+          display_name: updated.display_name,
+          avatar: updated.avatar,
+          pet: updated.pet,
+          bubble: updated.bubble,
+          xp: updated.xp,
+          isCreator: updated.isCreator,
+        });
+      })
+      .catch(() => {});
+  } catch {
+    // ignore
+  }
+
   return updated;
 }
 
-export function setActiveSessionUser(userObj: { id: string; email: string; user_metadata?: { full_name?: string } }) {
+export function setActiveSessionUser(userObj: {
+  id: string;
+  email: string;
+  user_metadata?: { full_name?: string };
+}) {
   if (!isBrowser()) return;
   localStorage.setItem(KEY_USER, JSON.stringify(userObj));
   const existing = getSavedProfileByEmail(userObj.email);

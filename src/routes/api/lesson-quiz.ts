@@ -39,7 +39,8 @@ function extractGoogleDriveFileId(u: URL): string | null {
   const fileMatch = href.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/i);
   if (fileMatch?.[1]) return fileMatch[1];
   if (
-    (u.hostname.includes("drive.google.com") || u.hostname.includes("drive.usercontent.google.com")) &&
+    (u.hostname.includes("drive.google.com") ||
+      u.hostname.includes("drive.usercontent.google.com")) &&
     u.searchParams.get("id")
   ) {
     return u.searchParams.get("id");
@@ -78,7 +79,11 @@ function parseGoogleDriveConfirmUrl(html: string, baseUrl: string): string | nul
   if (formMatch?.[1]) {
     try {
       const actionUrl = new URL(formMatch[1].replace(/&amp;/g, "&"), baseUrl);
-      const inputs = [...(formMatch[2] ?? "").matchAll(/<input[^>]*name=["']([^"']+)["'][^>]*value=["']([^"']*)["'][^>]*>/gi)];
+      const inputs = [
+        ...(formMatch[2] ?? "").matchAll(
+          /<input[^>]*name=["']([^"']+)["'][^>]*value=["']([^"']*)["'][^>]*>/gi,
+        ),
+      ];
       for (const inp of inputs) {
         if (inp[1]) actionUrl.searchParams.set(inp[1], inp[2] ?? "");
       }
@@ -131,7 +136,13 @@ function hasPdfHeader(bytes: Uint8Array): boolean {
 }
 
 function detectImageMime(bytes: Uint8Array): string | null {
-  if (bytes.length >= 4 && bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47) {
+  if (
+    bytes.length >= 4 &&
+    bytes[0] === 0x89 &&
+    bytes[1] === 0x50 &&
+    bytes[2] === 0x4e &&
+    bytes[3] === 0x47
+  ) {
     return "image/png";
   }
   if (bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) {
@@ -164,7 +175,9 @@ async function fetchWithTimeout(url: string) {
   });
 }
 
-async function fetchCourseSource(rawUrl: string): Promise<
+async function fetchCourseSource(
+  rawUrl: string,
+): Promise<
   | { kind: "pdf"; bytes: Uint8Array }
   | { kind: "image"; bytes: Uint8Array; mimeType: string }
   | { kind: "text"; text: string }
@@ -205,7 +218,10 @@ async function fetchCourseSource(rawUrl: string): Promise<
       const rawText = new TextDecoder("utf-8", { fatal: false }).decode(bytes);
 
       // Handle Google Drive HTML virus-scan confirmation screen automatically
-      if (contentType.includes("html") && /drive\.google\.com|googleusercontent\.com/i.test(candidateUrl)) {
+      if (
+        contentType.includes("html") &&
+        /drive\.google\.com|googleusercontent\.com/i.test(candidateUrl)
+      ) {
         const confirmUrl = parseGoogleDriveConfirmUrl(rawText, res.url || candidateUrl);
         if (confirmUrl) {
           res = await fetchWithTimeout(confirmUrl);
@@ -243,7 +259,8 @@ async function fetchCourseSource(rawUrl: string): Promise<
   if (lastStatus === 401 || lastStatus === 403) {
     return {
       kind: "error",
-      message: "الوصول إلى الرابط مرفوض (403/401). تأكد أن الملف عام (Public) أو ارفع ملف PDF مباشرة.",
+      message:
+        "الوصول إلى الرابط مرفوض (403/401). تأكد أن الملف عام (Public) أو ارفع ملف PDF مباشرة.",
     };
   }
   if (lastStatus === 404) {
@@ -262,11 +279,8 @@ export const Route = createFileRoute("/api/lesson-quiz")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const {
-          authenticateStudentRequest,
-          consumeStudentQuota,
-          getStudentQuotaStatus,
-        } = await import("@/lib/ai-quota.server");
+        const { authenticateStudentRequest, consumeStudentQuota, getStudentQuotaStatus } =
+          await import("@/lib/ai-quota.server");
         const {
           classifyGeminiError,
           generateQuizFromContent,
@@ -281,10 +295,7 @@ export const Route = createFileRoute("/api/lesson-quiz")({
         }
 
         if (!hasGeminiApiKey()) {
-          return Response.json(
-            { error: "مفتاح Gemini API غير مهيأ على الخادم." },
-            { status: 503 },
-          );
+          return Response.json({ error: "مفتاح Gemini API غير مهيأ على الخادم." }, { status: 503 });
         }
 
         let fileEntry: File | null = null;
@@ -386,11 +397,16 @@ export const Route = createFileRoute("/api/lesson-quiz")({
               detectImageMime(bytes) ||
               (fileEntry.type.startsWith("image/") ? fileEntry.type : null);
 
-            if (hasPdfHeader(bytes) || fileEntry.type === "application/pdf" || lowerName.endsWith(".pdf")) {
+            if (
+              hasPdfHeader(bytes) ||
+              fileEntry.type === "application/pdf" ||
+              lowerName.endsWith(".pdf")
+            ) {
               if (!hasPdfHeader(bytes)) {
                 return Response.json(
                   {
-                    error: "هذا الملف لا يبدو بصيغة PDF صالحة (قد يكون تالفاً أو بصيغة Word/PowerPoint). احفظه كـ PDF حقيقي أو انسخ نصه.",
+                    error:
+                      "هذا الملف لا يبدو بصيغة PDF صالحة (قد يكون تالفاً أو بصيغة Word/PowerPoint). احفظه كـ PDF حقيقي أو انسخ نصه.",
                     errorCode: "UNREADABLE_SOURCE",
                   },
                   { status: 422 },
@@ -434,7 +450,8 @@ export const Route = createFileRoute("/api/lesson-quiz")({
             } else {
               return Response.json(
                 {
-                  error: "صيغة الملف غير مدعومة. الصيغ المدعومة: PDF، صور (PNG/JPG/WEBP)، أو ملفات نصية (.txt/.md).",
+                  error:
+                    "صيغة الملف غير مدعومة. الصيغ المدعومة: PDF، صور (PNG/JPG/WEBP)، أو ملفات نصية (.txt/.md).",
                   errorCode: "UNREADABLE_SOURCE",
                 },
                 { status: 400 },

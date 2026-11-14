@@ -6,17 +6,28 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Avatar, type AvatarConfig } from "@/components/Avatar";
-import { supabase } from "@/integrations/supabase/client";
 import { pageMetadata } from "@/lib/metadata";
-import { useMe } from "@/hooks/useMe";
 import { play } from "@/lib/sound";
 import { isUserTomatoHit, getUserTomatoHoursLeft } from "@/lib/game";
+import { useMe } from "@/hooks/useMe";
+import {
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  doc,
+  setDoc,
+  updateDoc,
+  increment,
+  serverTimestamp,
+} from "firebase/firestore";
+import { db, handleFirestoreError, OperationType } from "@/lib/firebase";
 
 export const Route = createFileRoute("/_authenticated/discussion")({
   head: () =>
     pageMetadata(
       "Discussion & Entraide",
-      "Commentaires, remarques et discussion entre étudiants en médecine de Blida."
+      "Commentaires, remarques et discussion entre étudiants en médecine de Blida.",
     ),
   component: Discussion,
 });
@@ -56,7 +67,20 @@ const DEFAULT_MESSAGES: Message[] = [
     sender: "Dr. Z (Creator) 👑",
     senderId: "creator-z",
     isCreator: true,
-    avatar: { gender: "m", skin: 1, eyes: 2, nose: 0, mouth: 2, hair: 9, hairColor: 0, hijab: 0, outfit: 0, accessory: 1, glasses: 1, beard: 1 },
+    avatar: {
+      gender: "m",
+      skin: 1,
+      eyes: 2,
+      nose: 0,
+      mouth: 2,
+      hair: 9,
+      hairColor: 0,
+      hijab: 0,
+      outfit: 0,
+      accessory: 1,
+      glasses: 1,
+      beard: 1,
+    },
     pet: "lion",
     module: "Médecine Générale",
     body: "مرحباً بجميع أطباء المستقبل في كلية الطب بجامعة سعد دحلب (البليدة 1) ! 🩺\nهذا الفضاء مخصص لكم لمشاركة الملاحظات، مناقشة أسئلة الامتحانات السابقة وتبادل النصائح الدراسية. تم ربط كل تفاعل بالأفاتار الشخصي لصاحبه !",
@@ -67,8 +91,16 @@ const DEFAULT_MESSAGES: Message[] = [
     claps: 18,
     ideas: 12,
     reactionsUsers: {
-      likes: [{ id: "user-1", name: "Amine K.", avatar: { gender: "m", skin: 1, outfit: 0, hair: 0 } }],
-      claps: [{ id: "user-2", name: "Sara B.", avatar: { gender: "f", skin: 1, hijab: 1, hijabStyle: 0, outfit: 0 } }],
+      likes: [
+        { id: "user-1", name: "Amine K.", avatar: { gender: "m", skin: 1, outfit: 0, hair: 0 } },
+      ],
+      claps: [
+        {
+          id: "user-2",
+          name: "Sara B.",
+          avatar: { gender: "f", skin: 1, hijab: 1, hijabStyle: 0, outfit: 0 },
+        },
+      ],
     },
   },
   {
@@ -87,7 +119,9 @@ const DEFAULT_MESSAGES: Message[] = [
     claps: 9,
     ideas: 14,
     reactionsUsers: {
-      ideas: [{ id: "creator-z", name: "Dr. Z", avatar: { gender: "m", skin: 1, hair: 9, outfit: 0 } }],
+      ideas: [
+        { id: "creator-z", name: "Dr. Z", avatar: { gender: "m", skin: 1, hair: 9, outfit: 0 } },
+      ],
     },
   },
   {
@@ -108,8 +142,6 @@ const DEFAULT_MESSAGES: Message[] = [
     reactionsUsers: {},
   },
 ];
-
-const STORAGE_KEY = "doctorz_discussion_messages_v4";
 
 const MODULES = [
   "عام (Général)",
@@ -135,31 +167,46 @@ export function Discussion() {
   const [search, setSearch] = useState("");
   const [userReactions, setUserReactions] = useState<Record<string, string[]>>({});
 
-  // Load messages from localStorage + defaults
+  // Load messages from Firestore in real-time
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setMessages(parsed);
-          return;
+    const q = query(collection(db, "messages"), orderBy("createdAt", "desc"));
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        if (!snapshot.empty) {
+          const list: Message[] = [];
+          snapshot.forEach((d) => {
+            const data = d.data();
+            list.push({
+              id: d.id,
+              sender: data.sender || "Étudiant",
+              senderId: data.senderId,
+              avatar: data.avatar,
+              pet: data.pet || null,
+              module: data.module || "عام (Général)",
+              isCreator: !!data.isCreator,
+              body: data.body || "",
+              kind: data.kind || "chat",
+              created_at: data.created_at || new Date().toISOString(),
+              likes: Number(data.likes || 0),
+              tomatoes: Number(data.tomatoes || 0),
+              claps: Number(data.claps || 0),
+              ideas: Number(data.ideas || 0),
+              reactionsUsers: data.reactionsUsers || {},
+            });
+          });
+          setMessages(list);
+        } else {
+          setMessages(DEFAULT_MESSAGES);
         }
-      }
-    } catch {
-      // fallback
-    }
-    setMessages(DEFAULT_MESSAGES);
+      },
+      (error) => {
+        console.error("Failed to fetch discussion messages from Firestore:", error);
+        handleFirestoreError(error, OperationType.GET, "messages");
+      },
+    );
+    return () => unsubscribe();
   }, []);
-
-  function saveMessages(newList: Message[]) {
-    setMessages(newList);
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newList));
-    } catch {
-      // ignore
-    }
-  }
 
   async function handleSend() {
     const text = body.trim();
@@ -168,16 +215,18 @@ export function Discussion() {
     play("submit");
 
     const senderName = me?.display_name || (me?.isCreator ? "Doctor Z 👑" : "طالب طب (Blida)");
-    const newMsg: Message = {
-      id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+    const newMsgId = `msg-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+    const newMsgData = {
+      id: newMsgId,
       sender: senderName,
       senderId: me?.id || "me",
       avatar: (me?.avatar as AvatarConfig) || { gender: "m", skin: 1, outfit: 0, accessory: 1 },
       pet: me?.pet || null,
       module: selectedModule,
-      isCreator: me?.isCreator,
+      isCreator: !!me?.isCreator,
       body: text,
       kind,
+      createdAt: serverTimestamp(),
       created_at: new Date().toISOString(),
       likes: 1,
       tomatoes: 0,
@@ -194,56 +243,18 @@ export function Discussion() {
       },
     };
 
-    const updated = [newMsg, ...messages];
-    saveMessages(updated);
     setBody("");
-    toast.success("تم إرسال مشاركتك وتثبيت أفاتارك الشخصي بنجاح ! ✨");
-
-    // Also attempt remote Supabase sync if connected
     try {
-      void supabase.from("discussion_messages").insert({
-        body: text,
-        kind: kind === "tip" ? "chat" : kind,
-      });
-    } catch {
-      // local is preserved
-    }
-
-    // Optional friendly simulated reply if asking Doctor Z
-    if (text.includes("؟") || text.includes("?") || text.toLowerCase().includes("doctor z") || text.toLowerCase().includes("دكتور")) {
-      setTimeout(() => {
-        const botReply: Message = {
-          id: `reply-${Date.now()}`,
-          sender: "Dr Z-Bot 🤖",
-          senderId: "bot-z",
-          isCreator: true,
-          avatar: { gender: "m", skin: 1, eyes: 2, nose: 0, mouth: 2, hair: 9, outfit: 0, accessory: 1, glasses: 1, beard: 1 },
-          pet: "lion",
-          module: selectedModule,
-          body: `شكراً على مشاركتك يا زميلنا العزيز ! 🩺 سؤال ممتاز ومهم. راجع بنك الأسئلة المرفق في التطبيق مع الشرح بالذكاء الاصطناعي (Expliquer avec l'IA) لترسيخ هذه النقطة. بالتوفيق ! 💪`,
-          kind: "chat",
-          created_at: new Date().toISOString(),
-          likes: 2,
-          tomatoes: 0,
-          claps: 2,
-          ideas: 1,
-        };
-        setMessages((prev) => {
-          const next = [botReply, ...prev];
-          try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-          } catch {
-            // ignore
-          }
-          return next;
-        });
-        play("reward");
-        toast.info("💬 رد جديد من Dr Z-Bot !");
-      }, 1500);
+      await setDoc(doc(db, "messages", newMsgId), newMsgData);
+      toast.success("تم إرسال مشاركتك وتثبيت أفاتارك الشخصي بنجاح ! ✨");
+    } catch (error) {
+      console.error("Failed to send message to Firestore:", error);
+      handleFirestoreError(error, OperationType.WRITE, `messages/${newMsgId}`);
+      toast.error("فشل إرسال الرسالة، تحقق من اتصالك.");
     }
   }
 
-  function handleReaction(msgId: string, type: "likes" | "tomatoes" | "claps" | "ideas") {
+  async function handleReaction(msgId: string, type: "likes" | "tomatoes" | "claps" | "ideas") {
     const already = userReactions[msgId]?.includes(type);
 
     if (type === "tomatoes") play("hit");
@@ -255,30 +266,24 @@ export function Discussion() {
       avatar: me?.avatar as AvatarConfig,
     };
 
-    const updated = messages.map((m) => {
-      if (m.id !== msgId) return m;
-      const delta = already ? -1 : 1;
-      const currentReactionsUsers = m.reactionsUsers || {};
-      const list = currentReactionsUsers[type] || [];
+    const delta = already ? -1 : 1;
+    const targetMsg = messages.find((m) => m.id === msgId);
+    const currentReactionsUsers = targetMsg?.reactionsUsers || {};
+    const list = currentReactionsUsers[type] || [];
 
-      let updatedList = [...list];
-      if (already) {
-        updatedList = updatedList.filter((u) => u.id !== currentUser.id);
-      } else {
-        if (!updatedList.some((u) => u.id === currentUser.id)) {
-          updatedList.push(currentUser);
-        }
+    let updatedList = [...list];
+    if (already) {
+      updatedList = updatedList.filter((u) => u.id !== currentUser.id);
+    } else {
+      if (!updatedList.some((u) => u.id === currentUser.id)) {
+        updatedList.push(currentUser);
       }
+    }
 
-      return {
-        ...m,
-        [type]: Math.max(0, (m[type] || 0) + delta),
-        reactionsUsers: {
-          ...currentReactionsUsers,
-          [type]: updatedList,
-        },
-      };
-    });
+    const newReactionsUsers = {
+      ...currentReactionsUsers,
+      [type]: updatedList,
+    };
 
     setUserReactions((prev) => {
       const cur = prev[msgId] || [];
@@ -286,7 +291,15 @@ export function Discussion() {
       return { ...prev, [msgId]: next };
     });
 
-    saveMessages(updated);
+    try {
+      await updateDoc(doc(db, "messages", msgId), {
+        [type]: increment(delta),
+        reactionsUsers: newReactionsUsers,
+      });
+    } catch (e) {
+      console.error("Failed to update reaction in Firestore:", e);
+      handleFirestoreError(e, OperationType.UPDATE, `messages/${msgId}`);
+    }
   }
 
   const filtered = messages.filter((m) => {
@@ -315,19 +328,20 @@ export function Discussion() {
         <div className="card-game md:col-span-2 space-y-3.5 p-5 shadow-sm border border-border/80">
           <div className="flex items-center gap-3 border-b border-border/40 pb-3">
             <div className="relative">
-              <Avatar
-                config={me?.avatar as AvatarConfig}
-                pet={me?.pet}
-                size={52}
-                mood="happy"
-              />
+              <Avatar config={me?.avatar as AvatarConfig} pet={me?.pet} size={52} mood="happy" />
             </div>
             <div>
               <div className="text-sm font-bold text-foreground flex items-center gap-2">
                 <span>{me?.display_name || "أنت (طالب طب)"}</span>
-                {me?.isCreator && <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold text-primary">👑 Creator</span>}
+                {me?.isCreator && (
+                  <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold text-primary">
+                    👑 Creator
+                  </span>
+                )}
               </div>
-              <div className="text-xs text-muted-foreground">مشاركتك ستُنشر بأفاتارك الطبي المخصص</div>
+              <div className="text-xs text-muted-foreground">
+                مشاركتك ستُنشر بأفاتارك الطبي المخصص
+              </div>
             </div>
           </div>
 
@@ -368,7 +382,9 @@ export function Discussion() {
                 className="h-8 rounded-xl border border-input bg-card px-2 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-primary"
               >
                 {MODULES.map((mod) => (
-                  <option key={mod} value={mod}>{mod}</option>
+                  <option key={mod} value={mod}>
+                    {mod}
+                  </option>
                 ))}
               </select>
             </div>
@@ -383,9 +399,7 @@ export function Discussion() {
           />
 
           <div className="flex items-center justify-between pt-1">
-            <span className="text-[11px] text-muted-foreground">
-              {1000 - body.length} حرف متبقٍ
-            </span>
+            <span className="text-[11px] text-muted-foreground">{1000 - body.length} حرف متبقٍ</span>
             <Button
               disabled={!body.trim()}
               onClick={() => void handleSend()}
@@ -405,15 +419,21 @@ export function Discussion() {
           <div className="space-y-2 text-xs text-muted-foreground leading-relaxed">
             <p className="flex items-start gap-2">
               <span className="text-primary font-bold">✓</span>
-              <span><b>الأفاتار الشخصي:</b> كل رسالة أو تفاعل يعرض ملامح الأفاتار الذي صممته بنفسك.</span>
+              <span>
+                <b>الأفاتار الشخصي:</b> كل رسالة أو تفاعل يعرض ملامح الأفاتار الذي صممته بنفسك.
+              </span>
             </p>
             <p className="flex items-start gap-2">
               <span className="text-primary font-bold">✓</span>
-              <span><b>تبادل النصائح:</b> شارك مراجع الدورات السابقة والأفخاخ الامتحانية التي تتكرر.</span>
+              <span>
+                <b>تبادل النصائح:</b> شارك مراجع الدورات السابقة والأفخاخ الامتحانية التي تتكرر.
+              </span>
             </p>
             <p className="flex items-start gap-2">
               <span className="text-primary font-bold">✓</span>
-              <span><b>الذكاء الاصطناعي:</b> يمكنك توجيه سؤال لـ Dr Z-Bot وسيقدم لك توجيهاً سريعاً.</span>
+              <span>
+                <b>الذكاء الاصطناعي:</b> يمكنك توجيه سؤال لـ Dr Z-Bot وسيقدم لك توجيهاً سريعاً.
+              </span>
             </p>
           </div>
 
@@ -478,8 +498,8 @@ export function Discussion() {
                 m.isCreator
                   ? "border-primary/40 bg-primary/5"
                   : isMine
-                  ? "border-blue-300/60 bg-blue-50/20"
-                  : "border-border/70"
+                    ? "border-blue-300/60 bg-blue-50/20"
+                    : "border-border/70"
               }`}
             >
               {/* Message Header with Full Avatar */}
@@ -497,9 +517,7 @@ export function Discussion() {
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-foreground text-sm">
-                        {m.sender}
-                      </span>
+                      <span className="font-bold text-foreground text-sm">{m.sender}</span>
                       {m.isCreator && (
                         <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold text-primary">
                           Creator 👑
@@ -516,10 +534,10 @@ export function Discussion() {
                         {m.kind === "tip"
                           ? "💡 نصيحة سريرية"
                           : m.kind === "feedback"
-                          ? "📝 ملاحظة امتحانية"
-                          : m.kind === "question"
-                          ? "❓ استفسار"
-                          : "💬 دردشة عامة"}
+                            ? "📝 ملاحظة امتحانية"
+                            : m.kind === "question"
+                              ? "❓ استفسار"
+                              : "💬 دردشة عامة"}
                       </span>
                       {m.module && (
                         <span className="rounded-md bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
@@ -601,31 +619,34 @@ export function Discussion() {
                 </div>
 
                 {/* Who Reacted Avatar Avatars Preview */}
-                {m.reactionsUsers && Object.values(m.reactionsUsers).some((arr) => arr && arr.length > 0) && (
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[11px] text-muted-foreground font-semibold">تفاعل معها:</span>
-                    <div className="flex -space-x-2 rtl:space-x-reverse items-center overflow-hidden">
-                      {Array.from(
-                        new Map(
-                          Object.values(m.reactionsUsers)
-                            .flat()
-                            .filter(Boolean)
-                            .map((u) => [u.id, u])
-                        ).values()
-                      )
-                        .slice(0, 5)
-                        .map((u) => (
-                          <div
-                            key={u.id}
-                            className="inline-block rounded-full ring-2 ring-card bg-card p-0.5 shadow-xs"
-                            title={u.name}
-                          >
-                            <Avatar config={u.avatar} size={22} />
-                          </div>
-                        ))}
+                {m.reactionsUsers &&
+                  Object.values(m.reactionsUsers).some((arr) => arr && arr.length > 0) && (
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[11px] text-muted-foreground font-semibold">
+                        تفاعل معها:
+                      </span>
+                      <div className="flex -space-x-2 rtl:space-x-reverse items-center overflow-hidden">
+                        {Array.from(
+                          new Map(
+                            Object.values(m.reactionsUsers)
+                              .flat()
+                              .filter(Boolean)
+                              .map((u) => [u.id, u]),
+                          ).values(),
+                        )
+                          .slice(0, 5)
+                          .map((u) => (
+                            <div
+                              key={u.id}
+                              className="inline-block rounded-full ring-2 ring-card bg-card p-0.5 shadow-xs"
+                              title={u.name}
+                            >
+                              <Avatar config={u.avatar} size={22} />
+                            </div>
+                          ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
               </div>
             </div>
           );

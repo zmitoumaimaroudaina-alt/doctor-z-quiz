@@ -9,7 +9,11 @@ import { Crumbs, Empty } from "./examens";
 import { play } from "@/lib/sound";
 
 export const Route = createFileRoute("/_authenticated/cours")({
-  head: () => pageMetadata("QCM par Cours", "Questions de la Faculté de Médecine de l’Université de Blida par cours."),
+  head: () =>
+    pageMetadata(
+      "QCM par Cours",
+      "Questions de la Faculté de Médecine de l’Université de Blida par cours.",
+    ),
   component: Cours,
 });
 
@@ -30,7 +34,10 @@ function Cours() {
           const counts = new Map((n ?? []).map((x) => [x.course_id, Number(x.n)]));
           const remote = (c ?? []).map((x) => ({ ...x, n: counts.get(x.id) ?? 0 }));
           const remoteIds = new Set(remote.map((r) => r.id));
-          return [...bundled.filter((b) => b.id.startsWith("course-uei1-2025") || !remoteIds.has(b.id)), ...remote];
+          return [
+            ...bundled.filter((b) => b.id.startsWith("course-uei1-2025") || !remoteIds.has(b.id)),
+            ...remote,
+          ];
         }
       } catch {
         // use fallback
@@ -42,16 +49,30 @@ function Cours() {
   const list = (data ?? []).filter((c) => c.subject_id === sel);
   return (
     <AppShell>
-      <PageTitle title="📚 QCM par Cours" ar="حسب الدروس" sub="Questions de la Faculté de Médecine de l’Université de Blida" />
+      <PageTitle
+        title="📚 QCM par Cours"
+        ar="حسب الدروس"
+        sub="Questions de la Faculté de Médecine de l’Université de Blida"
+      />
       <Crumbs items={["Matière", subj?.name]} onBack={() => setSel(null)} />
       {!subj ? (
         <div className="grid gap-3 sm:grid-cols-2">
           {subjects?.map((s) => {
             const n = (data ?? []).filter((c) => c.subject_id === s.id).length;
             return (
-              <button key={s.id} onClick={() => { play("click"); setSel(s.id); }} className="card-game flex items-center gap-3 p-4 text-left hover:shadow-pop">
+              <button
+                key={s.id}
+                onClick={() => {
+                  play("click");
+                  setSel(s.id);
+                }}
+                className="card-game flex items-center gap-3 p-4 text-left hover:shadow-pop"
+              >
                 <span className="text-3xl">{s.emoji}</span>
-                <span className="flex-1"><span className="block font-semibold">{s.name}</span><span className="ar text-xs text-muted-foreground">{s.name_ar}</span></span>
+                <span className="flex-1">
+                  <span className="block font-semibold">{s.name}</span>
+                  <span className="ar text-xs text-muted-foreground">{s.name_ar}</span>
+                </span>
                 <span className="text-xs text-muted-foreground">{n} cours</span>
               </button>
             );
@@ -60,14 +81,26 @@ function Cours() {
       ) : list.length ? (
         <div className="space-y-2">
           {list.map((c, i) => (
-            <Link key={c.id} to="/course/$courseId" params={{ courseId: c.id }} className="card-game flex items-center gap-3 p-4 hover:shadow-pop">
-              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary-soft font-bold text-primary">{i + 1}</span>
-              <span className="flex-1"><span className="block font-semibold">{c.title}</span><span className="text-xs text-muted-foreground">{c.n} QCM</span></span>
+            <Link
+              key={c.id}
+              to="/course/$courseId"
+              params={{ courseId: c.id }}
+              className="card-game flex items-center gap-3 p-4 hover:shadow-pop"
+            >
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary-soft font-bold text-primary">
+                {i + 1}
+              </span>
+              <span className="flex-1">
+                <span className="block font-semibold">{c.title}</span>
+                <span className="text-xs text-muted-foreground">{c.n} QCM</span>
+              </span>
               <span className="text-primary">→</span>
             </Link>
           ))}
         </div>
-      ) : <Empty text="Aucun cours disponible pour cette matière." />}
+      ) : (
+        <Empty text="Aucun cours disponible pour cette matière." />
+      )}
     </AppShell>
   );
 }

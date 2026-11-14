@@ -158,7 +158,9 @@ export function MyLessons() {
       const fallbackTitle =
         title.trim() ||
         selectedFile?.name.replace(/\.(pdf|txt|md|csv|png|jpe?g|webp)$/i, "") ||
-        (courseUrl.trim() ? `Cours : ${courseUrl.trim().split("/").filter(Boolean).pop() ?? "PDF"}` : "Quiz de Révision");
+        (courseUrl.trim()
+          ? `Cours : ${courseUrl.trim().split("/").filter(Boolean).pop() ?? "PDF"}`
+          : "Quiz de Révision");
 
       formData.append("title", fallbackTitle);
       formData.append("qtype", qtype);
@@ -310,7 +312,8 @@ export function MyLessons() {
             className="rounded-xl"
           />
           <p className="text-[11px] text-muted-foreground mt-1">
-            يقرأ الخادم الملف الفعلي من الرابط (يدعم روابط PDF المباشرة وروابط Google Drive/Docs العامة).
+            يقرأ الخادم الملف الفعلي من الرابط (يدعم روابط PDF المباشرة وروابط Google Drive/Docs
+            العامة).
           </p>
         </div>
 
@@ -439,11 +442,7 @@ export function MyLessons() {
         ) : (
           <div className="space-y-4">
             {quizzes.map((z) => (
-              <LessonQuizCard
-                key={z.id}
-                quiz={z}
-                onDelete={() => handleDeleteQuiz(z.id)}
-              />
+              <LessonQuizCard key={z.id} quiz={z} onDelete={() => handleDeleteQuiz(z.id)} />
             ))}
           </div>
         )}
@@ -464,7 +463,9 @@ function LessonQuizCard({ quiz, onDelete }: { quiz: SavedQuiz; onDelete: () => v
       if (quiz.qtype === "QCS") {
         return { ...prev, [qIdx]: [optKey] };
       }
-      const next = current.includes(optKey) ? current.filter((x) => x !== optKey) : [...current, optKey];
+      const next = current.includes(optKey)
+        ? current.filter((x) => x !== optKey)
+        : [...current, optKey];
       return { ...prev, [qIdx]: next };
     });
   }
@@ -540,17 +541,18 @@ function LessonQuizCard({ quiz, onDelete }: { quiz: SavedQuiz; onDelete: () => v
       {open && (
         <div className="mt-4 space-y-6 animate-pop">
           {quiz.questions.map((q, qIdx) => {
-            const isQCorrect = [...(ans[qIdx] ?? [])].sort().join() === [...q.correct].sort().join();
+            const isQCorrect =
+              [...(ans[qIdx] ?? [])].sort().join() === [...q.correct].sort().join();
             return (
               <div key={qIdx} className="rounded-2xl border border-border/70 p-4 bg-muted/20">
                 <div className="flex items-start justify-between gap-2">
-                  <p className="font-semibold text-sm leading-relaxed text-foreground">
-                    {q.stem}
-                  </p>
+                  <p className="font-semibold text-sm leading-relaxed text-foreground">{q.stem}</p>
                   {done && (
                     <span
                       className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                        isQCorrect ? "bg-success/20 text-success" : "bg-destructive/20 text-destructive"
+                        isQCorrect
+                          ? "bg-success/20 text-success"
+                          : "bg-destructive/20 text-destructive"
                       }`}
                     >
                       {isQCorrect ? "✅ صحيح" : "❌ خطأ"}
@@ -564,10 +566,14 @@ function LessonQuizCard({ quiz, onDelete }: { quiz: SavedQuiz; onDelete: () => v
                     const isCorrectOpt = q.correct.includes(opt.key);
 
                     let style = "border-border/70 bg-card hover:bg-muted/60";
-                    if (isSelected) style = "border-primary bg-primary-soft text-primary font-bold shadow-sm";
+                    if (isSelected)
+                      style = "border-primary bg-primary-soft text-primary font-bold shadow-sm";
                     if (done) {
-                      if (isCorrectOpt) style = "border-success bg-success/15 text-success-foreground font-bold";
-                      else if (isSelected && !isCorrectOpt) style = "border-destructive bg-destructive/15 text-destructive font-semibold";
+                      if (isCorrectOpt)
+                        style = "border-success bg-success/15 text-success-foreground font-bold";
+                      else if (isSelected && !isCorrectOpt)
+                        style =
+                          "border-destructive bg-destructive/15 text-destructive font-semibold";
                     }
 
                     return (
@@ -581,7 +587,9 @@ function LessonQuizCard({ quiz, onDelete }: { quiz: SavedQuiz; onDelete: () => v
                           {opt.key}
                         </span>
                         <span className="flex-1">{opt.text}</span>
-                        {done && isCorrectOpt && <span className="text-success text-xs">✓ صحيح</span>}
+                        {done && isCorrectOpt && (
+                          <span className="text-success text-xs">✓ صحيح</span>
+                        )}
                       </button>
                     );
                   })}

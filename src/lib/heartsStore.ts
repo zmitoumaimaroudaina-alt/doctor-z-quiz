@@ -48,7 +48,10 @@ function writeAllHearts(map: Record<string, UserHeartRecord>) {
   window.dispatchEvent(new CustomEvent("doctorz-hearts-updated"));
 }
 
-function computeNormalizedRecord(rec: UserHeartRecord | undefined, now = Date.now()): {
+function computeNormalizedRecord(
+  rec: UserHeartRecord | undefined,
+  now = Date.now(),
+): {
   record: UserHeartRecord;
   changed: boolean;
 } {
@@ -123,7 +126,10 @@ export function getHeartStatus(userKey: string, isCreator = false, now = Date.no
   };
 }
 
-export function consumeHeart(userKey: string, isCreator = false): { ok: boolean; status: HeartStatus } {
+export function consumeHeart(
+  userKey: string,
+  isCreator = false,
+): { ok: boolean; status: HeartStatus } {
   if (isCreator) {
     return { ok: true, status: getHeartStatus(userKey, true) };
   }
@@ -137,7 +143,7 @@ export function consumeHeart(userKey: string, isCreator = false): { ok: boolean;
   }
 
   const nextHearts = record.hearts - 1;
-  const nextRegenStart = nextHearts < MAX_BASE_HEARTS ? record.regenStartAt ?? now : null;
+  const nextRegenStart = nextHearts < MAX_BASE_HEARTS ? (record.regenStartAt ?? now) : null;
 
   map[userKey] = {
     hearts: nextHearts,
@@ -154,7 +160,7 @@ export function addHeartsToUser(userKey: string, amount: number): HeartStatus {
   const map = readAllHearts();
   const { record } = computeNormalizedRecord(map[userKey], now);
   const nextHearts = Math.max(0, record.hearts + amount);
-  const nextRegenStart = nextHearts < MAX_BASE_HEARTS ? record.regenStartAt ?? now : null;
+  const nextRegenStart = nextHearts < MAX_BASE_HEARTS ? (record.regenStartAt ?? now) : null;
 
   map[userKey] = {
     hearts: nextHearts,
@@ -195,7 +201,11 @@ export function renderHeartsVisual(hearts: number, unlimited = false): string {
   return `${"❤️".repeat(Math.min(hearts, 5))}${hearts > 5 ? ` +${hearts - 5}` : ""}`;
 }
 
-export function useHearts(email?: string | null, userId?: string | null, isCreator = false): HeartStatus {
+export function useHearts(
+  email?: string | null,
+  userId?: string | null,
+  isCreator = false,
+): HeartStatus {
   const userKey = resolveHeartKey(email, userId);
   const [status, setStatus] = useState<HeartStatus>(() => getHeartStatus(userKey, isCreator));
 

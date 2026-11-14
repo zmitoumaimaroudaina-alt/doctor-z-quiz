@@ -45,7 +45,9 @@ function Examens() {
             setYear(null);
           }}
           className={`rounded-xl py-2.5 px-3 text-sm font-bold transition ${
-            tab === "years" ? "bg-card text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
+            tab === "years"
+              ? "bg-card text-primary shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
           }`}
         >
           📅 حسب السنوات (2025 – 2021)
@@ -59,7 +61,9 @@ function Examens() {
             setYear(null);
           }}
           className={`rounded-xl py-2.5 px-3 text-sm font-bold transition ${
-            tab === "subjects" ? "bg-card text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
+            tab === "subjects"
+              ? "bg-card text-primary shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
           }`}
         >
           📚 حسب المادة (Par Matière)
@@ -149,7 +153,9 @@ function Examens() {
           {!subj && (
             <div className="grid gap-3 sm:grid-cols-2">
               {subjects?.map((s) => {
-                const n = allExams.filter((e) => e.exam_subjects?.some((x) => x.subject_id === s.id)).length;
+                const n = allExams.filter((e) =>
+                  e.exam_subjects?.some((x) => x.subject_id === s.id),
+                ).length;
                 return (
                   <button
                     key={s.id}
@@ -172,8 +178,9 @@ function Examens() {
               })}
             </div>
           )}
-          {subj && !year && (
-            subjYears.length ? (
+          {subj &&
+            !year &&
+            (subjYears.length ? (
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 {subjYears.map((y) => (
                   <button
@@ -191,8 +198,7 @@ function Examens() {
               </div>
             ) : (
               <Empty text="Aucun examen disponible pour cette matière." />
-            )
-          )}
+            ))}
           {subj && year && (
             <div className="space-y-3">
               {inSubj
@@ -228,7 +234,13 @@ function Examens() {
   );
 }
 
-export function Crumbs({ items, onBack }: { items: (string | undefined)[]; onBack: (i: number) => void }) {
+export function Crumbs({
+  items,
+  onBack,
+}: {
+  items: (string | undefined)[];
+  onBack: (i: number) => void;
+}) {
   const shown = items.filter(Boolean) as string[];
   if (shown.length < 2) return null;
   return (
@@ -248,4 +260,6 @@ export function Crumbs({ items, onBack }: { items: (string | undefined)[]; onBac
     </div>
   );
 }
-export const Empty = ({ text }: { text: string }) => <div className="card-game p-8 text-center text-muted-foreground">{text}</div>;
+export const Empty = ({ text }: { text: string }) => (
+  <div className="card-game p-8 text-center text-muted-foreground">{text}</div>
+);

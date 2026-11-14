@@ -1,30 +1,36 @@
 import { pageMetadata } from "@/lib/metadata";
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { collection, query, orderBy, onSnapshot, doc, setDoc } from "firebase/firestore";
+import { db, handleFirestoreError, OperationType } from "@/lib/firebase";
 import { AppShell, PageTitle } from "@/components/AppShell";
 import { Avatar, type AvatarConfig } from "@/components/Avatar";
 import { useMe } from "@/hooks/useMe";
 import { useExams } from "@/lib/queries";
-import {
-  fmtTime,
-  isUserTomatoHit,
-  getUserTomatoHoursLeft,
-  recordLocalTomatoHit,
-} from "@/lib/game";
-import {
-  buildLocalParticipantsLeaderboard,
-  type ParticipantStanding,
-} from "@/lib/leaderboardStore";
+import { isUserTomatoHit, getUserTomatoHoursLeft, recordLocalTomatoHit } from "@/lib/game";
 import { play } from "@/lib/sound";
+import { seedKnownStudents } from "@/lib/studentService";
+
+export type StudentRow = {
+  uid: string;
+  name: string;
+  email: string;
+  avatar: AvatarConfig | null;
+  pet?: string | null;
+  bubble?: string | null;
+  score: number;
+  xp: number;
+  rnk: number;
+  tomato_until?: string | null;
+  isCreator?: boolean;
+};
 
 export const Route = createFileRoute("/_authenticated/leaderboard")({
   head: () =>
     pageMetadata(
       "Participants & Classement",
-      "Tableau des participants inscrits et classement selon les défis et examens complétés.",
+      "Tableau des participants inscrits et classement selon les scores et points enregistrés dans Firebase.",
     ),
   component: Leaderboard,
 });
@@ -35,177 +41,48 @@ function Leaderboard() {
   const [mode, setMode] = useState<"overall" | "exam">("overall");
   const [examId, setExamId] = useState<string>("");
   const [flying, setFlying] = useState<string | null>(null);
-  const qc = useQueryClient();
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [rows, setRows] = useState<StudentRow[]>([]);
   const id = examId || exams?.[0]?.id || "";
 
-  const { data: rows } = useQuery({
-    queryKey: ["lb", mode, id, me?.id, me?.xp, me?.display_name],
-    queryFn: async (): Promise<ParticipantStanding[]> => {
-      const localRows = buildLocalParticipantsLeaderboard({
-        ...(id ? { examId: id } : {}),
-        mode,
-        currentUser: me
-          ? {
-              id: me.id,
-              email: me.email,
-              display_name: me.display_name,
-              avatar: me.avatar,
-              pet: me.pet,
-              bubble: me.bubble,
-              xp: me.xp,
-              isCreator: me.isCreator,
-            }
-          : null,
-      });
-
-      const mergedById = new Map<string, ParticipantStanding>();
-      for (const r of localRows) {
-        mergedById.set(r.user_id, r);
-      }
-
-      if (mode === "exam" && id) {
-        try {
-          const { data, error } = await supabase.rpc("leaderboard", { _exam: id });
-          if (!error && data && data.length > 0) {
-            for (const remote of data) {
-              const existing = mergedById.get(remote.user_id);
-              const rScore = Number(remote.best_score ?? 0);
-              const rTime = Number(remote.best_time ?? 0);
-              if (existing) {
-                existing.best_score = Math.max(existing.best_score, rScore);
-                if (existing.best_time === 0 || (rTime > 0 && rTime < existing.best_time)) {
-                  existing.best_time = rTime;
-                }
-                existing.challenges_count = Math.max(existing.challenges_count, 1);
-                if (remote.tomato_until) existing.tomato_until = remote.tomato_until;
-              } else {
-                mergedById.set(remote.user_id, {
-                  user_id: remote.user_id,
-                  email: null,
-                  display_name: remote.display_name ?? "Étudiant",
-                  avatar: (remote.avatar as AvatarConfig) ?? {
-                    gender: "m",
-                    skin: 1,
-                    outfit: 0,
-                    accessory: 1,
-                  },
-                  pet: remote.pet ?? null,
-                  bubble: remote.bubble ?? null,
-                  xp: 0,
-                  isCreator: false,
-                  challenges_count: 1,
-                  exams_count: 1,
-                  courses_count: 0,
-                  best_score: rScore,
-                  avg_score: rScore,
-                  best_time: rTime,
-                  rnk: Number(remote.rnk ?? 999),
-                  tomato_until: remote.tomato_until ?? null,
-                  last_active_at: null,
-                });
-              }
-            }
-          }
-        } catch {
-          // keep local rows
-        }
-      } else {
-        // Overall mode: also include all registered Supabase profiles if connected
-        try {
-          const { data: remoteProfiles } = await supabase
-            .from("profiles")
-            .select("id, display_name, avatar, pet, bubble, xp, created_at")
-            .order("xp", { ascending: false })
-            .limit(200);
-          for (const rp of remoteProfiles ?? []) {
-            if (!mergedById.has(rp.id)) {
-              mergedById.set(rp.id, {
-                user_id: rp.id,
-                email: null,
-                display_name: rp.display_name ?? "Étudiant",
-                avatar: (rp.avatar as AvatarConfig) ?? {
-                  gender: "m",
-                  skin: 1,
-                  outfit: 0,
-                  accessory: 1,
-                },
-                pet: rp.pet ?? null,
-                bubble: rp.bubble ?? null,
-                xp: Number(rp.xp ?? 0),
-                isCreator: false,
-                challenges_count: 0,
-                exams_count: 0,
-                courses_count: 0,
-                best_score: 0,
-                avg_score: 0,
-                best_time: 0,
-                rnk: 999,
-                tomato_until: null,
-                last_active_at: rp.created_at ?? null,
-              });
-            }
-          }
-        } catch {
-          // keep local rows
-        }
-      }
-
-      const list = [...mergedById.values()];
-      list.sort((a, b) => {
-        const aActive = a.challenges_count > 0 ? 1 : 0;
-        const bActive = b.challenges_count > 0 ? 1 : 0;
-        if (aActive !== bActive) return bActive - aActive;
-
-        if (mode === "exam") {
-          if (b.best_score !== a.best_score) return b.best_score - a.best_score;
-          if (aActive && bActive && a.best_time !== b.best_time) return a.best_time - b.best_time;
-          return b.xp - a.xp;
-        }
-
-        if (b.challenges_count !== a.challenges_count) return b.challenges_count - a.challenges_count;
-        if (b.avg_score !== a.avg_score) return b.avg_score - a.avg_score;
-        if (b.best_score !== a.best_score) return b.best_score - a.best_score;
-        return b.xp - a.xp;
-      });
-
-      return list.map((item, idx) => ({ ...item, rnk: idx + 1 }));
-    },
-  });
-
-  const { data: creators } = useQuery({
-    queryKey: ["creators"],
-    queryFn: async () =>
-      new Set(((await supabase.rpc("creator_ids")).data ?? ["doctorzmit@gmail.com"]) as string[]),
-  });
-
   useEffect(() => {
-    if (!id || !me) return;
-    const ch = supabase
-      .channel(`lb-${id}`)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "attempts", filter: `exam_id=eq.${id}` },
-        () => qc.invalidateQueries({ queryKey: ["lb"] }),
-      )
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "tomatoes" }, (p) => {
-        const t = p.new as { target_id: string; thrower_id: string; thrower_name?: string };
-        qc.invalidateQueries({ queryKey: ["lb"] });
-        if (t.target_id === me.id) {
-          play("hit");
-          const senderName =
-            t.thrower_name ||
-            (creators?.has(t.thrower_id) ? "👑 Doctor Z" : "أحد المتصدرين في التوب 3");
-          toast.error(`🍅 ضربك ${senderName} بالطماطم! ستبقى ملطخاً لـ 12 ساعة 😂`);
-        }
-      })
-      .subscribe();
-    return () => {
-      void supabase.removeChannel(ch);
-    };
-  }, [id, me, qc, creators]);
+    void seedKnownStudents();
+    const q = query(collection(db, "students"), orderBy("score", "desc"));
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const list: StudentRow[] = [];
+        let index = 1;
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          const defaultAvatar: AvatarConfig = { gender: "m", skin: 1, outfit: 0, accessory: 1 };
+          list.push({
+            uid: docSnap.id,
+            name: data.name || data.email?.split("@")[0] || "Étudiant",
+            email: data.email || "",
+            avatar: data.avatar || defaultAvatar,
+            pet: data.pet || null,
+            bubble: data.bubble || null,
+            score: Number(data.score ?? 0),
+            xp: Number(data.xp ?? 0),
+            rnk: index++,
+            tomato_until: data.tomato_until || null,
+            isCreator: data.email === "doctorzmit@gmail.com",
+          });
+        });
+        setRows(list);
+      },
+      (error) => {
+        handleFirestoreError(error, OperationType.GET, "students");
+      },
+    );
 
-  const mine = rows?.find((r) => r.user_id === me?.id);
-  const myRank = mine ? Number(mine.rnk) : 999;
+    return () => unsubscribe();
+  }, []);
+
+  const mine = rows.find((r) => r.uid === me?.id);
+  const myRank = mine ? mine.rnk : 999;
   const canThrow = myRank <= 3 || me?.isCreator;
 
   async function throwAt(targetId: string, targetName: string) {
@@ -218,14 +95,7 @@ function Leaderboard() {
 
     play("throw");
     setFlying(targetId);
-    const myName = me?.display_name || "أحد المتصدرين (Top 3)";
-    recordLocalTomatoHit(targetId, me?.id || "me", myName);
-
-    try {
-      await supabase.rpc("throw_tomato", { _exam: id, _target: targetId });
-    } catch {
-      // ignore offline
-    }
+    recordLocalTomatoHit(targetId, me?.id || "me", me?.display_name || "Top 3");
 
     setTimeout(() => {
       setFlying(null);
@@ -233,33 +103,60 @@ function Leaderboard() {
       toast.success(
         `🍅 ضربة طماطم مباشرة على ${targetName}! تم إعلامه أنك أنت من ضربه وسيبقى ملطخاً لـ 12 ساعة!`,
       );
-      qc.invalidateQueries({ queryKey: ["lb"] });
     }, 550);
   }
 
   async function saveBubble(text: string) {
     if (!me) return;
     const clean = text.replace(/[<>]/g, "").slice(0, 60);
-    const { error } = await supabase.from("profiles").update({ bubble: clean }).eq("id", me.id);
-    if (error) {
-      toast.error(error.message);
-      return;
+    try {
+      await setDoc(doc(db, "students", me.id), { bubble: clean }, { merge: true });
+      toast.success("تم تحديث الرسالة بنجاح! 💬");
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, `students/${me.id}`);
+      toast.error("تعذر حفظ الرسالة.");
     }
-    qc.invalidateQueries({ queryKey: ["lb"] });
   }
 
-  const activeParticipants = (rows ?? []).filter((r) => r.challenges_count > 0);
-  const podiumSource = activeParticipants.length > 0 ? activeParticipants.slice(0, 5) : (rows ?? []).slice(0, 5);
+  async function handleAddParticipant(e: React.FormEvent) {
+    e.preventDefault();
+    const name = newName.trim();
+    if (!name) return;
+    const studentUid = `student-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+    const email = `${name.toLowerCase().replace(/\s+/g, "")}@blida.dz`;
+
+    try {
+      await setDoc(doc(db, "students", studentUid), {
+        uid: studentUid,
+        name,
+        email,
+        avatar: { gender: "m", skin: 1, outfit: 0, accessory: 1 },
+        score: 50,
+        xp: 150,
+        createdAt: new Date(),
+        lastLogin: new Date(),
+      });
+      play("reward");
+      toast.success(`✅ تمت إضافة الطالب "${name}" إلى لوحة النتائج بنجاح!`);
+      setNewName("");
+      setShowAddModal(false);
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, `students/${studentUid}`);
+      toast.error("تعذر إضافة الطالب.");
+    }
+  }
+
+  const podiumSource = rows.slice(0, 5);
 
   return (
     <AppShell wide>
       <PageTitle
         title="🏆 Participants & Classement"
-        ar="جدول المشاركين والتصنيف"
-        sub="يظهر كل من يسجّل دخوله في جدول المشاركين ويتم تصنيفه حسب التحديات والامتحانات التي شارك فيها."
+        ar="جدول المشاركين والتصنيف (Firebase)"
+        sub="يظهر كل من يسجّل دخوله في جدول المشاركين الفوري عبر Firestore ويتم تصنيفه تنازلياً حسب النقاط."
       />
 
-      {/* Mode Switch & Exam Filter */}
+      {/* Mode Switch & Actions */}
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap gap-2">
           <button
@@ -274,48 +171,71 @@ function Leaderboard() {
                 : "border bg-card hover:bg-muted"
             }`}
           >
-            🏆 الترتيب العام حسب التحديات ({rows?.length ?? 0} مشارك)
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              play("click");
-              setMode("exam");
-            }}
-            className={`rounded-full px-4 py-2 text-xs sm:text-sm font-bold transition ${
-              mode === "exam"
-                ? "bg-hero text-primary-foreground shadow-pop"
-                : "border bg-card hover:bg-muted"
-            }`}
-          >
-            📝 ترتيب حسب الامتحان
+            🏆 الترتيب العام ({rows.length} مشارك حقيقي)
           </button>
         </div>
 
-        {mode === "exam" && (
-          <select
-            value={id}
-            onChange={(e) => setExamId(e.target.value)}
-            className="w-full rounded-xl border bg-card px-3 py-2 text-sm sm:w-auto"
-          >
-            {exams?.map((e) => (
-              <option key={e.id} value={e.id}>
-                {e.title}
-              </option>
-            ))}
-          </select>
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          {me?.isCreator && (
+            <button
+              type="button"
+              onClick={() => {
+                play("click");
+                setShowAddModal(!showAddModal);
+              }}
+              className="rounded-xl border border-primary/40 bg-primary/10 px-3.5 py-2 text-xs font-bold text-primary hover:bg-primary/20 transition"
+            >
+              ➕ إضافة مشارك يدوياً
+            </button>
+          )}
+        </div>
       </div>
+
+      {/* Add Participant Modal for Creator */}
+      {showAddModal && me?.isCreator && (
+        <form
+          onSubmit={handleAddParticipant}
+          className="card-game mb-6 p-4 border-2 border-primary/30 bg-primary/5 space-y-3 animate-pop"
+        >
+          <div className="font-bold text-sm text-foreground flex items-center justify-between">
+            <span>➕ تسجيل طالب مشارك في لوحة النتائج (مثل Aymen أو not me)</span>
+            <button
+              type="button"
+              onClick={() => setShowAddModal(false)}
+              className="text-xs text-muted-foreground"
+            >
+              ✕ إغلاق
+            </button>
+          </div>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              placeholder="اكتب اسم الطالب (مثال: Aymen أو not me)..."
+              className="flex-1 rounded-xl border bg-background px-3.5 py-2 text-sm"
+              required
+            />
+            <button
+              type="submit"
+              className="rounded-xl bg-primary px-5 py-2 text-xs font-bold text-primary-foreground shadow-sm"
+            >
+              إضافة فورية
+            </button>
+          </div>
+        </form>
+      )}
 
       {/* Top 5 Podium Cards */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
         {podiumSource.map((r) => {
-          const isHit = isUserTomatoHit(r.user_id, r.tomato_until);
-          const hoursLeft = getUserTomatoHoursLeft(r.user_id, r.tomato_until);
-          const isMe = r.user_id === me?.id;
+          const isHit = isUserTomatoHit(r.uid, r.tomato_until);
+          const hoursLeft = getUserTomatoHoursLeft(r.uid, r.tomato_until);
+          const isMe = r.uid === me?.id;
+          const fallbackAvatar: AvatarConfig = { gender: "m", skin: 1, outfit: 0, accessory: 1 };
           return (
             <div
-              key={r.user_id}
+              key={r.uid}
               className={`card-game relative flex flex-col items-center p-3 text-center ${
                 r.rnk === 1 ? "ring-2 ring-gold" : isMe ? "ring-2 ring-primary/50" : ""
               }`}
@@ -327,37 +247,30 @@ function Leaderboard() {
               )}
               <div className="relative">
                 <Avatar
-                  config={r.avatar}
+                  config={r.avatar || fallbackAvatar}
                   pet={r.pet}
                   size={86}
                   tomato={isHit}
                   tomatoHoursLeft={hoursLeft}
                   mood={isHit ? "angry" : r.rnk === 1 ? "veryHappy" : "happy"}
                 />
-                {flying === r.user_id && (
+                {flying === r.uid && (
                   <span className="animate-tomato absolute left-1/3 top-1/4 text-3xl">🍅</span>
                 )}
               </div>
               <div className="mt-1 text-lg">
-                {["🥇", "🥈", "🥉", "4️⃣", "5️⃣"][Number(r.rnk) - 1] ?? `#${r.rnk}`}
+                {["🥇", "🥈", "🥉", "4️⃣", "5️⃣"][r.rnk - 1] ?? `#${r.rnk}`}
               </div>
               <div className="w-full truncate font-semibold text-sm">
-                {r.display_name} {isMe && <span className="text-xs text-primary">(أنت)</span>}
+                {r.name} {isMe && <span className="text-xs text-primary">(أنت)</span>}
               </div>
               <div className="text-xs text-muted-foreground mt-0.5">
-                {r.challenges_count > 0 ? (
-                  <>
-                    <b className="text-foreground">{r.challenges_count}</b> تحدي ·{" "}
-                    <b>{r.best_score.toFixed(2)}</b>/20
-                  </>
-                ) : (
-                  <span>مسجّل · 0 تحدي</span>
-                )}
+                <b className="text-foreground">{r.score}</b> نقطة · <b>{r.xp}</b> XP
               </div>
-              {canThrow && r.user_id !== me?.id && (
+              {canThrow && r.uid !== me?.id && (
                 <button
                   type="button"
-                  onClick={() => void throwAt(r.user_id, r.display_name)}
+                  onClick={() => void throwAt(r.uid, r.name)}
                   className="mt-2 rounded-lg bg-tomato/15 px-2.5 py-1 text-xs font-bold text-tomato hover:bg-tomato/25 transition-colors"
                 >
                   🍅 ارمي طماطم
@@ -374,12 +287,10 @@ function Leaderboard() {
       <section className="card-game mt-6 overflow-hidden border border-border/80">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b bg-muted/40 px-4 py-3">
           <h2 className="font-display text-base font-bold">
-            📋 جدول المشاركين والتصنيف ({rows?.length ?? 0})
+            📋 جدول المشاركين والتصنيف الحي ({rows.length})
           </h2>
           <span className="text-xs text-muted-foreground">
-            {mode === "overall"
-              ? "مرتب حسب عدد التحديات المشاركة والمعدل والنقاط"
-              : "مرتب حسب أعلى علامة وأسرع وقت في الامتحان المختار"}
+            مرتب تنازلياً حسب النقاط في Firestore
           </span>
         </div>
 
@@ -389,24 +300,27 @@ function Leaderboard() {
               <tr className="border-b bg-muted/20 text-left text-xs font-bold text-muted-foreground">
                 <th className="px-4 py-3">الرتبة</th>
                 <th className="px-4 py-3">المشارك</th>
-                <th className="px-4 py-3 text-center">التحديات</th>
-                <th className="px-4 py-3 text-center">أحسن علامة</th>
-                <th className="px-4 py-3 text-center hidden sm:table-cell">المعدل</th>
-                <th className="px-4 py-3 text-center hidden md:table-cell">الوقت</th>
+                <th className="px-4 py-3 text-center">النقاط (Score)</th>
                 <th className="px-4 py-3 text-center">XP</th>
                 <th className="px-4 py-3 text-right">تفاعل</th>
               </tr>
             </thead>
             <tbody className="divide-y">
-              {(rows ?? []).map((r) => {
-                const isHit = isUserTomatoHit(r.user_id, r.tomato_until);
-                const hoursLeft = getUserTomatoHoursLeft(r.user_id, r.tomato_until);
-                const isMe = r.user_id === me?.id;
+              {rows.map((r) => {
+                const isHit = isUserTomatoHit(r.uid, r.tomato_until);
+                const hoursLeft = getUserTomatoHoursLeft(r.uid, r.tomato_until);
+                const isMe = r.uid === me?.id;
                 const rankBadge = ["🥇", "🥈", "🥉"][r.rnk - 1] ?? `#${r.rnk}`;
+                const fallbackAvatar: AvatarConfig = {
+                  gender: "m",
+                  skin: 1,
+                  outfit: 0,
+                  accessory: 1,
+                };
 
                 return (
                   <tr
-                    key={r.user_id}
+                    key={r.uid}
                     className={`transition-colors ${
                       isMe ? "bg-primary/5 font-semibold" : "hover:bg-muted/30"
                     }`}
@@ -417,7 +331,7 @@ function Leaderboard() {
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2.5 min-w-[160px]">
                         <Avatar
-                          config={r.avatar}
+                          config={r.avatar || fallbackAvatar}
                           size={36}
                           tomato={isHit}
                           tomatoHoursLeft={hoursLeft}
@@ -425,7 +339,7 @@ function Leaderboard() {
                         />
                         <div className="min-w-0">
                           <div className="truncate font-semibold text-foreground flex items-center gap-1.5">
-                            <span>{r.display_name}</span>
+                            <span>{r.name}</span>
                             {r.isCreator && (
                               <span className="rounded bg-gold/25 px-1.5 py-0.5 text-[10px] font-bold">
                                 👑
@@ -438,39 +352,20 @@ function Leaderboard() {
                             )}
                           </div>
                           <div className="text-[11px] text-muted-foreground">
-                            {r.challenges_count > 0
-                              ? `📝 ${r.exams_count} امتحان · 📚 ${r.courses_count} درس`
-                              : "مسجّل حديثاً · لم يشارك في تحدٍ بعد"}
+                            {r.avatar ? "أفاتار مخصص ✨" : "أفاتار افتراضي · مسجّل"}
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-center">
-                      <span
-                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${
-                          r.challenges_count > 0
-                            ? "bg-primary/15 text-primary"
-                            : "bg-muted text-muted-foreground"
-                        }`}
-                      >
-                        {r.challenges_count}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-center font-mono">
-                      {r.challenges_count > 0 ? `${r.best_score.toFixed(2)}/20` : "—"}
-                    </td>
-                    <td className="px-4 py-3 text-center font-mono hidden sm:table-cell">
-                      {r.challenges_count > 0 ? `${r.avg_score.toFixed(2)}/20` : "—"}
-                    </td>
-                    <td className="px-4 py-3 text-center font-mono hidden md:table-cell">
-                      {r.best_time > 0 ? fmtTime(r.best_time) : "—"}
+                    <td className="px-4 py-3 text-center font-mono font-bold text-primary">
+                      {r.score}
                     </td>
                     <td className="px-4 py-3 text-center font-mono text-xs">{r.xp}</td>
                     <td className="px-4 py-3 text-right">
                       {canThrow && !isMe ? (
                         <button
                           type="button"
-                          onClick={() => void throwAt(r.user_id, r.display_name)}
+                          onClick={() => void throwAt(r.uid, r.name)}
                           aria-label="Lancer une tomate"
                           className="rounded-lg bg-tomato/10 px-2 py-1 text-xs font-bold text-tomato hover:bg-tomato/25 transition"
                         >
@@ -484,10 +379,10 @@ function Leaderboard() {
                 );
               })}
 
-              {(!rows || rows.length === 0) && (
+              {rows.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-sm text-muted-foreground">
-                    لا يوجد مشاركون مسجلون بعد. سجّل دخولك أو أكمل تحدياً لتظهر في الجدول!
+                  <td colSpan={5} className="px-4 py-8 text-center text-sm text-muted-foreground">
+                    لا يوجد مشاركون مسجلون بعد. سجّل دخولك لتظهر في الجدول!
                   </td>
                 </tr>
               )}
@@ -495,25 +390,6 @@ function Leaderboard() {
           </table>
         </div>
       </section>
-
-      <div className="mt-4 rounded-2xl border border-tomato/30 bg-tomato/5 p-4 text-xs text-muted-foreground space-y-1">
-        <p className="font-bold text-foreground flex items-center gap-2">
-          <span>🍅</span>
-          <span>قانون الطماطم الرسمي (Top 3 Only) :</span>
-        </p>
-        <p>
-          • <b>من يمكنه الرمي؟</b> أصحاب المراكز الثلاثة الأولى فقط (🥇 🥈 🥉) يحق لهم استهداف
-          بقية الزملاء بالطماطم مكافأةً لتفوقهم.
-        </p>
-        <p>
-          • <b>من ضربك؟</b> عند استهداف أي لاعب، يُعرض له إشعار فوري باسم الشخص المتصدر الذي ضربه
-          بالطماطم!
-        </p>
-        <p>
-          • <b>المدة والمؤثر:</b> يبقى الأفاتار ملطخاً بآثار الطماطم لمدة 12 ساعة كاملة مع تعبير منزعج
-          ويد تحاول مسح الوجه بمنديل.
-        </p>
-      </div>
     </AppShell>
   );
 }

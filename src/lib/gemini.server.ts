@@ -14,7 +14,11 @@ export function hasGeminiApiKey(): boolean {
 export function getGeminiClient(): GoogleGenAI {
   const apiKey = process.env["GEMINI_API_KEY"]?.trim();
   if (!apiKey) {
-    throw new GeminiServiceError("Clé Gemini API non configurée sur le serveur.", 503, "NO_API_KEY");
+    throw new GeminiServiceError(
+      "Clé Gemini API non configurée sur le serveur.",
+      503,
+      "NO_API_KEY",
+    );
   }
   if (!cachedClient || cachedApiKey !== apiKey) {
     cachedApiKey = apiKey;
@@ -68,7 +72,11 @@ export function classifyGeminiError(err: unknown): GeminiServiceError {
       "GEMINI_RATE_LIMIT",
     );
   }
-  if (lower.includes("api_key_invalid") || lower.includes("permission_denied") || lower.includes("403")) {
+  if (
+    lower.includes("api_key_invalid") ||
+    lower.includes("permission_denied") ||
+    lower.includes("403")
+  ) {
     return new GeminiServiceError(
       "مفتاح Gemini API غير صالح أو مرفوض الصلاحية. يرجى التحقق منه في Settings > Secrets.",
       403,
@@ -119,7 +127,9 @@ async function runWithModelFallback<T>(
       lastErr = err;
       const classified = classifyGeminiError(err);
       const rawMsg = getRawErrorMessage(err).slice(0, 320);
-      console.error(`[gemini-error] ${label} model=${model} status=${classified.status}: ${rawMsg}`);
+      console.error(
+        `[gemini-error] ${label} model=${model} status=${classified.status}: ${rawMsg}`,
+      );
 
       // Never retry auth errors or malformed input errors
       if (classified.status === 400 || classified.status === 403) {
@@ -272,9 +282,7 @@ function normalizeGeneratedQuestions(
       }
 
       const normalizedCorrect =
-        qtype === "QCS" && extractedLetters.length > 1
-          ? [extractedLetters[0]!]
-          : extractedLetters;
+        qtype === "QCS" && extractedLetters.length > 1 ? [extractedLetters[0]!] : extractedLetters;
 
       return {
         stem: String(q.stem ?? "").trim(),
@@ -300,7 +308,10 @@ export async function extractPdfTextLocally(bytes: Uint8Array): Promise<string> 
       .replace(/\n{3,}/g, "\n\n")
       .trim();
   } catch (err) {
-    console.warn("[pdf-extract] Local PDF extraction failed, will use multimodal fallback:", getRawErrorMessage(err));
+    console.warn(
+      "[pdf-extract] Local PDF extraction failed, will use multimodal fallback:",
+      getRawErrorMessage(err),
+    );
     return "";
   }
 }
@@ -371,12 +382,21 @@ Règles strictes :
           model,
           contents: [
             ...(uploaded.uri
-              ? [{ fileData: { fileUri: uploaded.uri, mimeType: uploaded.mimeType ?? "application/pdf" } }]
+              ? [
+                  {
+                    fileData: {
+                      fileUri: uploaded.uri,
+                      mimeType: uploaded.mimeType ?? "application/pdf",
+                    },
+                  },
+                ]
               : []),
             { text: promptText },
           ],
           config: {
-            ...(model === GEMINI_MODEL ? { thinkingConfig: { thinkingLevel: ThinkingLevel.LOW } } : {}),
+            ...(model === GEMINI_MODEL
+              ? { thinkingConfig: { thinkingLevel: ThinkingLevel.LOW } }
+              : {}),
             responseMimeType: "application/json",
             responseSchema: QUIZ_RESPONSE_SCHEMA,
             abortSignal: AbortSignal.timeout(55000),
@@ -384,7 +404,11 @@ Règles strictes :
         }),
       );
       return {
-        questions: normalizeGeneratedQuestions((res.text ?? "{}").trim(), params.qtype, params.count),
+        questions: normalizeGeneratedQuestions(
+          (res.text ?? "{}").trim(),
+          params.qtype,
+          params.count,
+        ),
         method: "pdf-ocr",
       };
     } finally {
@@ -538,7 +562,9 @@ export async function auditMedicalBatch(params: {
       model,
       contents: `${params.prompt}\n\n${params.batchJson}`,
       config: {
-        ...(model === GEMINI_MODEL ? { thinkingConfig: { thinkingLevel: ThinkingLevel.HIGH } } : {}),
+        ...(model === GEMINI_MODEL
+          ? { thinkingConfig: { thinkingLevel: ThinkingLevel.HIGH } }
+          : {}),
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.OBJECT,

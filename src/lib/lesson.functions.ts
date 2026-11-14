@@ -23,7 +23,9 @@ export const generateLessonQuiz = createServerFn({ method: "POST" })
       throw new Error(`Limite quotidienne atteinte (${quota.status.pdf.limit} quiz PDF/jour).`);
     }
 
-    const { data: file, error } = await context.supabase.storage.from("lesson-pdfs").download(data.path);
+    const { data: file, error } = await context.supabase.storage
+      .from("lesson-pdfs")
+      .download(data.path);
     if (error || !file) throw new Error("Fichier introuvable");
     const bytes = new Uint8Array(await file.arrayBuffer());
     const pdfBase64 = Buffer.from(bytes).toString("base64");

@@ -17,7 +17,11 @@ import {
 import { play } from "@/lib/sound";
 
 export const Route = createFileRoute("/_authenticated/exam/$examId")({
-  head: () => pageMetadata("Commencer un examen", "Examen médical de Blida : 60 minutes et système de cœurs."),
+  head: () =>
+    pageMetadata(
+      "Commencer un examen",
+      "Examen médical de Blida : 60 minutes et système de cœurs.",
+    ),
   component: ExamIntro,
 });
 
@@ -44,7 +48,10 @@ function ExamIntro() {
       try {
         const [{ data: exam }, { count }] = await Promise.all([
           supabase.from("exams").select("*").eq("id", examId).maybeSingle(),
-          supabase.from("questions").select("id", { count: "exact", head: true }).eq("exam_id", examId),
+          supabase
+            .from("questions")
+            .select("id", { count: "exact", head: true })
+            .eq("exam_id", examId),
         ]);
 
         if (exam) {
@@ -159,7 +166,9 @@ function ExamIntro() {
         {!heartStatus.unlimited && heartStatus.secondsToNext > 0 && (
           <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 text-center text-xs font-semibold text-amber-900">
             ⏳ يتجدد القلب التالي تلقائياً خلال:{" "}
-            <span className="font-mono text-sm">{formatHeartCountdown(heartStatus.secondsToNext)}</span>{" "}
+            <span className="font-mono text-sm">
+              {formatHeartCountdown(heartStatus.secondsToNext)}
+            </span>{" "}
             (كل ساعتين +1 ❤️)
           </div>
         )}

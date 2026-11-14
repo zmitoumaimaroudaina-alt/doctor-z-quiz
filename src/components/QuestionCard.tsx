@@ -56,9 +56,7 @@ export function QuestionCard({
         <div className="flex gap-1">
           <MistakeBadge m={mistake} />
           {q.needs_review && (
-            <span className="rounded-full bg-warning/30 px-2 py-0.5 text-[10px]">
-              À vérifier
-            </span>
+            <span className="rounded-full bg-warning/30 px-2 py-0.5 text-[10px]">À vérifier</span>
           )}
         </div>
       </div>
@@ -81,11 +79,11 @@ export function QuestionCard({
                   ? ok
                     ? "border-success bg-success/10"
                     : on
-                    ? "border-destructive bg-destructive/10"
-                    : ""
+                      ? "border-destructive bg-destructive/10"
+                      : ""
                   : on
-                  ? "border-primary bg-primary-soft"
-                  : "hover:bg-muted"
+                    ? "border-primary bg-primary-soft"
+                    : "hover:bg-muted"
               }`}
             >
               <span

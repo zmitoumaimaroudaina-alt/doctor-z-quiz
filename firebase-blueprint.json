@@ -1,0 +1,52 @@
+{
+  "entities": {
+    "Student": {
+      "title": "Student",
+      "description": "Student profile and score data",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string", "maxLength": 150 },
+        "avatar": { "type": ["object", "null"] },
+        "score": { "type": "number" },
+        "xp": { "type": "number" },
+        "createdAt": { "type": ["object", "string", "null"] },
+        "lastLogin": { "type": ["object", "string", "null"] }
+      },
+      "required": ["uid", "name", "email", "score"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "Discussion message between students",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "sender": { "type": "string", "maxLength": 100 },
+        "senderId": { "type": "string", "maxLength": 128 },
+        "avatar": { "type": ["object", "null"] },
+        "pet": { "type": ["string", "null"] },
+        "module": { "type": "string", "maxLength": 100 },
+        "isCreator": { "type": "boolean" },
+        "body": { "type": "string", "maxLength": 1000 },
+        "kind": { "type": "string", "enum": ["chat", "feedback", "tip", "question"] },
+        "createdAt": { "type": ["object", "string", "null"] },
+        "likes": { "type": "number" },
+        "tomatoes": { "type": "number" },
+        "claps": { "type": "number" },
+        "ideas": { "type": "number" }
+      },
+      "required": ["sender", "senderId", "body", "kind"]
+    }
+  },
+  "firestore": {
+    "/students/{uid}": {
+      "schema": "Student",
+      "description": "Student profiles collection"
+    },
+    "/messages/{messageId}": {
+      "schema": "Message",
+      "description": "Discussion messages collection"
+    }
+  }
+}

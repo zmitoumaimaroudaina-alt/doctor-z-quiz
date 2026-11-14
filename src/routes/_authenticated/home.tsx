@@ -22,13 +22,22 @@ function Home() {
         <div className="flex items-center gap-4">
           <Avatar config={me.avatar} mood="happy" size={110} pet={me.pet} />
           <div>
-            <p className="text-sm opacity-90">Université Saad Dahleb – Blida 1 · Faculté de Médecine</p>
-            <h1 className="font-display text-2xl font-bold sm:text-3xl">Salut {me.display_name} 👋</h1>
+            <p className="text-sm opacity-90">
+              Université Saad Dahleb – Blida 1 · Faculté de Médecine
+            </p>
+            <h1 className="font-display text-2xl font-bold sm:text-3xl">
+              Salut {me.display_name} 👋
+            </h1>
             <p className="ar opacity-90">مرحبا! واش راك حاب تراجع اليوم؟</p>
             <div className="mt-3 h-2 w-48 overflow-hidden rounded-full bg-primary-foreground/30">
-              <div className="h-full rounded-full bg-gold" style={{ width: `${me.isCreator ? 100 : Math.round(lv.progress * 100)}%` }} />
+              <div
+                className="h-full rounded-full bg-gold"
+                style={{ width: `${me.isCreator ? 100 : Math.round(lv.progress * 100)}%` }}
+              />
             </div>
-            <p className="mt-1 text-xs opacity-90">Niveau {me.isCreator ? "∞" : lv.level} · {me.xp} XP {me.isCreator && "· 👑 Creator"}</p>
+            <p className="mt-1 text-xs opacity-90">
+              Niveau {me.isCreator ? "∞" : lv.level} · {me.xp} XP {me.isCreator && "· 👑 Creator"}
+            </p>
           </div>
         </div>
       </section>
@@ -84,19 +93,73 @@ function Home() {
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <Tile to="/examens" icon="📝" title="QCM Examens" sub="Matière → Année → Examen · 60 min" />
         <Tile to="/cours" icon="📚" title="QCM par Cours" sub="Matière → Cours → QCM" />
-        <Tile to="/mes-cours" icon="📄" title="Mes cours PDF" sub="Générer des QCM IA depuis tes cours" />
-        <Tile to="/mes-erreurs" icon="🔁" title="QCM أخطائي السابقة" sub="Rejoue tes anciennes erreurs" />
-        <Tile to="/leaderboard" icon="🏆" title="Participants & Classement" sub="جدول المشاركين والتصنيف حسب التحديات 🍅" />
+        <Tile
+          to="/mes-cours"
+          icon="📄"
+          title="Mes cours PDF"
+          sub="Générer des QCM IA depuis tes cours"
+        />
+        <Tile
+          to="/mes-erreurs"
+          icon="🔁"
+          title="QCM أخطائي السابقة"
+          sub="Rejoue tes anciennes erreurs"
+        />
+        <Tile
+          to="/leaderboard"
+          icon="🏆"
+          title="Participants & Classement"
+          sub="جدول المشاركين والتصنيف حسب التحديات 🍅"
+        />
         <Tile to="/missions" icon="🎯" title="Missions" sub="Quotidiennes & hebdomadaires" />
         <Tile to="/profile" icon="👤" title="Mon profil" sub="Avatar, animal, styles & bulle" />
-        <Tile to="/settings" icon="⚙️" title="Paramètres & Sons" sub="Volume, test des effets sonores & ressources" />
+        <Tile
+          to="/settings"
+          icon="⚙️"
+          title="Paramètres & Sons"
+          sub="Volume, test des effets sonores & ressources"
+        />
       </div>
 
-      <Link to="/questions-a-verifier" className="mt-6 block text-sm font-semibold text-warning-foreground">⚠ Questions à vérifier · أسئلة تحتاج مراجعة</Link>
+      <Link
+        to="/questions-a-verifier"
+        className="mt-6 block text-sm font-semibold text-warning-foreground"
+      >
+        ⚠ Questions à vérifier · أسئلة تحتاج مراجعة
+      </Link>
     </AppShell>
   );
 }
 
-function Tile({ to, icon, title, sub }: { to: "/examens" | "/cours" | "/mes-cours" | "/mes-erreurs" | "/leaderboard" | "/missions" | "/profile" | "/settings"; icon: string; title: string; sub: string }) {
-  return <Link to={to} className="card-game flex items-center gap-3 p-4 hover:shadow-pop transition-shadow"><span className="text-3xl">{icon}</span><div><h2 className="font-display font-bold">{title}</h2><p className="text-sm text-muted-foreground">{sub}</p></div></Link>;
+function Tile({
+  to,
+  icon,
+  title,
+  sub,
+}: {
+  to:
+    | "/examens"
+    | "/cours"
+    | "/mes-cours"
+    | "/mes-erreurs"
+    | "/leaderboard"
+    | "/missions"
+    | "/profile"
+    | "/settings";
+  icon: string;
+  title: string;
+  sub: string;
+}) {
+  return (
+    <Link
+      to={to}
+      className="card-game flex items-center gap-3 p-4 hover:shadow-pop transition-shadow"
+    >
+      <span className="text-3xl">{icon}</span>
+      <div>
+        <h2 className="font-display font-bold">{title}</h2>
+        <p className="text-sm text-muted-foreground">{sub}</p>
+      </div>
+    </Link>
+  );
 }

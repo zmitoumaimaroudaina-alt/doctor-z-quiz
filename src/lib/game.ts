@@ -1,6 +1,9 @@
 export const EXAM_DURATION_SECONDS = 3600;
 export function examSecondsLeft(startedAt: string, now = Date.now()) {
-  return Math.max(0, Math.ceil((new Date(startedAt).getTime() + EXAM_DURATION_SECONDS * 1000 - now) / 1000));
+  return Math.max(
+    0,
+    Math.ceil((new Date(startedAt).getTime() + EXAM_DURATION_SECONDS * 1000 - now) / 1000),
+  );
 }
 
 export const CREATOR_EMAIL = "doctorzmit@gmail.com";
@@ -31,14 +34,30 @@ export function moodFrom(streak: number): Mood {
   return "neutral";
 }
 
-export const BUBBLES = ["Yallah! 💪", "Wech, rani hna 😎", "Révise bien!", "QCM master 🧠", "Doctor en devenir 🩺", "Ma tkhafch 😄"];
+export const BUBBLES = [
+  "Yallah! 💪",
+  "Wech, rani hna 😎",
+  "Révise bien!",
+  "QCM master 🧠",
+  "Doctor en devenir 🩺",
+  "Ma tkhafch 😄",
+];
 
-export const fmtTime = (s: number) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+export const fmtTime = (s: number) =>
+  `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
 
 export const RESOURCES = [
-  { label: "Doctor Z — YouTube", href: "https://youtube.com/@doctorz-i2007?si=nZg18vbKQGGshfbu", icon: "▶️" },
-  { label: "Med Support — Telegram", href: "https://t.me/+ubEdEFjoMtllYZcE8", icon: "✈️" },
-  { label: "Med Support — YouTube", href: "https://youtube.com/@medisuppor1?si=YL2jAcqpSdClp0ep", icon: "▶️" },
+  {
+    label: "Doctor Z — YouTube",
+    href: "https://youtube.com/@doctorz-i2007?si=nZg18vbKQGGshfbu",
+    icon: "▶️",
+  },
+  { label: "Med Support — Telegram", href: "https://t.me/+hYygCoAJR2s5NTFk", icon: "✈️" },
+  {
+    label: "Med Support — YouTube",
+    href: "https://youtube.com/@medisuppor1?si=YL2jAcqpSdClp0ep",
+    icon: "▶️",
+  },
 ];
 
 export const rpcError = (e: unknown) => {
@@ -67,7 +86,11 @@ export type TomatoHitRecord = {
   throwerName?: string;
 };
 
-export function recordLocalTomatoHit(userId: string, throwerId?: string, throwerName?: string): number {
+export function recordLocalTomatoHit(
+  userId: string,
+  throwerId?: string,
+  throwerName?: string,
+): number {
   if (typeof window === "undefined") return Date.now() + TOMATO_DURATION_MS;
   const until = Date.now() + TOMATO_DURATION_MS;
   try {
@@ -85,7 +108,11 @@ export function recordLocalTomatoHit(userId: string, throwerId?: string, thrower
   return until;
 }
 
-export function getTomatoHitDetails(userId: string): { isHit: boolean; hoursLeft: number; throwerName?: string } {
+export function getTomatoHitDetails(userId: string): {
+  isHit: boolean;
+  hoursLeft: number;
+  throwerName?: string;
+} {
   if (typeof window === "undefined") return { isHit: false, hoursLeft: 0 };
   try {
     const raw = localStorage.getItem("doctorz_tomato_hits") || "{}";

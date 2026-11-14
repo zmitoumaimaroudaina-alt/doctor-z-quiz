@@ -1,6 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { Avatar, type AvatarConfig, SKINS, HAIR_COLORS, HIJAB_COLORS, OUTFITS, OPTIONS } from "./Avatar";
+import {
+  Avatar,
+  type AvatarConfig,
+  SKINS,
+  HAIR_COLORS,
+  HIJAB_COLORS,
+  OUTFITS,
+  OPTIONS,
+} from "./Avatar";
 import { PETS } from "@/lib/game";
 import { play } from "@/lib/sound";
 import { useAvatarSettings, type AvatarDisabled } from "@/hooks/useAvatarSettings";
@@ -18,60 +26,202 @@ const STYLE_PRESETS = [
   {
     name: "🩺 طبيب رسمي",
     sub: "Blouse Blanche Classique",
-    cfg: { gender: "m" as const, skin: 1, eyes: 0, nose: 0, mouth: 0, hair: 0, hairColor: 0, hijab: 0, hijabStyle: 0, outfit: 0, accessory: 1, glasses: 0, beard: 0, moustache: 0 },
+    cfg: {
+      gender: "m" as const,
+      skin: 1,
+      eyes: 0,
+      nose: 0,
+      mouth: 0,
+      hair: 0,
+      hairColor: 0,
+      hijab: 0,
+      hijabStyle: 0,
+      outfit: 0,
+      accessory: 1,
+      glasses: 0,
+      beard: 0,
+      moustache: 0,
+    },
     pet: "cat",
   },
   {
     name: "🧕 طبيبة بحجاب كلاسيكي",
     sub: "Hijab Médical Blanc",
-    cfg: { gender: "f" as const, skin: 1, eyes: 1, nose: 0, mouth: 2, hair: 2, hairColor: 0, hijab: 1, hijabStyle: 0, outfit: 0, accessory: 1, glasses: 0, beard: 0, moustache: 0 },
+    cfg: {
+      gender: "f" as const,
+      skin: 1,
+      eyes: 1,
+      nose: 0,
+      mouth: 2,
+      hair: 2,
+      hairColor: 0,
+      hijab: 1,
+      hijabStyle: 0,
+      outfit: 0,
+      accessory: 1,
+      glasses: 0,
+      beard: 0,
+      moustache: 0,
+    },
     pet: "cat",
   },
   {
     name: "🧕 خمار شرعي منسدل",
     sub: "Khimar Couvrant & Élégant",
-    cfg: { gender: "f" as const, skin: 1, eyes: 0, nose: 0, mouth: 0, hair: 2, hairColor: 0, hijab: 3, hijabStyle: 1, outfit: 0, accessory: 1, glasses: 1, beard: 0, moustache: 0 },
+    cfg: {
+      gender: "f" as const,
+      skin: 1,
+      eyes: 0,
+      nose: 0,
+      mouth: 0,
+      hair: 2,
+      hairColor: 0,
+      hijab: 3,
+      hijabStyle: 1,
+      outfit: 0,
+      accessory: 1,
+      glasses: 1,
+      beard: 0,
+      moustache: 0,
+    },
     pet: "cat",
   },
   {
     name: "🧕 توربان عصري أنيق",
     sub: "Turban Chic Moderne",
-    cfg: { gender: "f" as const, skin: 2, eyes: 2, nose: 1, mouth: 2, hair: 2, hairColor: 0, hijab: 4, hijabStyle: 2, outfit: 1, accessory: 1, glasses: 2, beard: 0, moustache: 0 },
+    cfg: {
+      gender: "f" as const,
+      skin: 2,
+      eyes: 2,
+      nose: 1,
+      mouth: 2,
+      hair: 2,
+      hairColor: 0,
+      hijab: 4,
+      hijabStyle: 2,
+      outfit: 1,
+      accessory: 1,
+      glasses: 2,
+      beard: 0,
+      moustache: 0,
+    },
     pet: "owl",
   },
   {
     name: "🧕 شال تركي بقمة مثلثة",
     sub: "Châle Style Turc Pointu",
-    cfg: { gender: "f" as const, skin: 0, eyes: 1, nose: 0, mouth: 0, hair: 2, hairColor: 0, hijab: 5, hijabStyle: 3, outfit: 0, accessory: 1, glasses: 0, beard: 0, moustache: 0 },
+    cfg: {
+      gender: "f" as const,
+      skin: 0,
+      eyes: 1,
+      nose: 0,
+      mouth: 0,
+      hair: 2,
+      hairColor: 0,
+      hijab: 5,
+      hijabStyle: 3,
+      outfit: 0,
+      accessory: 1,
+      glasses: 0,
+      beard: 0,
+      moustache: 0,
+    },
     pet: "rabbit",
   },
   {
     name: "🏥 جراحة ببوني العمليات",
     sub: "Bonnet Chirurgical de Bloc",
-    cfg: { gender: "f" as const, skin: 2, eyes: 3, nose: 2, mouth: 3, hair: 4, hairColor: 0, hijab: 7, hijabStyle: 4, outfit: 1, accessory: 1, glasses: 0, beard: 0, moustache: 0 },
+    cfg: {
+      gender: "f" as const,
+      skin: 2,
+      eyes: 3,
+      nose: 2,
+      mouth: 3,
+      hair: 4,
+      hairColor: 0,
+      hijab: 7,
+      hijabStyle: 4,
+      outfit: 1,
+      accessory: 1,
+      glasses: 0,
+      beard: 0,
+      moustache: 0,
+    },
     pet: "dog",
   },
   {
     name: "🧕 شال منسدل على الكتف",
     sub: "Foulard Drapé d'Épaule",
-    cfg: { gender: "f" as const, skin: 2, eyes: 1, nose: 0, mouth: 2, hair: 2, hairColor: 0, hijab: 8, hijabStyle: 5, outfit: 0, accessory: 1, glasses: 1, beard: 0, moustache: 0 },
+    cfg: {
+      gender: "f" as const,
+      skin: 2,
+      eyes: 1,
+      nose: 0,
+      mouth: 2,
+      hair: 2,
+      hairColor: 0,
+      hijab: 8,
+      hijabStyle: 5,
+      outfit: 0,
+      accessory: 1,
+      glasses: 1,
+      beard: 0,
+      moustache: 0,
+    },
     pet: "fox",
   },
   {
     name: "🏥 جراح العمليات (رجالي)",
     sub: "Scrubs Bloc Vert",
-    cfg: { gender: "m" as const, skin: 2, eyes: 0, nose: 2, mouth: 0, hair: 4, hairColor: 1, hijab: 0, hijabStyle: 0, outfit: 2, accessory: 1, glasses: 1, beard: 0, moustache: 0 },
+    cfg: {
+      gender: "m" as const,
+      skin: 2,
+      eyes: 0,
+      nose: 2,
+      mouth: 0,
+      hair: 4,
+      hairColor: 1,
+      hijab: 0,
+      hijabStyle: 0,
+      outfit: 2,
+      accessory: 1,
+      glasses: 1,
+      beard: 0,
+      moustache: 0,
+    },
     pet: "dog",
   },
   {
     name: "👑 أسلوب Doctor Z",
     sub: "Style Créateur Officiel",
-    cfg: { gender: "m" as const, skin: 1, eyes: 2, nose: 0, mouth: 2, hair: 9, hairColor: 0, hijab: 0, hijabStyle: 0, outfit: 0, accessory: 1, glasses: 1, beard: 1, moustache: 0 },
+    cfg: {
+      gender: "m" as const,
+      skin: 1,
+      eyes: 2,
+      nose: 0,
+      mouth: 2,
+      hair: 9,
+      hairColor: 0,
+      hijab: 0,
+      hijabStyle: 0,
+      outfit: 0,
+      accessory: 1,
+      glasses: 1,
+      beard: 1,
+      moustache: 0,
+    },
     pet: "lion",
   },
 ];
 
-export function AvatarEditor({ initial, pet: initialPet, level, unlockAll, onSave, saving }: Props) {
+export function AvatarEditor({
+  initial,
+  pet: initialPet,
+  level,
+  unlockAll,
+  onSave,
+  saving,
+}: Props) {
   const { data: disabled } = useAvatarSettings();
   const [c, setC] = useState<AvatarConfig>({ gender: "m", skin: 1, accessory: 1, ...initial });
   const [pet, setPet] = useState<string | null>(initialPet ?? "cat");
@@ -84,15 +234,27 @@ export function AvatarEditor({ initial, pet: initialPet, level, unlockAll, onSav
   const isHidden = (k: keyof AvatarConfig, idx: number) =>
     !unlockAll && idx > 0 && (disabled?.[k as keyof AvatarDisabled]?.includes(idx) ?? false);
 
-  function applyPreset(preset: typeof STYLE_PRESETS[number]) {
+  function applyPreset(preset: (typeof STYLE_PRESETS)[number]) {
     play("unlock");
     setC({ ...preset.cfg });
     if (preset.pet) setPet(preset.pet);
   }
 
-  const Row = ({ label, k, items, lockAt = [] as number[] }: { label: string; k: keyof AvatarConfig; items: string[]; lockAt?: number[] }) => (
+  const Row = ({
+    label,
+    k,
+    items,
+    lockAt = [] as number[],
+  }: {
+    label: string;
+    k: keyof AvatarConfig;
+    items: string[];
+    lockAt?: number[];
+  }) => (
     <div>
-      <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        {label}
+      </div>
       <div className="flex flex-wrap gap-1.5">
         {items.map((it, i) => {
           if (isHidden(k, i)) return null;
@@ -105,10 +267,14 @@ export function AvatarEditor({ initial, pet: initialPet, level, unlockAll, onSav
               disabled={lk}
               onClick={() => set(k, i)}
               className={`rounded-lg border px-2.5 py-1 text-xs ${
-                c[k] === i ? "border-primary bg-primary-soft text-primary font-bold shadow-sm" : "bg-card"
+                c[k] === i
+                  ? "border-primary bg-primary-soft text-primary font-bold shadow-sm"
+                  : "bg-card"
               } disabled:opacity-40`}
             >
-              {lk ? "🔒 " : ""}{it}{lk ? ` (Nv ${lockAt[i]})` : ""}
+              {lk ? "🔒 " : ""}
+              {it}
+              {lk ? ` (Nv ${lockAt[i]})` : ""}
             </Button>
           );
         })}
@@ -116,9 +282,21 @@ export function AvatarEditor({ initial, pet: initialPet, level, unlockAll, onSav
     </div>
   );
 
-  const Swatches = ({ label, k, colors, start = 0 }: { label: string; k: keyof AvatarConfig; colors: string[]; start?: number }) => (
+  const Swatches = ({
+    label,
+    k,
+    colors,
+    start = 0,
+  }: {
+    label: string;
+    k: keyof AvatarConfig;
+    colors: string[];
+    start?: number;
+  }) => (
     <div>
-      <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        {label}
+      </div>
       <div className="flex flex-wrap gap-2">
         {colors.map((col, i) =>
           i < start ? null : (
@@ -134,7 +312,7 @@ export function AvatarEditor({ initial, pet: initialPet, level, unlockAll, onSav
               aria-label={`${label} ${i}`}
               aria-pressed={c[k] === i}
             />
-          )
+          ),
         )}
       </div>
     </div>
@@ -150,7 +328,8 @@ export function AvatarEditor({ initial, pet: initialPet, level, unlockAll, onSav
         <div className="flex-1 w-full text-center sm:text-left">
           <h2 className="font-display text-xl font-bold">صمّم شخصيتك الطبية (Avatar)</h2>
           <p className="text-xs text-muted-foreground mt-1">
-            خصص مظهر طبيبك، اختر أسلوب الحجاب المتناسق والزي الطبي، واحفظ تعديلاتك ليرى زملاؤك تميزك في قائمة الأوائل.
+            خصص مظهر طبيبك، اختر أسلوب الحجاب المتناسق والزي الطبي، واحفظ تعديلاتك ليرى زملاؤك تميزك
+            في قائمة الأوائل.
           </p>
           <div className="mt-4 flex flex-wrap gap-2 justify-center sm:justify-start">
             <Button
@@ -196,7 +375,9 @@ export function AvatarEditor({ initial, pet: initialPet, level, unlockAll, onSav
                 type="button"
                 onClick={() => set("gender", g)}
                 className={`rounded-xl border px-4 py-1.5 text-xs font-medium ${
-                  c.gender === g ? "border-primary bg-primary-soft text-primary font-bold shadow-sm" : ""
+                  c.gender === g
+                    ? "border-primary bg-primary-soft text-primary font-bold shadow-sm"
+                    : ""
                 }`}
               >
                 {g === "m" ? "👦 Garçon (طالب)" : "👧 Fille (طالبة)"}
@@ -227,7 +408,9 @@ export function AvatarEditor({ initial, pet: initialPet, level, unlockAll, onSav
                   type="button"
                   onClick={() => set("hijab", i + 1)}
                   className={`h-8 w-8 p-0 rounded-full border-2 transition-transform ${
-                    c.hijab === i + 1 ? "border-primary ring-2 ring-primary/40 scale-110" : "border-border"
+                    c.hijab === i + 1
+                      ? "border-primary ring-2 ring-primary/40 scale-110"
+                      : "border-border"
                   }`}
                   style={{ background: col }}
                   aria-label={`Hijab ${i + 1}`}
@@ -260,9 +443,17 @@ export function AvatarEditor({ initial, pet: initialPet, level, unlockAll, onSav
           </>
         )}
 
-        <Row label="Tenue médicale (الملابس والزي الطبي)" k="outfit" items={OUTFITS.map((o) => o.name)} />
+        <Row
+          label="Tenue médicale (الملابس والزي الطبي)"
+          k="outfit"
+          items={OUTFITS.map((o) => o.name)}
+        />
         <Row label="Lunettes (النظارات)" k="glasses" items={OPTIONS.glasses} />
-        <Row label="Accessoire médical (السماعة والملحقات)" k="accessory" items={OPTIONS.accessory} />
+        <Row
+          label="Accessoire médical (السماعة والملحقات)"
+          k="accessory"
+          items={OPTIONS.accessory}
+        />
 
         {/* Pet */}
         <div className="border-t border-border pt-3">
@@ -283,7 +474,9 @@ export function AvatarEditor({ initial, pet: initialPet, level, unlockAll, onSav
                     setPet(p.id);
                   }}
                   className={`rounded-xl border px-3 py-1.5 text-xs flex items-center gap-1.5 ${
-                    pet === p.id ? "border-primary bg-primary-soft text-primary font-bold shadow-sm" : ""
+                    pet === p.id
+                      ? "border-primary bg-primary-soft text-primary font-bold shadow-sm"
+                      : ""
                   } disabled:opacity-40`}
                 >
                   <span className="text-base">{p.emoji}</span>

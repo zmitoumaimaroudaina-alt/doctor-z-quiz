@@ -1,23 +1,17 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { auth, db, handleFirestoreError, OperationType } from "@/lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
 import type { AvatarConfig } from "@/components/Avatar";
-import {
-  buildDefaultProfile,
-  getSavedProfileByEmail,
-  normalizeEmail,
-  saveProfileDurable,
-} from "@/lib/profileStore";
 
 export type Me = {
   id: string;
   email: string | null;
   display_name: string | null;
-  avatar: AvatarConfig;
+  avatar: AvatarConfig | null;
   pet: string | null;
   bubble: string | null;
   xp: number;
-  coins: number;
-  streak: number;
+  score: number;
   sound_on: boolean;
   onboarded: boolean;
   isCreator: boolean;
@@ -25,86 +19,63 @@ export type Me = {
 
 export function useMe() {
   return useQuery({
-    queryKey: ["me"],
+    queryKey: ["me", auth.currentUser?.uid],
     queryFn: async (): Promise<Me | null> => {
-      let userObj: { id: string; email?: string | null; user_metadata?: { full_name?: string } } | null = null;
-      try {
-        const { data: u } = await supabase.auth.getUser();
-        if (u?.user) userObj = u.user;
-      } catch {
-        // ignore
+      let currentUser = auth.currentUser;
+      if (!currentUser) {
+        await new Promise((resolve) => {
+          const unsub = auth.onAuthStateChanged((u) => {
+            unsub();
+            resolve(u);
+          });
+        });
+        currentUser = auth.currentUser;
       }
 
-      if (!userObj && typeof window !== "undefined") {
-        const local = localStorage.getItem("doctorz_user");
-        if (local) {
-          try {
-            userObj = JSON.parse(local);
-          } catch {
-            /* ignore */
-          }
-        }
-      }
+      if (!currentUser) return null;
 
-      if (!userObj) return null;
-
-      const email = normalizeEmail(userObj.email) || "etudiant@univ-blida.dz";
+      const uid = currentUser.uid;
+      const email = currentUser.email || "";
       const isDoctorZ = email === "doctorzmit@gmail.com";
-      const savedLocal = getSavedProfileByEmail(email);
 
       try {
-        const [{ data: p }, { data: creator }] = await Promise.all([
-          supabase
-            .from("profiles")
-            .select("id, display_name, avatar, pet, bubble, xp, coins, streak, sound_on, onboarded")
-            .eq("id", userObj.id)
-            .maybeSingle(),
-          supabase.rpc("is_creator"),
-        ]);
-        if (p) {
-          const merged: Me = {
-            ...(p as unknown as Omit<Me, "email" | "isCreator">),
-            // Prefer savedLocal avatar/pet/display_name if local profile has edits for this email
-            display_name: savedLocal?.display_name ?? (p as { display_name?: string | null }).display_name ?? null,
-            avatar: savedLocal?.avatar ?? (p as { avatar: AvatarConfig }).avatar,
-            pet: savedLocal?.pet ?? (p as { pet?: string | null }).pet ?? null,
-            bubble: savedLocal?.bubble ?? (p as { bubble?: string | null }).bubble ?? null,
-            xp: Math.max(Number((p as { xp?: number }).xp ?? 0), Number(savedLocal?.xp ?? 0)),
-            coins: Math.max(Number((p as { coins?: number }).coins ?? 0), Number(savedLocal?.coins ?? 0)),
+        const docRef = doc(db, "students", uid);
+        const snap = await getDoc(docRef);
+        if (snap.exists()) {
+          const data = snap.data();
+          return {
+            id: uid,
             email,
-            isCreator: creator === true || isDoctorZ,
+            display_name: data.name || currentUser.displayName || email.split("@")[0] || "Étudiant",
+            avatar: data.avatar ?? null,
+            pet: data.pet ?? null,
+            bubble: data.bubble ?? null,
+            xp: Number(data.xp ?? 0),
+            score: Number(data.score ?? 0),
+            sound_on: true,
+            onboarded: data.avatar != null,
+            isCreator: isDoctorZ,
           };
-          saveProfileDurable(email, merged);
-          return merged;
         }
-      } catch {
-        // ignore
+      } catch (error) {
+        handleFirestoreError(error, OperationType.GET, `students/${uid}`);
       }
-
-      const fallback =
-        savedLocal ??
-        saveProfileDurable(
-          email,
-          buildDefaultProfile(email, userObj.user_metadata?.full_name, isDoctorZ),
-          userObj.user_metadata?.full_name,
-        )!;
 
       return {
-        id: userObj.id,
+        id: uid,
         email,
-        display_name: fallback.display_name,
-        avatar: fallback.avatar,
-        pet: fallback.pet,
-        bubble: fallback.bubble,
-        xp: fallback.xp,
-        coins: fallback.coins,
-        streak: fallback.streak,
-        sound_on: fallback.sound_on,
-        onboarded: fallback.onboarded,
-        isCreator: isDoctorZ || fallback.isCreator,
+        display_name: currentUser.displayName || email.split("@")[0] || "Étudiant",
+        avatar: null,
+        pet: null,
+        bubble: null,
+        xp: 0,
+        score: 0,
+        sound_on: true,
+        onboarded: false,
+        isCreator: isDoctorZ,
       };
     },
-    staleTime: 10_000,
+    staleTime: 5000,
   });
 }
 

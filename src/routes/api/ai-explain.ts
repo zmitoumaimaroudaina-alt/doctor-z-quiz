@@ -58,11 +58,8 @@ export const Route = createFileRoute("/api/ai-explain")({
           getCachedExplanation,
           setCachedExplanation,
         } = await import("@/lib/ai-quota.server");
-        const {
-          classifyGeminiError,
-          hasGeminiApiKey,
-          streamMedicalExplanation,
-        } = await import("@/lib/gemini.server");
+        const { classifyGeminiError, hasGeminiApiKey, streamMedicalExplanation } =
+          await import("@/lib/gemini.server");
         const { readServerOverrides } = await import("@/lib/questionOverrides.server");
 
         const student = await authenticateStudentRequest(request);
@@ -73,7 +70,11 @@ export const Route = createFileRoute("/api/ai-explain")({
         const url = process.env["SUPABASE_URL"];
         const pub = process.env["SUPABASE_PUBLISHABLE_KEY"];
 
-        let q: { stem: string; case_text: string | null; options: { key: string; text: string }[] } | null = null;
+        let q: {
+          stem: string;
+          case_text: string | null;
+          options: { key: string; text: string }[];
+        } | null = null;
         let k: { correct: string[]; explanation: string | null; note: string | null } | null = null;
 
         if (bodyQ && bodyK) {
@@ -160,7 +161,13 @@ export const Route = createFileRoute("/api/ai-explain")({
             explanation: ovK.explanation !== undefined ? ovK.explanation : k.explanation,
             note: ovK.note !== undefined ? ovK.note : k.note,
           };
-        } else if (ovK && bodyK && ovK.correct && ovK.correct.length > 0 && bodyK.correct.length === 0) {
+        } else if (
+          ovK &&
+          bodyK &&
+          ovK.correct &&
+          ovK.correct.length > 0 &&
+          bodyK.correct.length === 0
+        ) {
           k = {
             correct: ovK.correct,
             explanation: ovK.explanation !== undefined ? ovK.explanation : k.explanation,
@@ -172,8 +179,12 @@ export const Route = createFileRoute("/api/ai-explain")({
         const normalizedSelected = [...new Set(selected.map((s) => s.trim().toUpperCase()))].sort();
 
         if (!hasGeminiApiKey()) {
-          const officialText = normalizedCorrect.length ? normalizedCorrect.join(", ") : "non disponible";
-          const selText = normalizedSelected.length ? normalizedSelected.join(", ") : "aucune réponse";
+          const officialText = normalizedCorrect.length
+            ? normalizedCorrect.join(", ")
+            : "non disponible";
+          const selText = normalizedSelected.length
+            ? normalizedSelected.join(", ")
+            : "aucune réponse";
           const parts = [
             `Réponse officielle : ${officialText} (ta réponse : ${selText}).`,
             k.explanation ? `Explication de la source : ${k.explanation}` : null,
@@ -291,9 +302,7 @@ ORIGINE : Questions de la Faculté de Médecine de l’Université de Blida (ne 
                   const delta = chunk.text ?? "";
                   if (delta) {
                     fullText += delta;
-                    controller.enqueue(
-                      sseEvent({ type: "response.output_text.delta", delta }),
-                    );
+                    controller.enqueue(sseEvent({ type: "response.output_text.delta", delta }));
                   }
                 }
                 if (isInitial && fullText.trim()) {

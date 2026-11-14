@@ -10,13 +10,23 @@ import { QuestionCard } from "@/components/QuestionCard";
 import { useMe, useRefreshMe } from "@/hooks/useMe";
 import { fetchMistakesFor, type Question } from "@/lib/queries";
 import { fmtTime, moodFrom, EXAM_DURATION_SECONDS, examSecondsLeft } from "@/lib/game";
-import { evaluateQuestionAnswer, getBundledExam, normalizeExamTitle, recordQuestionMistake } from "@/lib/medicalData";
+import {
+  evaluateQuestionAnswer,
+  getBundledExam,
+  normalizeExamTitle,
+  recordQuestionMistake,
+} from "@/lib/medicalData";
 import { recordChallengeParticipation } from "@/lib/leaderboardStore";
 import { saveProfileDurable } from "@/lib/profileStore";
 import { play } from "@/lib/sound";
+import { addStudentScore } from "@/lib/studentService";
 
 export const Route = createFileRoute("/_authenticated/play/$attemptId")({
-  head: () => pageMetadata("Examen en cours", "Examen médical chronométré de la Faculté de Médecine de Blida."),
+  head: () =>
+    pageMetadata(
+      "Examen en cours",
+      "Examen médical chronométré de la Faculté de Médecine de Blida.",
+    ),
   component: Play,
 });
 
@@ -73,7 +83,9 @@ function Play() {
             return {
               a,
               qs: (qs ?? []) as unknown as Question[],
-              exam: exam ? { title: normalizeExamTitle(exam) } : { title: "Unité 01 ; cardio 🫀 3 ème année med" },
+              exam: exam
+                ? { title: normalizeExamTitle(exam) }
+                : { title: "Unité 01 ; cardio 🫀 3 ème année med" },
               mistakes,
             };
           }
@@ -101,7 +113,9 @@ function Play() {
       return {
         a: localA,
         qs: bundled.questions,
-        exam: bundled.exam ? { title: bundled.exam.title } : { title: "Unité 01 ; cardio 🫀 3 ème année med" },
+        exam: bundled.exam
+          ? { title: bundled.exam.title }
+          : { title: "Unité 01 ; cardio 🫀 3 ème année med" },
         mistakes: new Map(),
       };
     },
@@ -205,6 +219,12 @@ function Play() {
           correctCount,
           totalCount: qs.length,
         });
+
+        try {
+          await addStudentScore(me.id, Math.round(score20), correctCount * 10);
+        } catch (error) {
+          console.error("Failed to update student score in Firestore:", error);
+        }
       }
 
       if (me?.email && correctCount > 0) {
@@ -255,13 +275,19 @@ function Play() {
     if (isLocalAttempt) {
       try {
         const prevLocal = JSON.parse(localStorage.getItem(`attempt_${attemptId}`) || "{}");
-        localStorage.setItem(`attempt_${attemptId}`, JSON.stringify({ ...prevLocal, answers: all }));
+        localStorage.setItem(
+          `attempt_${attemptId}`,
+          JSON.stringify({ ...prevLocal, answers: all }),
+        );
       } catch {
         // ignore
       }
     } else {
       try {
-        const { error: saveError } = await supabase.rpc("save_exam_answers", { _attempt: attemptId, _answers: all });
+        const { error: saveError } = await supabase.rpc("save_exam_answers", {
+          _attempt: attemptId,
+          _answers: all,
+        });
         if (saveError) {
           toast.error("Réponse non enregistrée : vérifie la connexion.");
           return;
@@ -331,7 +357,9 @@ function Play() {
           <div className="flex items-center gap-2">
             <Avatar config={me?.avatar} mood={mood} size={48} />
             <div>
-              <strong className={left < 300 ? "text-destructive" : "text-primary"}>{fmtTime(left)}</strong>
+              <strong className={left < 300 ? "text-destructive" : "text-primary"}>
+                {fmtTime(left)}
+              </strong>
               <p className="text-xs">{moodText}</p>
             </div>
           </div>

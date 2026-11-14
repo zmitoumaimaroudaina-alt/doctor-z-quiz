@@ -18,7 +18,8 @@ import {
 import { play } from "@/lib/sound";
 
 export const Route = createFileRoute("/_authenticated/course/$courseId")({
-  head: () => pageMetadata("Entraînement par cours", "QCM de médecine par cours et résultats sauvegardés."),
+  head: () =>
+    pageMetadata("Entraînement par cours", "QCM de médecine par cours et résultats sauvegardés."),
   component: Course,
 });
 
@@ -36,7 +37,11 @@ function Course() {
       if (!courseId.startsWith("course-uei1-2025")) {
         try {
           const [{ data: c }, { data: qs }] = await Promise.all([
-            supabase.from("courses").select("title, subjects(name)").eq("id", courseId).maybeSingle(),
+            supabase
+              .from("courses")
+              .select("title, subjects(name)")
+              .eq("id", courseId)
+              .maybeSingle(),
             supabase.from("questions").select("*").eq("course_id", courseId).order("pos"),
           ]);
           if (c && qs && qs.length > 0) {
@@ -121,13 +126,16 @@ function Course() {
           {!heartStatus.unlimited && heartStatus.secondsToNext > 0 && (
             <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 text-center text-xs font-semibold text-amber-900">
               ⏳ يتجدد القلب التالي تلقائياً خلال:{" "}
-              <span className="font-mono text-sm">{formatHeartCountdown(heartStatus.secondsToNext)}</span>{" "}
+              <span className="font-mono text-sm">
+                {formatHeartCountdown(heartStatus.secondsToNext)}
+              </span>{" "}
               (كل ساعتين +1 ❤️)
             </div>
           )}
 
           <p className="ar text-sm text-muted-foreground">
-            ❤️ لديك محاولتان (قلبان) لكل التمارين بالمواد أو الاختبارات، ويتجدد كل قلب كل ساعتين تلقائياً.
+            ❤️ لديك محاولتان (قلبان) لكل التمارين بالمواد أو الاختبارات، ويتجدد كل قلب كل ساعتين
+            تلقائياً.
           </p>
 
           {!heartStatus.canPlay ? (
@@ -187,7 +195,9 @@ function PracticeHistory({ questionIds }: { questionIds: string[] }) {
           .limit(100);
         if (error) return [];
         return (data ?? []).filter(
-          (a) => a.question_ids.length === questionIds.length && a.question_ids.every((id, i) => id === questionIds[i]),
+          (a) =>
+            a.question_ids.length === questionIds.length &&
+            a.question_ids.every((id, i) => id === questionIds[i]),
         );
       } catch {
         return [];

@@ -49,7 +49,9 @@ export const Route = createFileRoute("/api/question-overrides")({
 
         const { questionId, question, key } = parsed.data;
         const cleanCorrect = [
-          ...new Set(key.correct.map((c) => c.trim().toUpperCase()).filter((c) => /^[A-E]$/.test(c))),
+          ...new Set(
+            key.correct.map((c) => c.trim().toUpperCase()).filter((c) => /^[A-E]$/.test(c)),
+          ),
         ].sort();
 
         if (!cleanCorrect.length) {
@@ -63,7 +65,9 @@ export const Route = createFileRoute("/api/question-overrides")({
             ...(question.case_text !== undefined ? { case_text: question.case_text } : {}),
             ...(question.options !== undefined ? { options: question.options } : {}),
             ...(question.needs_review !== undefined ? { needs_review: question.needs_review } : {}),
-            ...(question.review_reason !== undefined ? { review_reason: question.review_reason } : {}),
+            ...(question.review_reason !== undefined
+              ? { review_reason: question.review_reason }
+              : {}),
           },
           {
             correct: cleanCorrect,

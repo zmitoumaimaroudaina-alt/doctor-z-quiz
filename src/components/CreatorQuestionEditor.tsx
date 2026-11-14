@@ -115,9 +115,7 @@ export function CreatorQuestionEditor({
 
     // 2. Merge Supabase rows (if any extra or database-hosted questions exist)
     for (const row of remoteRows ?? []) {
-      const rawKey = Array.isArray(row.question_keys)
-        ? row.question_keys[0]
-        : row.question_keys;
+      const rawKey = Array.isArray(row.question_keys) ? row.question_keys[0] : row.question_keys;
       const existing = byId.get(row.id);
       if (existing) {
         // Keep local manual override priority if already overridden
@@ -141,7 +139,8 @@ export function CreatorQuestionEditor({
         stem: ovQ?.stem ?? row.stem ?? "",
         case_text: ovQ?.case_text !== undefined ? ovQ.case_text : (row.case_text ?? null),
         options: (ovQ?.options ?? row.options ?? []) as Option[],
-        needs_review: ovQ?.needs_review !== undefined ? ovQ.needs_review : Boolean(row.needs_review),
+        needs_review:
+          ovQ?.needs_review !== undefined ? ovQ.needs_review : Boolean(row.needs_review),
         review_reason: row.review_reason ?? null,
         exam_id: row.exam_id ?? null,
         course_id: row.course_id ?? null,
@@ -151,9 +150,7 @@ export function CreatorQuestionEditor({
           `Question #${row.pos ?? 1}`,
         correct: ovK?.correct ?? rawKey?.correct ?? [],
         explanation:
-          ovK?.explanation !== undefined
-            ? (ovK.explanation ?? "")
-            : (rawKey?.explanation ?? ""),
+          ovK?.explanation !== undefined ? (ovK.explanation ?? "") : (rawKey?.explanation ?? ""),
         note: ovK?.note !== undefined ? ovK.note : (rawKey?.note ?? null),
         isBundled: false,
         isModified: Boolean(ovQ || ovK),
@@ -215,7 +212,8 @@ export function CreatorQuestionEditor({
               🔍 البحث وتصحيح الحل الرسمي يدوياً ({allItems.length} سؤال)
             </h2>
             <p className="ar text-xs text-muted-foreground">
-              ابحث بأي كلمة من السؤال أو الخيارات أو رقم السؤال، واضغط على أحرف الإجابة الصحيحة لتحديث الحل الرسمي فوراً.
+              ابحث بأي كلمة من السؤال أو الخيارات أو رقم السؤال، واضغط على أحرف الإجابة الصحيحة
+              لتحديث الحل الرسمي فوراً.
             </p>
           </div>
           <div className="flex flex-wrap gap-1.5 text-xs">
@@ -369,7 +367,9 @@ function QuestionItemEditor({
   }
 
   async function handleSave(clearFlag: boolean) {
-    const cleanCorrect = [...new Set(correctArr.map((c) => c.toUpperCase()).filter((c) => /^[A-E]$/.test(c)))].sort();
+    const cleanCorrect = [
+      ...new Set(correctArr.map((c) => c.toUpperCase()).filter((c) => /^[A-E]$/.test(c))),
+    ].sort();
     if (cleanCorrect.length === 0) {
       toast.error("يرجى تحديد حرف إجابة رسمية واحد على الأقل (A-E).");
       return;
@@ -399,10 +399,7 @@ function QuestionItemEditor({
 
     // 3. Also sync to Supabase / mockClient DB if present
     try {
-      await supabase
-        .from("questions")
-        .update(qPatch)
-        .eq("id", item.id);
+      await supabase.from("questions").update(qPatch).eq("id", item.id);
 
       await supabase.from("question_keys").upsert({
         question_id: item.id,
@@ -452,9 +449,7 @@ function QuestionItemEditor({
         className="w-full text-left"
       >
         <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground mb-1">
-          <span>
-            Faculté de Médecine de Blida · {item.contextLabel}
-          </span>
+          <span>Faculté de Médecine de Blida · {item.contextLabel}</span>
           <div className="flex flex-wrap items-center gap-1.5">
             <span className="rounded-md bg-success/15 text-success font-bold px-2 py-0.5">
               الحل الرسمي: {correctArr.join(", ") || "—"}
@@ -558,9 +553,7 @@ function QuestionItemEditor({
                   <input
                     value={o.text}
                     onChange={(e) =>
-                      setOpts(
-                        opts.map((x, j) => (j === i ? { ...x, text: e.target.value } : x)),
-                      )
+                      setOpts(opts.map((x, j) => (j === i ? { ...x, text: e.target.value } : x)))
                     }
                     className="flex-1 rounded-xl border bg-background px-3 py-2 text-sm"
                   />
@@ -577,9 +570,7 @@ function QuestionItemEditor({
             })}
             <button
               type="button"
-              onClick={() =>
-                setOpts([...opts, { key: "ABCDE"[opts.length] ?? "E", text: "" }])
-              }
+              onClick={() => setOpts([...opts, { key: "ABCDE"[opts.length] ?? "E", text: "" }])}
               className="text-xs font-bold text-primary hover:underline"
             >
               + إضافة خيار

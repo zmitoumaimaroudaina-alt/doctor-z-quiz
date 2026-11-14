@@ -4,10 +4,20 @@ import type { Question } from "./queries";
 
 function deduceClinicalContext(stem: string): string {
   const s = stem.toLowerCase();
-  if (s.includes("glycolyse") || s.includes("insuline") || s.includes("glucagon") || s.includes("diab")) {
+  if (
+    s.includes("glycolyse") ||
+    s.includes("insuline") ||
+    s.includes("glucagon") ||
+    s.includes("diab")
+  ) {
     return "Cette question évalue les voies métaboliques glucidiques fondamentales. L'activation des enzymes clés (phosphofructokinase, pyruvate kinase) est régulée par le rapport insuline/glucagon et la charge énergétique cellulaire (ATP/AMP).";
   }
-  if (s.includes("infarctus") || s.includes("ecg") || s.includes("troponine") || s.includes("coronair")) {
+  if (
+    s.includes("infarctus") ||
+    s.includes("ecg") ||
+    s.includes("troponine") ||
+    s.includes("coronair")
+  ) {
     return "En cardiologie d'urgence, la cinétique enzymatique (troponine ultrasensible) et les anomalies électrocardiographiques (sus-décalage ST persistant) déterminent la stratification du risque et l'indication de revascularisation immédiate.";
   }
   if (s.includes("insuffisance cardiaque") || s.includes("nyha") || s.includes("bnp")) {
@@ -16,10 +26,20 @@ function deduceClinicalContext(stem: string): string {
   if (s.includes("méningite") || s.includes("lcr") || s.includes("raideur de nuque")) {
     return "Toute suspicion de méningite aiguë fébrile impose une ponction lombaire sans délai après élimination des contre-indications cérébrales. La formule cytologique et biochimique du LCR guide l'antibiothérapie probabiliste d'urgence.";
   }
-  if (s.includes("anémie") || s.includes("fer") || s.includes("ferritine") || s.includes("hémoglobine")) {
+  if (
+    s.includes("anémie") ||
+    s.includes("fer") ||
+    s.includes("ferritine") ||
+    s.includes("hémoglobine")
+  ) {
     return "L'analyse d'une anémie repose d'abord sur le VGM (microcytaire, normocytaire, macrocytaire) et le taux de réticulocytes (régénérative vs arégénérative). La carence martiale est la première cause d'anémie microcytaire arégénérative.";
   }
-  if (s.includes("pneumonie") || s.includes("foyer") || s.includes("crépitant") || s.includes("thorax")) {
+  if (
+    s.includes("pneumonie") ||
+    s.includes("foyer") ||
+    s.includes("crépitant") ||
+    s.includes("thorax")
+  ) {
     return "En pneumologie, le syndrome de condensation pulmonaire parenchymateuse se traduit par l'association matité, augmentation des vibrations vocales et râles crépitants en foyer avec souffle tubaire central.";
   }
   if (s.includes("appendicite") || s.includes("douleur") || s.includes("fosse iliaque")) {
@@ -36,18 +56,19 @@ export function generateClinicalExplanation(
   selected: string[],
   userPrompt?: string,
   customQ?: Question,
-  customOfficial?: { correct: string[]; explanation: string; note: string | null }
+  customOfficial?: { correct: string[]; explanation: string; note: string | null },
 ): string {
   const baseQ = customQ || getBundledQuestion(questionId);
   const qOv = getQuestionOverride(questionId);
-  const q = baseQ && qOv
-    ? {
-        ...baseQ,
-        ...(qOv.stem !== undefined ? { stem: qOv.stem } : {}),
-        ...(qOv.case_text !== undefined ? { case_text: qOv.case_text } : {}),
-        ...(qOv.options !== undefined ? { options: qOv.options } : {}),
-      }
-    : baseQ;
+  const q =
+    baseQ && qOv
+      ? {
+          ...baseQ,
+          ...(qOv.stem !== undefined ? { stem: qOv.stem } : {}),
+          ...(qOv.case_text !== undefined ? { case_text: qOv.case_text } : {}),
+          ...(qOv.options !== undefined ? { options: qOv.options } : {}),
+        }
+      : baseQ;
 
   const baseKey = customOfficial || getBundledKey(questionId);
   const kOv = getKeyOverride(questionId);
@@ -62,9 +83,7 @@ export function generateClinicalExplanation(
   const officialAnswer = (key.correct || []).join(", ") || "غير محددة";
   const clinicalDeduction = q?.stem ? deduceClinicalContext(q.stem) : "";
   const officialExplanation =
-    key.explanation && key.explanation.trim().length > 5
-      ? key.explanation
-      : clinicalDeduction;
+    key.explanation && key.explanation.trim().length > 5 ? key.explanation : clinicalDeduction;
   const note = key.note ? `\n📌 **Remarque de cours :** ${key.note}` : "";
   const stemPreview = q?.stem ? q.stem.trim() : `Question #${questionId}`;
   const options = (q?.options as { key: string; text: string }[] | undefined) ?? [];
@@ -135,7 +154,8 @@ ${officialExplanation}${note}`;
 
   let evaluationHeader = "";
   if (selected.length === 0) {
-    evaluationHeader = "ℹ️ Tu n'as pas encore validé de réponse pour cette question. Voici l'analyse officielle détaillée :";
+    evaluationHeader =
+      "ℹ️ Tu n'as pas encore validé de réponse pour cette question. Voici l'analyse officielle détaillée :";
   } else if (isStudentCorrect) {
     evaluationHeader = `🎉 **Excellent réflexe médical !** Tu as trouvé la réponse officielle exacte : **[${officialAnswer}]**.`;
   } else {

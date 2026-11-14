@@ -306,7 +306,9 @@ function emitRealtime(table: string, eventType: "INSERT" | "UPDATE" | "DELETE", 
 }
 
 function algiersDateStr(d = new Date()): string {
-  return new Date(d.toLocaleString("en-US", { timeZone: "Africa/Algiers" })).toISOString().slice(0, 10);
+  return new Date(d.toLocaleString("en-US", { timeZone: "Africa/Algiers" }))
+    .toISOString()
+    .slice(0, 10);
 }
 
 function isoWeekKey(d = new Date()): string {
@@ -315,7 +317,8 @@ function isoWeekKey(d = new Date()): string {
   dt.setDate(dt.getDate() + 3 - ((dt.getDay() + 6) % 7));
   const week1 = new Date(dt.getFullYear(), 0, 4);
   const wk =
-    1 + Math.round(((dt.getTime() - week1.getTime()) / 86400000 - 3 + ((week1.getDay() + 6) % 7)) / 7);
+    1 +
+    Math.round(((dt.getTime() - week1.getTime()) / 86400000 - 3 + ((week1.getDay() + 6) % 7)) / 7);
   return `${dt.getFullYear()}-${String(wk).padStart(2, "0")}`;
 }
 
@@ -386,7 +389,11 @@ function isCorrectSelection(key: SeedQuestionKey | undefined, sel: string[]): bo
   return a === b;
 }
 
-function getEffectiveQuestionById(idx: SeedIndex, db: MockDb, qid: string): SeedQuestion | undefined {
+function getEffectiveQuestionById(
+  idx: SeedIndex,
+  db: MockDb,
+  qid: string,
+): SeedQuestion | undefined {
   const q = idx.questionsById.get(qid);
   if (!q) return undefined;
   const ov = db.question_overrides[qid];
@@ -475,7 +482,13 @@ function isCreatorUser(db: MockDb, uid: string | undefined): boolean {
   return db.user_roles.some((r) => r["user_id"] === uid && r["role"] === "admin");
 }
 
-function hydrateRows(table: string, rows: Row[], selectCols: string, idx: SeedIndex, db: MockDb): Row[] {
+function hydrateRows(
+  table: string,
+  rows: Row[],
+  selectCols: string,
+  idx: SeedIndex,
+  db: MockDb,
+): Row[] {
   if (!rows.length) return [];
   const needExamSubjects = table === "exams" && selectCols.includes("exam_subjects");
   const needCourseSubject = table === "courses" && selectCols.includes("subjects");
@@ -483,7 +496,8 @@ function hydrateRows(table: string, rows: Row[], selectCols: string, idx: SeedIn
   const needQuestionExams = table === "questions" && selectCols.includes("exams");
   const needQuestionKeys = table === "questions" && selectCols.includes("question_keys");
   const needDiscussionProfile = table === "discussion_messages" && selectCols.includes("profiles");
-  const needCorrectionQuestion = table === "question_corrections" && selectCols.includes("questions");
+  const needCorrectionQuestion =
+    table === "question_corrections" && selectCols.includes("questions");
 
   if (
     !needExamSubjects &&
@@ -523,7 +537,9 @@ function hydrateRows(table: string, rows: Row[], selectCols: string, idx: SeedIn
     }
     if (needDiscussionProfile) {
       const p = db.profiles.find((x) => x["id"] === row["user_id"]);
-      out["profiles"] = p ? { display_name: p["display_name"] ?? "Étudiant" } : { display_name: "Étudiant" };
+      out["profiles"] = p
+        ? { display_name: p["display_name"] ?? "Étudiant" }
+        : { display_name: "Étudiant" };
     }
     if (needCorrectionQuestion) {
       const qid = String(row["question_id"]);
@@ -556,7 +572,11 @@ function createQueryBuilder(table: string) {
   let maxLimit: number | null = null;
   let mode: "many" | "single" | "maybeSingle" = "many";
 
-  async function exec(): Promise<{ data: unknown; error: { message: string } | null; count?: number }> {
+  async function exec(): Promise<{
+    data: unknown;
+    error: { message: string } | null;
+    count?: number;
+  }> {
     const idx = await getSeed();
     const db = loadDb();
     const session = loadSession();
@@ -646,7 +666,11 @@ function createQueryBuilder(table: string) {
         return { data: hydrated[0], error: null, ...(wantCount ? { count: totalCount } : {}) };
       }
       if (mode === "maybeSingle") {
-        return { data: hydrated[0] ?? null, error: null, ...(wantCount ? { count: totalCount } : {}) };
+        return {
+          data: hydrated[0] ?? null,
+          error: null,
+          ...(wantCount ? { count: totalCount } : {}),
+        };
       }
       return {
         data: countOnly ? null : hydrated,
@@ -684,7 +708,10 @@ function createQueryBuilder(table: string) {
           filters.every((f) => f(r as unknown as Row)),
         );
         for (const q of matched) {
-          db.question_overrides[q.id] = { ...(db.question_overrides[q.id] ?? {}), ...(patch as Partial<SeedQuestion>) };
+          db.question_overrides[q.id] = {
+            ...(db.question_overrides[q.id] ?? {}),
+            ...(patch as Partial<SeedQuestion>),
+          };
         }
         saveDb(db);
         return { data: matched, error: null };
@@ -699,7 +726,10 @@ function createQueryBuilder(table: string) {
         }
       }
       saveDb(db);
-      return { data: mode === "single" || mode === "maybeSingle" ? (updated[0] ?? null) : updated, error: null };
+      return {
+        data: mode === "single" || mode === "maybeSingle" ? (updated[0] ?? null) : updated,
+        error: null,
+      };
     }
 
     if (op === "upsert") {
@@ -707,7 +737,10 @@ function createQueryBuilder(table: string) {
       if (table === "question_keys") {
         for (const item of items) {
           const qid = String(item["question_id"]);
-          db.key_overrides[qid] = { ...(db.key_overrides[qid] ?? {}), ...(item as Partial<SeedQuestionKey>) };
+          db.key_overrides[qid] = {
+            ...(db.key_overrides[qid] ?? {}),
+            ...(item as Partial<SeedQuestionKey>),
+          };
         }
         saveDb(db);
         return { data: items, error: null };
@@ -746,15 +779,24 @@ function createQueryBuilder(table: string) {
         }
         db.user_roles = db.user_roles.filter((r) => !deletedIds.has(String(r["user_id"])));
         db.attempts = db.attempts.filter((a) => !deletedIds.has(String(a["user_id"])));
-        db.practice_attempts = db.practice_attempts.filter((pa) => !deletedIds.has(String(pa["user_id"])));
+        db.practice_attempts = db.practice_attempts.filter(
+          (pa) => !deletedIds.has(String(pa["user_id"])),
+        );
         db.exam_hearts = db.exam_hearts.filter((h) => !deletedIds.has(String(h["user_id"])));
-        db.question_mistakes = db.question_mistakes.filter((m) => !deletedIds.has(String(m["user_id"])));
+        db.question_mistakes = db.question_mistakes.filter(
+          (m) => !deletedIds.has(String(m["user_id"])),
+        );
         db.tomatoes = db.tomatoes.filter(
-          (t) => !deletedIds.has(String(t["thrower_id"])) && !deletedIds.has(String(t["target_id"])),
+          (t) =>
+            !deletedIds.has(String(t["thrower_id"])) && !deletedIds.has(String(t["target_id"])),
         );
         db.mission_claims = db.mission_claims.filter((c) => !deletedIds.has(String(c["user_id"])));
-        db.discussion_messages = db.discussion_messages.filter((m) => !deletedIds.has(String(m["user_id"])));
-        db.discussion_reactions = db.discussion_reactions.filter((r) => !deletedIds.has(String(r["user_id"])));
+        db.discussion_messages = db.discussion_messages.filter(
+          (m) => !deletedIds.has(String(m["user_id"])),
+        );
+        db.discussion_reactions = db.discussion_reactions.filter(
+          (r) => !deletedIds.has(String(r["user_id"])),
+        );
         db.lesson_quizzes = db.lesson_quizzes.filter((q) => !deletedIds.has(String(q["user_id"])));
         if (uid && deletedIds.has(uid)) saveSession(null);
       }
@@ -825,7 +867,11 @@ function createQueryBuilder(table: string) {
     },
     ilike(col: string, pattern: string) {
       const needle = pattern.replace(/%/g, "").toLowerCase();
-      filters.push((r) => String(r[col] ?? "").toLowerCase().includes(needle));
+      filters.push((r) =>
+        String(r[col] ?? "")
+          .toLowerCase()
+          .includes(needle),
+      );
       return builder;
     },
     or(expr: string) {
@@ -858,7 +904,13 @@ function createQueryBuilder(table: string) {
       return builder;
     },
     then<TResult1 = unknown, TResult2 = never>(
-      onfulfilled?: ((value: { data: unknown; error: { message: string } | null; count?: number }) => TResult1 | PromiseLike<TResult1>) | null,
+      onfulfilled?:
+        | ((value: {
+            data: unknown;
+            error: { message: string } | null;
+            count?: number;
+          }) => TResult1 | PromiseLike<TResult1>)
+        | null,
       onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
     ) {
       return exec().then(onfulfilled, onrejected);
@@ -868,7 +920,10 @@ function createQueryBuilder(table: string) {
   return builder;
 }
 
-async function handleRpc(fn: string, args: Row = {}): Promise<{ data: unknown; error: { message: string } | null }> {
+async function handleRpc(
+  fn: string,
+  args: Row = {},
+): Promise<{ data: unknown; error: { message: string } | null }> {
   const idx = await getSeed();
   const db = loadDb();
   const session = loadSession();
@@ -880,7 +935,9 @@ async function handleRpc(fn: string, args: Row = {}): Promise<{ data: unknown; e
 
     case "has_role":
       return {
-        data: db.user_roles.some((r) => r["user_id"] === args["_user_id"] && r["role"] === args["_role"]),
+        data: db.user_roles.some(
+          (r) => r["user_id"] === args["_user_id"] && r["role"] === args["_role"],
+        ),
         error: null,
       };
 
@@ -911,7 +968,8 @@ async function handleRpc(fn: string, args: Row = {}): Promise<{ data: unknown; e
       }
       const examId = String(args["_exam"]);
       const h = db.exam_hearts.find((x) => x["user_id"] === uid && x["exam_id"] === examId);
-      if (!h) return { data: [{ hearts_left: 2, locked_until: null, unlimited: false }], error: null };
+      if (!h)
+        return { data: [{ hearts_left: 2, locked_until: null, unlimited: false }], error: null };
       if (h["locked_until"] && new Date(String(h["locked_until"])).getTime() <= Date.now()) {
         h["used"] = 0;
         h["locked_until"] = null;
@@ -934,11 +992,14 @@ async function handleRpc(fn: string, args: Row = {}): Promise<{ data: unknown; e
       if (existing) return { data: existing["id"], error: null };
 
       const stRes = await handleRpc("exam_status", { _exam: examId });
-      const st = (stRes.data as { hearts_left: number; locked_until: string | null; unlimited: boolean }[])[0];
+      const st = (
+        stRes.data as { hearts_left: number; locked_until: string | null; unlimited: boolean }[]
+      )[0];
       if (
         st &&
         !st.unlimited &&
-        (st.hearts_left <= 0 || (st.locked_until && new Date(st.locked_until).getTime() > Date.now()))
+        (st.hearts_left <= 0 ||
+          (st.locked_until && new Date(st.locked_until).getTime() > Date.now()))
       ) {
         return { data: null, error: { message: "EXAM_LOCKED" } };
       }
@@ -1107,7 +1168,9 @@ async function handleRpc(fn: string, args: Row = {}): Promise<{ data: unknown; e
       const rows = sorted.map(([u, b], i) => {
         const p = db.profiles.find((x) => x["id"] === u);
         const activeTomatoes = db.tomatoes
-          .filter((t) => t["target_id"] === u && new Date(String(t["expires_at"])).getTime() > nowMs)
+          .filter(
+            (t) => t["target_id"] === u && new Date(String(t["expires_at"])).getTime() > nowMs,
+          )
           .map((t) => String(t["expires_at"]))
           .sort();
         return {
@@ -1140,7 +1203,12 @@ async function handleRpc(fn: string, args: Row = {}): Promise<{ data: unknown; e
         const mine = lb.find((x) => x.user_id === uid);
         if (!mine || mine.rnk > 5) return { data: null, error: { message: "TOP5_ONLY" } };
         const tenMinAgo = Date.now() - 10 * 60 * 1000;
-        if (db.tomatoes.some((t) => t["thrower_id"] === uid && new Date(String(t["created_at"])).getTime() > tenMinAgo)) {
+        if (
+          db.tomatoes.some(
+            (t) =>
+              t["thrower_id"] === uid && new Date(String(t["created_at"])).getTime() > tenMinAgo,
+          )
+        ) {
           return { data: null, error: { message: "COOLDOWN" } };
         }
         const dayAgo = Date.now() - 24 * 3600 * 1000;
@@ -1182,7 +1250,11 @@ async function handleRpc(fn: string, args: Row = {}): Promise<{ data: unknown; e
       };
       const r = rewards[key];
       if (!r) return { data: null, error: { message: "unknown" } };
-      if (db.mission_claims.some((c) => c["user_id"] === uid && c["mission_key"] === key && c["period_key"] === r.period)) {
+      if (
+        db.mission_claims.some(
+          (c) => c["user_id"] === uid && c["mission_key"] === key && c["period_key"] === r.period,
+        )
+      ) {
         return { data: null, error: { message: "Already claimed" } };
       }
       db.mission_claims.push({
@@ -1256,7 +1328,9 @@ async function handleRpc(fn: string, args: Row = {}): Promise<{ data: unknown; e
 
     case "finish_practice": {
       if (!uid) return { data: null, error: { message: "auth required" } };
-      const a = db.practice_attempts.find((x) => x["id"] === args["_attempt"] && x["user_id"] === uid);
+      const a = db.practice_attempts.find(
+        (x) => x["id"] === args["_attempt"] && x["user_id"] === uid,
+      );
       if (!a) return { data: null, error: { message: "not found" } };
       const qids = (a["question_ids"] as string[]) ?? [];
       const answers = (a["answers"] as Record<string, string[]>) ?? {};
@@ -1307,10 +1381,16 @@ async function handleRpc(fn: string, args: Row = {}): Promise<{ data: unknown; e
         const pid = String(p["id"]);
         const doneAttempts = db.attempts.filter((a) => a["user_id"] === pid && a["submitted_at"]);
         const scores = doneAttempts.map((a) => Number(a["score20"] ?? 0));
-        const avg = scores.length ? Math.round((scores.reduce((s, x) => s + x, 0) / scores.length) * 100) / 100 : null;
+        const avg = scores.length
+          ? Math.round((scores.reduce((s, x) => s + x, 0) / scores.length) * 100) / 100
+          : null;
         const best = scores.length ? Math.max(...scores) : null;
-        const pDone = db.practice_attempts.filter((pa) => pa["user_id"] === pid && pa["submitted_at"]).length;
-        const openM = db.question_mistakes.filter((m) => m["user_id"] === pid && !m["corrected_at"]).length;
+        const pDone = db.practice_attempts.filter(
+          (pa) => pa["user_id"] === pid && pa["submitted_at"],
+        ).length;
+        const openM = db.question_mistakes.filter(
+          (m) => m["user_id"] === pid && !m["corrected_at"],
+        ).length;
         return {
           user_id: pid,
           display_name: p["display_name"] ?? null,
@@ -1347,7 +1427,9 @@ async function handleRpc(fn: string, args: Row = {}): Promise<{ data: unknown; e
       const k = getEffectiveKeyById(idx, db, qid);
       c["status"] = "applied";
       c["reviewed_at"] = new Date().toISOString();
-      c["original"] = q ? { stem: q.stem, case_text: q.case_text, options: q.options, correct: k?.correct ?? [] } : null;
+      c["original"] = q
+        ? { stem: q.stem, case_text: q.case_text, options: q.options, correct: k?.correct ?? [] }
+        : null;
       if (q) {
         db.question_overrides[qid] = {
           ...(db.question_overrides[qid] ?? {}),
@@ -1379,7 +1461,10 @@ export function createMockSupabaseClient(): SupabaseClient<Database> {
       },
       async getUser() {
         const s = loadSession();
-        return { data: { user: s?.user ?? null }, error: s ? null : { message: "Not authenticated" } };
+        return {
+          data: { user: s?.user ?? null },
+          error: s ? null : { message: "Not authenticated" },
+        };
       },
       onAuthStateChange(cb: AuthListener) {
         authListeners.add(cb);
@@ -1471,7 +1556,9 @@ export function createMockSupabaseClient(): SupabaseClient<Database> {
           },
           async download(path: string) {
             const file = storageFiles.get(`${bucket}/${path}`);
-            return file ? { data: file, error: null } : { data: null, error: { message: "Not found" } };
+            return file
+              ? { data: file, error: null }
+              : { data: null, error: { message: "Not found" } };
           },
         };
       },

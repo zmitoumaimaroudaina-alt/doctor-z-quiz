@@ -21,7 +21,11 @@ import {
 import { play } from "@/lib/sound";
 
 export const Route = createFileRoute("/_authenticated/admin")({
-  head: () => pageMetadata("Gestion Doctor Z", "Gestion des questions, des cœurs et des étudiants Z QCM GAME."),
+  head: () =>
+    pageMetadata(
+      "Gestion Doctor Z",
+      "Gestion des questions, des cœurs et des étudiants Z QCM GAME.",
+    ),
   component: Admin,
 });
 
@@ -29,10 +33,19 @@ function Admin() {
   const { data: me } = useMe();
   const [tab, setTab] = useState<"students" | "search" | "review">("students");
   if (!me) return null;
-  if (!me.isCreator) return <AppShell><p>Accès réservé au Creator.</p></AppShell>;
+  if (!me.isCreator)
+    return (
+      <AppShell>
+        <p>Accès réservé au Creator.</p>
+      </AppShell>
+    );
   return (
     <AppShell wide>
-      <PageTitle title="👑 Panneau Creator" ar="لوحة تحكم المصمم" sub="إدارة القلوب ❤️ والطلاب والبحث في الأسئلة وتصحيح الحل الرسمي يدوياً." />
+      <PageTitle
+        title="👑 Panneau Creator"
+        ar="لوحة تحكم المصمم"
+        sub="إدارة القلوب ❤️ والطلاب والبحث في الأسئلة وتصحيح الحل الرسمي يدوياً."
+      />
       <div className="mb-4 flex flex-wrap gap-2">
         {(
           [
@@ -312,7 +325,8 @@ function Students() {
         })}
         {data && !data.length && (
           <div className="p-6 text-center text-sm text-muted-foreground">
-            لا يوجد طلاب مسجلون بعد في القائمة المحلية أو السيرفر. يمكنك إضافة قلوب مباشرة عبر البريد الإلكتروني أعلاه.
+            لا يوجد طلاب مسجلون بعد في القائمة المحلية أو السيرفر. يمكنك إضافة قلوب مباشرة عبر
+            البريد الإلكتروني أعلاه.
           </div>
         )}
       </div>
