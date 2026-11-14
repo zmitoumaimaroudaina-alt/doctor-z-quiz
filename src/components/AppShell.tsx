@@ -1,10 +1,11 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useMe } from "@/hooks/useMe";
 import { levelFromXp } from "@/lib/game";
 import { play } from "@/lib/sound";
 import { clearCurrentSession } from "@/lib/profileStore";
+import { syncOverridesFromServer } from "@/lib/questionOverrides";
 import {
   formatHeartCountdown,
   renderHeartsVisual,
@@ -41,6 +42,11 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
   const lv = levelFromXp(me?.xp ?? 0);
   const nav = useNavigate();
   const hearts = useHearts(me?.email, me?.id, !!me?.isCreator);
+
+  useEffect(() => {
+    void syncOverridesFromServer();
+  }, []);
+
   return (
     <div className="min-h-screen pb-24 lg:pb-0 lg:pl-64">
       <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col border-r bg-sidebar p-4 lg:flex">
@@ -54,9 +60,14 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
             </Link>
           ))}
           {me?.isCreator && (
-            <Link to="/admin" className="mt-2 flex items-center gap-3 rounded-xl border border-gold px-3 py-2.5 text-sm font-semibold" activeProps={{ className: "bg-gold/20" }}>
-              <span>👑</span>Panneau Creator
-            </Link>
+            <>
+              <Link to="/admin" className="mt-2 flex items-center gap-3 rounded-xl border border-gold px-3 py-2.5 text-sm font-semibold" activeProps={{ className: "bg-gold/20" }}>
+                <span>👑</span>Panneau Creator
+              </Link>
+              <Link to="/creator-questions" className="mt-1 flex items-center gap-3 rounded-xl border border-primary/30 bg-primary/5 px-3 py-2.5 text-sm font-semibold text-primary" activeProps={{ className: "bg-primary/15" }}>
+                <span>🛠️</span><span className="ar">تصحيح الأسئلة يدوياً</span>
+              </Link>
+            </>
           )}
           <button onClick={logout} className="mt-2 flex items-center gap-3 rounded-xl border px-3 py-2.5 text-left text-sm font-medium hover:bg-sidebar-accent">
             <span className="text-lg">🚪</span><span>Se déconnecter</span>
@@ -104,7 +115,15 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
 
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t bg-card/95 backdrop-blur lg:hidden">
         <div className="flex overflow-x-auto px-1">
-          {[...NAV, ...(me?.isCreator ? [{ to: "/admin", icon: "👑", label: "Creator" } as const] : [])].map((n) => (
+          {[
+            ...NAV,
+            ...(me?.isCreator
+              ? [
+                  { to: "/admin", icon: "👑", label: "Creator" } as const,
+                  { to: "/creator-questions", icon: "🛠️", label: "تصحيح" } as const,
+                ]
+              : []),
+          ].map((n) => (
             <Link key={n.to} to={n.to} onClick={() => play("nav")}
               className="flex min-w-[72px] flex-1 flex-col items-center gap-0.5 px-1 py-2 text-[10px] text-muted-foreground"
               activeProps={{ className: "text-primary font-semibold" }}>

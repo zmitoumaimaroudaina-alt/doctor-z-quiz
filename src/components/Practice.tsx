@@ -10,6 +10,8 @@ import { fetchMistakesFor, type Question } from "@/lib/queries";
 import { moodFrom } from "@/lib/game";
 import { play } from "@/lib/sound";
 import { saveProfileDurable } from "@/lib/profileStore";
+import { recordChallengeParticipation } from "@/lib/leaderboardStore";
+import { getKeyOverride, getQuestionOverride } from "@/lib/questionOverrides";
 
 type Feedback = { correct: boolean; official: string[] | null; explanation: string | null; note: string | null };
 type Summary = { id: string; total: number; correct: number; wrong: number; unanswered: number; score20: number; errors: string[] };
@@ -17,9 +19,13 @@ type Summary = { id: string; total: number; correct: number; wrong: number; unan
 export function Practice({
   questions,
   onRequestNewAttempt,
+  challengeId,
+  challengeTitle,
 }: {
   questions: Question[];
   onRequestNewAttempt?: () => boolean;
+  challengeId?: string;
+  challengeTitle?: string;
 }) {
   const { data: me } = useMe();
   const [active, setActive] = useState(questions);
@@ -84,7 +90,16 @@ export function Practice({
     };
   }, [active]);
 
-  const q = active[i];
+  const rawQ = active[i];
+  const qOv = rawQ ? getQuestionOverride(rawQ.id) : undefined;
+  const q = rawQ
+    ? {
+        ...rawQ,
+        ...(qOv?.stem !== undefined ? { stem: qOv.stem } : {}),
+        ...(qOv?.case_text !== undefined ? { case_text: qOv.case_text } : {}),
+        ...(qOv?.options !== undefined ? { options: qOv.options } : {}),
+      }
+    : undefined;
   const sel = q ? answers[q.id] ?? [] : [];
   const fb = q ? feedback[q.id] : undefined;
 
@@ -112,6 +127,20 @@ export function Practice({
           note: ev.note,
         };
         recordQuestionMistake(q.id, ev.correct);
+      } else {
+        // Always prioritize creator manual official-key overrides if any exist
+        const kOv = getKeyOverride(q.id);
+        if (kOv) {
+          const official = kOv.correct ?? r.official ?? [];
+          const sortedSel = [...sel].map((s) => s.toUpperCase()).sort().join(",");
+          const sortedOff = [...official].map((s) => s.toUpperCase()).sort().join(",");
+          r = {
+            correct: sortedSel.length > 0 && sortedSel === sortedOff,
+            official,
+            explanation: kOv.explanation !== undefined ? kOv.explanation : r.explanation,
+            note: kOv.note !== undefined ? kOv.note : r.note,
+          };
+        }
       }
 
       setFeedback((f) => ({ ...f, [q.id]: r! }));
@@ -175,6 +204,21 @@ export function Practice({
             coins: (me.coins || 50) + correct * 2,
           });
         }
+      }
+
+      if (me && sum) {
+        recordChallengeParticipation({
+          userId: me.id,
+          email: me.email,
+          displayName: me.display_name,
+          kind: "course",
+          targetId: challengeId || attempt,
+          ...(challengeTitle ? { targetTitle: challengeTitle } : {}),
+          score20: sum.score20,
+          durationSec: Math.max(1, sum.total * 30),
+          correctCount: sum.correct,
+          totalCount: sum.total,
+        });
       }
 
       setSummary(sum);
@@ -293,6 +337,7 @@ export function Practice({
             )}
             {fb.note && <p className="whitespace-pre-line text-xs text-muted-foreground">📌 {fb.note}</p>}
             <AiExplain
+              key={q.id}
               questionId={q.id}
               selected={sel}
               question={q}

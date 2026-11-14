@@ -230,9 +230,26 @@ const questionsMap = baseQuestionsMap;
 const questionsByExamMap = baseQuestionsByExamMap;
 const keysMap = baseKeysMap;
 
+import {
+  getKeyOverride,
+  getQuestionOverride,
+} from "./questionOverrides";
+
 export function normalizeExamTitle(exam: { title: string; year: number; unit?: string | null }) {
   if (exam.title.includes(UNIFIED_EXAM_NAME)) return exam.title;
   return `${UNIFIED_EXAM_NAME} — ${exam.year}`;
+}
+
+function applyQuestionOverride(q: Question): Question {
+  const ov = getQuestionOverride(q.id);
+  if (!ov) return q;
+  return {
+    ...q,
+    ...(ov.stem !== undefined ? { stem: ov.stem } : {}),
+    ...(ov.case_text !== undefined ? { case_text: ov.case_text } : {}),
+    ...(ov.options !== undefined ? { options: ov.options } : {}),
+    ...(ov.needs_review !== undefined ? { needs_review: ov.needs_review } : {}),
+  };
 }
 
 export function getBundledSubjects(): MedicalSubject[] {
@@ -245,7 +262,7 @@ export function getBundledCourses(): MedicalCourse[] {
 
 export function getBundledCourse(courseId: string) {
   const course = coursesList.find((c) => c.id === courseId);
-  const questions = questionsByCourseMap[courseId] ?? [];
+  const questions = (questionsByCourseMap[courseId] ?? []).map(applyQuestionOverride);
   const subject = subjectsList.find((s) => s.id === course?.subject_id);
   return {
     course: course ? { ...course, subjects: subject ? { name: subject.name } : null } : null,
@@ -259,7 +276,7 @@ export function getBundledExams(): MedicalExam[] {
 
 export function getBundledExam(examId: string) {
   const exam = examsList.find((e) => e.id === examId);
-  const questions = questionsByExamMap[examId] ?? [];
+  const questions = (questionsByExamMap[examId] ?? []).map(applyQuestionOverride);
   return {
     exam,
     questions,
@@ -267,11 +284,31 @@ export function getBundledExam(examId: string) {
 }
 
 export function getBundledQuestion(id: string): Question | undefined {
+  const q = questionsMap[id];
+  return q ? applyQuestionOverride(q) : undefined;
+}
+
+export function getRawBundledQuestion(id: string): Question | undefined {
   return questionsMap[id];
 }
 
-export function getBundledKey(id: string): MedicalKey {
+export function getRawBundledKey(id: string): MedicalKey {
   return keysMap[id] ?? { correct: ["A"], explanation: "Réponse officielle validée.", note: null };
+}
+
+export function getAllBundledQuestions(): Question[] {
+  return Object.values(questionsMap).map(applyQuestionOverride);
+}
+
+export function getBundledKey(id: string): MedicalKey {
+  const base = keysMap[id] ?? { correct: ["A"], explanation: "Réponse officielle validée.", note: null };
+  const ov = getKeyOverride(id);
+  if (!ov) return base;
+  return {
+    correct: ov.correct !== undefined ? ov.correct : base.correct,
+    explanation: ov.explanation !== undefined ? (ov.explanation ?? "") : base.explanation,
+    note: ov.note !== undefined ? ov.note : base.note,
+  };
 }
 
 export function evaluateQuestionAnswer(
@@ -326,5 +363,8 @@ export function getStoredMistakeQuestions(): Question[] {
   } catch {
     ids = [];
   }
-  return ids.map((id) => questionsMap[id]).filter(Boolean);
+  return ids
+    .map((id) => questionsMap[id])
+    .filter((q): q is Question => Boolean(q))
+    .map(applyQuestionOverride);
 }

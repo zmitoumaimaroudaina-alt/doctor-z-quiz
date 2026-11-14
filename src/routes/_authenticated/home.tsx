@@ -33,33 +33,66 @@ function Home() {
         </div>
       </section>
 
+      <section
+        dir="rtl"
+        className="mt-5 rounded-3xl border-2 border-amber-400/70 bg-gradient-to-l from-amber-50 via-card to-primary/10 p-5 shadow-pop"
+      >
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <span className="rounded-full bg-amber-500 px-3 py-1 text-xs font-extrabold text-white shadow-sm">
+              📢 إعلان هام
+            </span>
+            <h2 className="font-display text-base sm:text-lg font-extrabold text-foreground">
+              تابعوا شروحات وملخصات Doctor Z و Med Support الرسمية
+            </h2>
+          </div>
+          <span className="text-xs font-semibold text-amber-800">
+            اضغط على أي رابط للانضمام مباشرة ↙
+          </span>
+        </div>
+
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          {RESOURCES.map((c) => {
+            const isTelegram = c.href.includes("t.me");
+            return (
+              <a
+                key={c.href}
+                href={c.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`group flex items-center justify-between gap-3 rounded-2xl border-2 px-4 py-3 text-sm font-bold shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md ${
+                  isTelegram
+                    ? "border-sky-400/60 bg-sky-500 text-white hover:bg-sky-600"
+                    : "border-red-400/60 bg-red-600 text-white hover:bg-red-700"
+                }`}
+              >
+                <span className="flex items-center gap-2.5">
+                  <span className="grid h-8 w-8 place-items-center rounded-xl bg-white/20 text-lg">
+                    {c.icon}
+                  </span>
+                  <span>{c.label}</span>
+                </span>
+                <span className="text-base opacity-90 transition-transform group-hover:-translate-x-0.5">
+                  ↗
+                </span>
+              </a>
+            );
+          })}
+        </div>
+      </section>
+
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <Tile to="/examens" icon="📝" title="QCM Examens" sub="Matière → Année → Examen · 60 min" />
         <Tile to="/cours" icon="📚" title="QCM par Cours" sub="Matière → Cours → QCM" />
         <Tile to="/mes-cours" icon="📄" title="Mes cours PDF" sub="Générer des QCM IA depuis tes cours" />
         <Tile to="/mes-erreurs" icon="🔁" title="QCM أخطائي السابقة" sub="Rejoue tes anciennes erreurs" />
-        <Tile to="/leaderboard" icon="🏆" title="Leaderboard" sub="Top 5 + tomates 🍅" />
+        <Tile to="/leaderboard" icon="🏆" title="Participants & Classement" sub="جدول المشاركين والتصنيف حسب التحديات 🍅" />
         <Tile to="/missions" icon="🎯" title="Missions" sub="Quotidiennes & hebdomadaires" />
         <Tile to="/profile" icon="👤" title="Mon profil" sub="Avatar, animal, styles & bulle" />
         <Tile to="/settings" icon="⚙️" title="Paramètres & Sons" sub="Volume, test des effets sonores & ressources" />
       </div>
 
       <Link to="/questions-a-verifier" className="mt-6 block text-sm font-semibold text-warning-foreground">⚠ Questions à vérifier · أسئلة تحتاج مراجعة</Link>
-
-      <section dir="rtl" className="card-game mt-8 p-4">
-        <h2 className="font-display text-base font-bold">📢 تابعوا Doctor Z و Med Support</h2>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {RESOURCES.map((c) => (
-            <a
-              key={c.href}
-              href={c.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground"
-            >{c.icon} {c.label}</a>
-          ))}
-        </div>
-      </section>
     </AppShell>
   );
 }

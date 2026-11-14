@@ -11,6 +11,7 @@ import { useMe, useRefreshMe } from "@/hooks/useMe";
 import { fetchMistakesFor, type Question } from "@/lib/queries";
 import { fmtTime, moodFrom, EXAM_DURATION_SECONDS, examSecondsLeft } from "@/lib/game";
 import { evaluateQuestionAnswer, getBundledExam, normalizeExamTitle, recordQuestionMistake } from "@/lib/medicalData";
+import { recordChallengeParticipation } from "@/lib/leaderboardStore";
 import { saveProfileDurable } from "@/lib/profileStore";
 import { play } from "@/lib/sound";
 
@@ -189,6 +190,22 @@ function Play() {
         submitted_at: new Date().toISOString(),
       };
       localStorage.setItem(`result_${attemptId}`, JSON.stringify(localResult));
+
+      if (me) {
+        const examIdResolved = data?.a?.exam_id || "exam-uei1-2025";
+        recordChallengeParticipation({
+          userId: me.id,
+          email: me.email,
+          displayName: me.display_name,
+          kind: "exam",
+          targetId: examIdResolved,
+          ...(data?.exam?.title ? { targetTitle: data.exam.title } : {}),
+          score20,
+          durationSec: Math.max(1, 3600 - (left || 0)),
+          correctCount,
+          totalCount: qs.length,
+        });
+      }
 
       if (me?.email && correctCount > 0) {
         saveProfileDurable(me.email, {

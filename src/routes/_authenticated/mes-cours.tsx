@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { AppShell, PageTitle } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { getClientAuthToken } from "@/lib/authToken";
 import { pageMetadata } from "@/lib/metadata";
 import { play } from "@/lib/sound";
 
@@ -12,7 +13,7 @@ export const Route = createFileRoute("/_authenticated/mes-cours")({
   head: () =>
     pageMetadata(
       "Mes cours & Quiz IA",
-      "Ajoutez un cours par lien URL ou fichier et générez des QCM/QCS d'entraînement personnalisés."
+      "Ajoutez un cours par lien URL ou fichier et générez des QCM/QCS d'entraînement personnalisés.",
     ),
   component: MyLessons,
 });
@@ -28,6 +29,8 @@ export type SavedQuiz = {
   id: string;
   title: string;
   sourceUrl?: string;
+  sourceName?: string;
+  sourceMode?: string;
   qtype: "QCM" | "QCS";
   questions: LessonQuestion[];
   created_at: string;
@@ -38,29 +41,57 @@ const STORAGE_KEY = "doctorz_lesson_quizzes_v3";
 const PRESET_TOPICS = [
   {
     title: "Cardiologie · Insuffisance Cardiaque Aiguë et Chronique",
-    url: "https://medecine.univ-blida.dz/cours/cardio_ic.pdf",
-    notes: "Critères de Framingham, BNP/NT-proBNP, classification NYHA, bêta-bloquants, IEC et diurétiques de l'anse.",
+    url: "",
+    notes:
+      "Critères de Framingham, élévation du BNP/NT-proBNP, classification fonctionnelle NYHA I à IV, dyspnée d'effort puis orthopnée, bêta-bloquants (bisoprolol, carvédilol), IEC/ARA2, antagonistes des récepteurs aux minéralocorticoïdes et diurétiques de l'anse dans la congestion.",
   },
   {
     title: "Endocrinologie · Diabète de Type 2 et Complications",
-    url: "https://medecine.univ-blida.dz/cours/diabete_t2.pdf",
-    notes: "Seuils glycémiques à jeun (1.26 g/L), HbA1c, metformine en première intention, microangiopathie et néphropathie.",
+    url: "",
+    notes:
+      "Seuils diagnostiques : glycémie à jeun >= 1.26 g/L (7 mmol/L) à 2 reprises ou HbA1c >= 6.5%. Metformine en première intention (contre-indiquée si DFG < 30 mL/min). Complications microangiopathiques (rétinopathie, néphropathie glomérulaire, neuropathie) et macroangiopathiques.",
   },
   {
     title: "Pneumologie · Asthme et BPCO",
-    url: "https://medecine.univ-blida.dz/cours/asthme_bpco.pdf",
-    notes: "Trouble ventilatoire obstructif, réversibilité au salbutamol, corticoïdes inhalés, échelle GOLD.",
+    url: "",
+    notes:
+      "Trouble ventilatoire obstructif (VEMS/CVF < 0.70). Asthme : réversibilité significative après bêta-2 mimétiques (+12% et +200 mL), corticoïdes inhalés en traitement de fond. BPCO : obstruction peu ou pas réversible liée au tabagisme, classification GOLD, sevrage tabagique prioritaire.",
   },
 ];
+
+function sourceLabel(mode?: string): string {
+  switch (mode) {
+    case "pdf":
+    case "pdf-text":
+      return "📄 نص مستخرج من PDF";
+    case "pdf-ocr":
+      return "📄 قراءة PDF مصوّر (OCR)";
+    case "image":
+      return "🖼️ صورة درس";
+    case "text-file":
+      return "📃 ملف نصي";
+    case "url-pdf":
+      return "🔗 ملف PDF من الرابط";
+    case "url-text":
+      return "🌐 محتوى من الرابط";
+    case "notes-fallback":
+      return "📝 ملخص الدرس";
+    default:
+      return "🤖 ذكاء اصطناعي";
+  }
+}
 
 export function MyLessons() {
   const [quizzes, setQuizzes] = useState<SavedQuiz[]>([]);
   const [courseUrl, setCourseUrl] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
   const [notes, setNotes] = useState("");
   const [qtype, setQtype] = useState<"QCM" | "QCS">("QCM");
   const [count, setCount] = useState(5);
   const [busy, setBusy] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Load quizzes from localStorage
   useEffect(() => {
@@ -87,128 +118,111 @@ export function MyLessons() {
     }
   }
 
-  function handleSelectPreset(preset: typeof PRESET_TOPICS[number]) {
+  function handleSelectPreset(preset: (typeof PRESET_TOPICS)[number]) {
     play("click");
+    setErrorMsg(null);
+    setSelectedFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
     setTitle(preset.title);
     setCourseUrl(preset.url);
     setNotes(preset.notes);
-    toast.info("تم ملء معلومات الدرس المقترح بنجاح !");
-  }
-
-  function generateQuestions(subjectTitle: string, userUrl: string, userNotes: string, type: "QCM" | "QCS", n: number): LessonQuestion[] {
-    const list: LessonQuestion[] = [];
-    const cleanTopic = subjectTitle.trim() || (userUrl ? "Cours via lien URL : " + userUrl.split("/").pop() : "Pathologie médicale générale");
-
-    const templates = [
-      {
-        stem: `Concernant le diagnostic et la prise en charge de : "${cleanTopic}", quelle(s) est/sont la/les proposition(s) exacte(s) ?`,
-        options: [
-          { key: "A", text: "Le diagnostic repose en premier lieu sur un faisceau d'arguments cliniques et anamnestiques stricts." },
-          { key: "B", text: "Les examens complémentaires de première intention doivent être ciblés avant tout geste invasif." },
-          { key: "C", text: "Le traitement symptomatique exclut formellement les mesures hygiéno-diététiques associées." },
-          { key: "D", text: "La surveillance régulière permet de dépister précocement les complications aiguës et chroniques." },
-          { key: "E", text: "La posologie thérapeutique doit être adaptée à la clairance rénale et hépatique du patient." },
-        ],
-        correct: type === "QCS" ? ["A"] : ["A", "B", "D", "E"],
-        explanation: `D'après les données du cours sur "${cleanTopic}" : le diagnostic sémiologique et clinique reste primordial (A). Les examens non invasifs précèdent les explorations invasives (B). Les mesures hygiéno-diététiques sont indispensables et indissociables du traitement (C est fausse). La surveillance et l'adaptation posologique sont fondamentales (D et E sont vraies).`,
-      },
-      {
-        stem: `Parmi les signes cliniques cardinaux et critères d'évaluation de "${cleanTopic}", indiquez la/les affirmation(s) conforme(s) aux données de la faculté :`,
-        options: [
-          { key: "A", text: "La symptomatologie d'apparition brutale impose une prise en charge urgente." },
-          { key: "B", text: "L'absence de signe physique pathognomonique élimine définitivement l'hypothèse diagnostique." },
-          { key: "C", text: "L'interrogatoire minutieux précise le terrain, les antécédents et les facteurs de risque." },
-          { key: "D", text: "Le recours à une antibiothérapie probabiliste à large spectre est systématique dans 100% des formes cliniques." },
-          { key: "E", text: "L'évaluation de la gravité guide l'orientation immédiate (hospitalisation ou ambulatoire)." },
-        ],
-        correct: type === "QCS" ? ["A"] : ["A", "C", "E"],
-        explanation: `Dans le cours "${cleanTopic}" : l'interrogatoire et l'évaluation de la gravité orientent la décision thérapeutique immédiate (A, C, E vraies). L'absence de signe pathognomonique n'exclut pas le diagnostic (B faux). L'antibiothérapie n'est jamais systématique sans indication documentée ou infectieuse précise (D faux).`,
-      },
-      {
-        stem: `Sur le plan physiopathologique et thérapeutique dans le cadre de : "${cleanTopic}" :`,
-        options: [
-          { key: "A", text: "Le mécanisme lésionnel implique des médiateurs inflammatoires et/ou hémodynamiques spécifiques." },
-          { key: "B", text: "Le traitement de fond vise à ralentir l'évolution et prévenir les récidives." },
-          { key: "C", text: "L'éducation thérapeutique du patient améliore significativement l'observance et le pronostic." },
-          { key: "D", text: "L'interruption brutale du traitement prescrit n'expose à aucun risque de rebond." },
-          { key: "E", text: "L'association de molécules synergiques est privilégiée dans les formes modérées à sévères." },
-        ],
-        correct: type === "QCS" ? ["B"] : ["A", "B", "C", "E"],
-        explanation: `Physiopathologie de "${cleanTopic}" : l'éducation thérapeutique et le traitement de fond sont les piliers de la prise en charge (B, C vraies). Les cascades physiopathologiques justifient souvent une synergie médicamenteuse (A et E vraies). L'arrêt brutal présente un risque majeur d'effet rebond (D faux).`,
-      },
-      {
-        stem: `Quelles sont les complications majeures à redouter au cours de l'évolution de "${cleanTopic}" ?`,
-        options: [
-          { key: "A", text: "Décompensation aiguë d'organe nécessitant un monitorage continu." },
-          { key: "B", text: "Surinfection bactérienne secondaire favorisée par la stase ou l'altération barrière." },
-          { key: "C", text: "Guérison spontanée systématique en quelques heures sans aucune séquelle." },
-          { key: "D", text: "Retentissement métabolique ou hydro-électrolytique." },
-          { key: "E", text: "Risque thromboembolique en cas d'alitement prolongé." },
-        ],
-        correct: type === "QCS" ? ["A"] : ["A", "B", "D", "E"],
-        explanation: `Complications de "${cleanTopic}" : la décompensation, les surinfections, les troubles métaboliques et le risque thromboembolique sont des critères de suivi essentiels (A, B, D, E). La guérison spontanée sans séquelle est fausse (C faux).`,
-      },
-      {
-        stem: `Dans le suivi à long terme d'un patient atteint de "${cleanTopic}", quelle conduite tenir préconise la Faculté de Blida 1 ?`,
-        options: [
-          { key: "A", text: "Réalisation d'un bilan biologique et radiologique de contrôle selon un calendrier déterminé." },
-          { key: "B", text: "Dépistage systématique des effets indésirables des molécules administrées au long cours." },
-          { key: "C", text: "Arrêt de toute surveillance médicale dès l'amélioration des premiers symptômes." },
-          { key: "D", text: "Vérification de la mise à jour vaccinale et prise en charge des comorbidités associées." },
-          { key: "E", text: "Encouragement à la reprise progressive d'une activité physique adaptée." },
-        ],
-        correct: type === "QCS" ? ["A"] : ["A", "B", "D", "E"],
-        explanation: `Suivi au long cours de "${cleanTopic}" : la surveillance biologique, la détection des effets secondaires, la prévention vaccinale et la réadaptation sont recommandées (A, B, D, E vraies). La surveillance doit être poursuivie même après amélioration clinique initiale (C faux).`,
-      },
-    ];
-
-    // Build the requested count
-    for (let i = 0; i < n; i++) {
-      const base = templates[i % templates.length];
-      list.push({
-        stem: `[Q${i + 1}] ${base.stem}`,
-        options: base.options,
-        correct: base.correct,
-        explanation: base.explanation + (userNotes ? `\n(Rappel extrait : ${userNotes.slice(0, 100)}...)` : ""),
-      });
-    }
-
-    return list;
+    toast.info("تم ملء معلومات الدرس المقترح! اضغط على توليد الأسئلة.");
   }
 
   async function handleCreateQuiz() {
-    if (!title.trim() && !courseUrl.trim()) {
-      toast.error("يرجى إدخال عنوان الدرس أو رابط الملف !");
+    setErrorMsg(null);
+    const hasInput =
+      Boolean(selectedFile) ||
+      Boolean(courseUrl.trim()) ||
+      Boolean(title.trim()) ||
+      Boolean(notes.trim());
+
+    if (!hasInput) {
+      toast.error("يرجى رفع ملف PDF، أو وضع رابط الملف، أو إدخال عنوان/نص الدرس !");
       return;
     }
 
     setBusy(true);
     play("click");
 
-    // Simulate AI generation with immediate feedback
-    setTimeout(() => {
-      const generatedQuestions = generateQuestions(title, courseUrl, notes, qtype, count);
+    try {
+      const token = await getClientAuthToken();
+      if (!token) {
+        throw new Error("يرجى تسجيل الدخول أولاً لاستعمال مولّد الكويزات بالذكاء الاصطناعي.");
+      }
+
+      const formData = new FormData();
+      if (selectedFile) {
+        formData.append("file", selectedFile);
+      }
+      const fallbackTitle =
+        title.trim() ||
+        selectedFile?.name.replace(/\.(pdf|txt|md|csv|png|jpe?g|webp)$/i, "") ||
+        (courseUrl.trim() ? `Cours : ${courseUrl.trim().split("/").filter(Boolean).pop() ?? "PDF"}` : "Quiz de Révision");
+
+      formData.append("title", fallbackTitle);
+      formData.append("qtype", qtype);
+      formData.append("count", String(count));
+      if (courseUrl.trim()) formData.append("courseUrl", courseUrl.trim());
+      if (notes.trim()) formData.append("notes", notes.trim());
+
+      const res = await fetch("/api/lesson-quiz", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      const data = (await res.json().catch(() => ({}))) as {
+        id?: string;
+        title?: string;
+        qtype?: "QCM" | "QCS";
+        questions?: LessonQuestion[];
+        usedSourceMode?: string;
+        error?: string;
+      };
+
+      if (!res.ok) {
+        throw new Error(data.error || `فشل توليد الأسئلة (${res.status})`);
+      }
+
+      const generated = Array.isArray(data.questions) ? data.questions : [];
+      if (!generated.length) {
+        throw new Error("لم يتمكن الذكاء الاصطناعي من استخراج أسئلة من هذا الملف.");
+      }
+
+      const cleanUrl = courseUrl.trim();
       const newQuiz: SavedQuiz = {
-        id: `quiz-${Date.now()}`,
-        title: title.trim() || (courseUrl ? `Cours : ${courseUrl.split("/").pop()}` : "Quiz de Révision"),
-        sourceUrl: courseUrl.trim() || undefined,
-        qtype,
-        questions: generatedQuestions,
+        id: data.id || `quiz-${Date.now()}`,
+        title: data.title || fallbackTitle,
+        ...(cleanUrl ? { sourceUrl: cleanUrl } : {}),
+        ...(selectedFile ? { sourceName: selectedFile.name } : {}),
+        ...(data.usedSourceMode ? { sourceMode: data.usedSourceMode } : {}),
+        qtype: data.qtype || qtype,
+        questions: generated,
         created_at: new Date().toISOString(),
       };
 
       const updated = [newQuiz, ...quizzes];
       saveQuizzes(updated);
 
-      setBusy(false);
       play("reward");
-      toast.success(`🎉 تم توليد كويز بنجاح مع ${generatedQuestions.length} أسئلة !`);
+      toast.success(`🎉 تم توليد ${generated.length} أسئلة من محتوى الدرس بنجاح !`);
 
       // Reset fields
       setTitle("");
       setCourseUrl("");
       setNotes("");
-    }, 1000);
+      setSelectedFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "حدث خطأ غير متوقع أثناء توليد الكويز.";
+      setErrorMsg(message);
+      toast.error(message);
+    } finally {
+      setBusy(false);
+    }
   }
 
   function handleDeleteQuiz(id: string) {
@@ -223,7 +237,7 @@ export function MyLessons() {
       <PageTitle
         title="📄 Mes cours & Quiz IA"
         ar="كويزات من دروسك برابط أو ملف"
-        sub="أضف رابط ملف الدرس (Google Drive, PDF, رابط خارجي) أو عنوانه ليقوم الذكاء الاصطناعي بتوليد كويز QCM تدريبي فوري."
+        sub="ارفع ملف PDF أو ضع رابط الدرس (Google Drive عام أو رابط PDF مباشر) ليقرأه الذكاء الاصطناعي ويولّد أسئلة QCM حقيقية من محتواه."
       />
 
       {/* Preset Suggestions */}
@@ -235,6 +249,7 @@ export function MyLessons() {
           {PRESET_TOPICS.map((p) => (
             <button
               key={p.title}
+              type="button"
               onClick={() => handleSelectPreset(p)}
               className="rounded-xl border border-primary/30 bg-card px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-primary-soft transition-all active:scale-95 text-left"
             >
@@ -246,18 +261,56 @@ export function MyLessons() {
 
       {/* Generation Form */}
       <section className="card-game space-y-4 p-5 shadow-sm border border-border/80">
+        {/* PDF File Upload */}
+        <div className="rounded-2xl border-2 border-dashed border-primary/30 bg-primary/5 p-4">
+          <label className="block text-xs font-bold text-foreground mb-1.5">
+            📎 رفع ملف الدرس من جهازك (PDF، صورة صفحة، أو ملف نصي — حتى 25 Mo)
+          </label>
+          <div className="flex flex-wrap items-center gap-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf,application/pdf,.txt,.md,.csv,text/plain,image/png,image/jpeg,image/webp"
+              onChange={(e) => {
+                const file = e.target.files?.[0] ?? null;
+                setSelectedFile(file);
+                setErrorMsg(null);
+                if (file && !title.trim()) {
+                  setTitle(file.name.replace(/\.(pdf|txt|md|csv|png|jpe?g|webp)$/i, ""));
+                }
+              }}
+              className="text-xs file:mr-3 file:rounded-xl file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-primary-foreground hover:file:brightness-105 cursor-pointer"
+            />
+            {selectedFile && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedFile(null);
+                  if (fileInputRef.current) fileInputRef.current.value = "";
+                }}
+                className="rounded-lg border px-2 py-1 text-xs text-muted-foreground hover:text-destructive"
+              >
+                ✕ إزالة ({selectedFile.name})
+              </button>
+            )}
+          </div>
+        </div>
+
         <div>
           <label className="block text-xs font-bold text-foreground mb-1">
-            🔗 رابط ملف الدرس (Lien URL du cours / Google Drive / PDF)
+            🔗 أو رابط ملف الدرس (Lien URL / Google Drive عام / PDF)
           </label>
           <Input
-            placeholder="https://drive.google.com/... ou https://univ-blida.dz/cours.pdf"
+            placeholder="https://drive.google.com/file/d/.../view ou https://.../cours.pdf"
             value={courseUrl}
-            onChange={(e) => setCourseUrl(e.target.value)}
+            onChange={(e) => {
+              setCourseUrl(e.target.value);
+              setErrorMsg(null);
+            }}
             className="rounded-xl"
           />
           <p className="text-[11px] text-muted-foreground mt-1">
-            يمكنك وضع رابط مباشر لملف PDF أو رابط Google Drive أو صفحة الدرس على الإنترنت.
+            يقرأ الخادم الملف الفعلي من الرابط (يدعم روابط PDF المباشرة وروابط Google Drive/Docs العامة).
           </p>
         </div>
 
@@ -268,23 +321,38 @@ export function MyLessons() {
           <Input
             placeholder="مثال: Insuffisance Cardiaque, Paludisme, Appendicite Aiguë..."
             value={title}
-            maxLength={120}
-            onChange={(e) => setTitle(e.target.value)}
+            maxLength={140}
+            onChange={(e) => {
+              setTitle(e.target.value);
+              setErrorMsg(null);
+            }}
             className="rounded-xl"
           />
         </div>
 
         <div>
           <label className="block text-xs font-bold text-foreground mb-1">
-            📝 مقتطف من الدرس أو محاور أساسية (Optionnel - اختياري)
+            📝 نص أو مقتطف من الدرس (Optionnel - اختياري لزيادة التخصيص)
           </label>
           <Textarea
-            placeholder="انسخ والصق ملخصاً أو نقاطاً ترغب في التركيز عليها في الأسئلة..."
+            placeholder="انسخ والصق ملخصاً أو فقرات من الدرس ليتم استخراج الأسئلة منها مباشرة..."
             value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            className="rounded-xl text-xs min-h-[60px]"
+            onChange={(e) => {
+              setNotes(e.target.value);
+              setErrorMsg(null);
+            }}
+            className="rounded-xl text-xs min-h-[76px]"
           />
         </div>
+
+        {errorMsg && (
+          <div
+            role="alert"
+            className="rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-xs font-medium text-destructive"
+          >
+            ⚠️ {errorMsg}
+          </div>
+        )}
 
         <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-t border-border/60">
           <div>
@@ -337,10 +405,12 @@ export function MyLessons() {
 
         <Button
           className="w-full rounded-2xl bg-hero py-3 text-sm font-semibold text-primary-foreground shadow-pop hover:brightness-105 active:scale-95 transition-all"
-          disabled={busy || (!title.trim() && !courseUrl.trim())}
+          disabled={busy || (!selectedFile && !title.trim() && !courseUrl.trim() && !notes.trim())}
           onClick={() => void handleCreateQuiz()}
         >
-          {busy ? "جاري قراءة الدرس وتوليد الأسئلة بواسطة الذكاء الاصطناعي… 🤖" : "🚀 توليد أسئلة QCM من الدرس (Générer le Quiz)"}
+          {busy
+            ? "جاري قراءة الملف/الدرس وتوليد الأسئلة بالذكاء الاصطناعي… 🤖"
+            : "🚀 توليد أسئلة QCM من المحتوى (Générer le Quiz)"}
         </Button>
       </section>
 
@@ -362,7 +432,9 @@ export function MyLessons() {
           <div className="card-game p-8 text-center text-muted-foreground border-dashed">
             <span className="text-3xl block mb-2">📄</span>
             <p className="font-semibold text-sm">لم تقم بتوليد أي كويز بعد</p>
-            <p className="text-xs mt-1">ضع رابط ملف الدرس أو اختر درساً مقترحاً أعلاه لتوليد أول كويز لك في ثوانٍ !</p>
+            <p className="text-xs mt-1">
+              ارفع ملف PDF أو ضع رابط الدرس أعلاه لتوليد أسئلة مخصصة من محتواه في ثوانٍ !
+            </p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -418,11 +490,17 @@ function LessonQuizCard({ quiz, onDelete }: { quiz: SavedQuiz; onDelete: () => v
             <span>{open ? "▼" : "▶"}</span>
             <span>{quiz.title}</span>
           </button>
-          <div className="text-xs text-muted-foreground mt-0.5 flex items-center gap-2">
+          <div className="text-xs text-muted-foreground mt-0.5 flex flex-wrap items-center gap-2">
             <span className="rounded bg-primary-soft text-primary font-semibold px-1.5 py-0.5">
               {quiz.qtype}
             </span>
             <span>{quiz.questions.length} أسئلة</span>
+            <span className="rounded bg-muted px-1.5 py-0.5 text-[11px]">
+              {sourceLabel(quiz.sourceMode)}
+            </span>
+            {quiz.sourceName && (
+              <span className="text-[11px] truncate max-w-[180px]">{quiz.sourceName}</span>
+            )}
             {quiz.sourceUrl && (
               <a
                 href={quiz.sourceUrl}
@@ -449,6 +527,7 @@ function LessonQuizCard({ quiz, onDelete }: { quiz: SavedQuiz; onDelete: () => v
             {open ? "إخفاء الأسئلة" : "حل الكويز ✍️"}
           </Button>
           <button
+            type="button"
             onClick={onDelete}
             title="حذف الكويز"
             className="rounded-xl p-2 text-xs text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"

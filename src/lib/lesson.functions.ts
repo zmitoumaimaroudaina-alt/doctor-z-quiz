@@ -27,10 +27,12 @@ export const generateLessonQuiz = createServerFn({ method: "POST" })
     if (error || !file) throw new Error("Fichier introuvable");
     const bytes = new Uint8Array(await file.arrayBuffer());
     const pdfBase64 = Buffer.from(bytes).toString("base64");
-    const questions = await generateQuizFromPdfBytes({
+    const { questions } = await generateQuizFromPdfBytes({
       pdfBase64,
+      pdfBytes: bytes,
       qtype: data.qtype,
       count: data.count,
+      title: data.title,
     });
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: row, error: e2 } = await supabaseAdmin

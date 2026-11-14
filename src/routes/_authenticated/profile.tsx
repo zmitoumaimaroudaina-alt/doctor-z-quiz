@@ -77,8 +77,20 @@ function Profile() {
           <p className="mt-1 text-sm text-muted-foreground">Action définitive : ton compte, ton avatar, tes scores et ton rang disparaissent complètement du jeu.</p>
           <input value={confirmText} onChange={(e) => setConfirmText(e.target.value)} placeholder="Tape SUPPRIMER" className="mt-3 w-full rounded-xl border px-3 py-2 text-sm" />
           <button disabled={confirmText !== "SUPPRIMER"} onClick={async () => {
-            try { await del(); clearCurrentSession(); await qc.cancelQueries(); qc.clear(); await supabase.auth.signOut(); nav({ to: "/", replace: true }); toast.success("Compte supprimé."); }
-            catch (e) { toast.error((e as Error).message); }
+            try {
+              if (import.meta.env["VITE_SUPABASE_URL"]) {
+                await del();
+              } else {
+                const { error } = await supabase.from("profiles").delete().eq("id", me.id);
+                if (error) throw new Error(error.message);
+              }
+              clearCurrentSession();
+              await qc.cancelQueries();
+              qc.clear();
+              await supabase.auth.signOut();
+              nav({ to: "/", replace: true });
+              toast.success("Compte supprimé.");
+            } catch (e) { toast.error((e as Error).message); }
           }} className="mt-3 rounded-xl bg-destructive px-4 py-2 font-semibold text-destructive-foreground disabled:opacity-40">Supprimer définitivement</button>
         </div>
       )}

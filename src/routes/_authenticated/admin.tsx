@@ -6,9 +6,9 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell, PageTitle } from "@/components/AppShell";
+import { CreatorQuestionEditor } from "@/components/CreatorQuestionEditor";
 import { useMe } from "@/hooks/useMe";
 import { deleteStudent } from "@/lib/account.functions";
-import type { Option } from "@/lib/queries";
 import { getAccountsMap, getProfilesMap, normalizeEmail } from "@/lib/profileStore";
 import {
   addHeartsToUser,
@@ -27,22 +27,23 @@ export const Route = createFileRoute("/_authenticated/admin")({
 
 function Admin() {
   const { data: me } = useMe();
-  const [tab, setTab] = useState<"students" | "review" | "search">("students");
+  const [tab, setTab] = useState<"students" | "search" | "review">("students");
   if (!me) return null;
   if (!me.isCreator) return <AppShell><p>Accès réservé au Creator.</p></AppShell>;
   return (
     <AppShell wide>
-      <PageTitle title="👑 Panneau Creator" ar="لوحة تحكم المصمم" sub="إدارة القلوب ❤️ والطلاب والأسئلة." />
+      <PageTitle title="👑 Panneau Creator" ar="لوحة تحكم المصمم" sub="إدارة القلوب ❤️ والطلاب والبحث في الأسئلة وتصحيح الحل الرسمي يدوياً." />
       <div className="mb-4 flex flex-wrap gap-2">
         {(
           [
             ["students", "❤️ القلوب والطلاب (Étudiants)"],
-            ["review", "À vérifier"],
-            ["search", "Questions"],
+            ["search", "🛠️ البحث وتصحيح الأسئلة يدوياً"],
+            ["review", "⚠️ أسئلة تحتاج مراجعة"],
           ] as const
         ).map(([k, l]) => (
           <button
             key={k}
+            type="button"
             onClick={() => setTab(k)}
             className={`rounded-full px-4 py-1.5 text-sm font-semibold ${
               tab === k ? "bg-primary text-primary-foreground" : "border bg-card"
@@ -52,131 +53,12 @@ function Admin() {
           </button>
         ))}
       </div>
-      {tab === "students" ? <Students /> : <Questions reviewOnly={tab === "review"} />}
-    </AppShell>
-  );
-}
-
-function Questions({ reviewOnly }: { reviewOnly: boolean }) {
-  const [q, setQ] = useState("");
-  const { data, refetch } = useQuery({
-    queryKey: ["admin-q", reviewOnly, q],
-    queryFn: async () => {
-      let s = supabase.from("questions").select("*, question_keys(*)").order("source_file").order("pos").limit(200);
-      if (reviewOnly) s = s.eq("needs_review", true);
-      if (q.trim()) s = s.ilike("stem", `%${q.trim()}%`);
-      return (await s).data ?? [];
-    },
-  });
-  return (
-    <div>
-      <input
-        value={q}
-        onChange={(e) => setQ(e.target.value)}
-        placeholder="Rechercher dans l'énoncé…"
-        className="mb-4 w-full rounded-xl border px-3 py-2"
-      />
-      <div className="space-y-3">
-        {data?.map((row) => (
-          <Editor key={row.id} row={row} onSaved={() => refetch()} />
-        ))}
-      </div>
-      {data && !data.length && <p className="text-muted-foreground">Rien à afficher.</p>}
-    </div>
-  );
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function Editor({ row, onSaved }: { row: any; onSaved: () => void }) {
-  const key = Array.isArray(row.question_keys) ? row.question_keys[0] : row.question_keys;
-  const [open, setOpen] = useState(false);
-  const [stem, setStem] = useState<string>(row.stem);
-  const [opts, setOpts] = useState<Option[]>(row.options);
-  const [correct, setCorrect] = useState<string>((key?.correct ?? []).join(""));
-  const [expl, setExpl] = useState<string>(key?.explanation ?? "");
-  const [note, setNote] = useState<string>(key?.note ?? "");
-  async function save(clearFlag: boolean) {
-    const letters = [...new Set(correct.toUpperCase().replace(/[^A-E]/g, "").split(""))].sort();
-    const r1 = await supabase
-      .from("questions")
-      .update({ stem, options: opts, ...(clearFlag ? { needs_review: false, review_reason: null } : {}) })
-      .eq("id", row.id);
-    const r2 = await supabase
-      .from("question_keys")
-      .upsert({ question_id: row.id, correct: letters, explanation: expl || null, note: note || null });
-    const saveError = r1.error ?? r2.error;
-    if (saveError) {
-      toast.error(saveError.message);
-      return;
-    }
-    toast.success("Question mise à jour");
-    onSaved();
-  }
-  return (
-    <div className="card-game p-4">
-      <button onClick={() => setOpen(!open)} className="w-full text-left">
-        <div className="text-xs text-muted-foreground">
-          Questions de la Faculté de Médecine de Blida · #{row.pos}{" "}
-          {row.needs_review && <span className="ml-1 rounded bg-warning/30 px-1">⚠ {row.review_reason}</span>}
-        </div>
-        <div className="line-clamp-2 font-medium">{row.stem}</div>
-      </button>
-      {open && (
-        <div className="mt-3 space-y-2 text-sm">
-          <textarea value={stem} onChange={(e) => setStem(e.target.value)} rows={3} className="w-full rounded-lg border p-2" />
-          {opts.map((o, i) => (
-            <div key={i} className="flex gap-2">
-              <input
-                value={o.key}
-                onChange={(e) =>
-                  setOpts(opts.map((x, j) => (j === i ? { ...x, key: e.target.value.toUpperCase().slice(0, 1) } : x)))
-                }
-                className="w-10 rounded-lg border p-2 text-center"
-              />
-              <input
-                value={o.text}
-                onChange={(e) => setOpts(opts.map((x, j) => (j === i ? { ...x, text: e.target.value } : x)))}
-                className="flex-1 rounded-lg border p-2"
-              />
-              <button onClick={() => setOpts(opts.filter((_, j) => j !== i))} className="px-2">
-                ✕
-              </button>
-            </div>
-          ))}
-          <button onClick={() => setOpts([...opts, { key: "ABCDE"[opts.length] ?? "?", text: "" }])} className="text-primary">
-            + option
-          </button>
-          <label className="block">
-            Réponse officielle (lettres){" "}
-            <input value={correct} onChange={(e) => setCorrect(e.target.value)} className="ml-2 w-24 rounded-lg border p-1.5" />
-          </label>
-          <textarea
-            value={expl}
-            onChange={(e) => setExpl(e.target.value)}
-            placeholder="Explication officielle (source)"
-            rows={2}
-            className="w-full rounded-lg border p-2"
-          />
-          <textarea
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            placeholder="Note (source)"
-            rows={2}
-            className="w-full rounded-lg border p-2"
-          />
-          <div className="flex gap-2">
-            <button onClick={() => save(false)} className="rounded-lg bg-primary px-3 py-2 text-primary-foreground">
-              Enregistrer
-            </button>
-            {row.needs_review && (
-              <button onClick={() => save(true)} className="rounded-lg bg-success px-3 py-2 text-success-foreground">
-                Enregistrer & valider
-              </button>
-            )}
-          </div>
-        </div>
+      {tab === "students" ? (
+        <Students />
+      ) : (
+        <CreatorQuestionEditor key={tab} defaultFilterMode={tab === "review" ? "review" : "all"} />
       )}
-    </div>
+    </AppShell>
   );
 }
 

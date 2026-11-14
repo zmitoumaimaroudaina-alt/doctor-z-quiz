@@ -40,7 +40,12 @@ function Course() {
             supabase.from("questions").select("*").eq("course_id", courseId).order("pos"),
           ]);
           if (c && qs && qs.length > 0) {
-            return { c, qs: qs as unknown as Question[] };
+            const { getQuestionOverride } = await import("@/lib/questionOverrides");
+            const merged = (qs as unknown as Question[]).map((item) => {
+              const ov = getQuestionOverride(item.id);
+              return ov ? { ...item, ...ov } : item;
+            });
+            return { c, qs: merged };
           }
         } catch {
           // use fallback
@@ -145,6 +150,8 @@ function Course() {
           <Practice
             key={courseId}
             questions={qs}
+            challengeId={courseId}
+            challengeTitle={c.title ?? ""}
             onRequestNewAttempt={() => {
               if (!heartStatus.canPlay) {
                 toast.error(

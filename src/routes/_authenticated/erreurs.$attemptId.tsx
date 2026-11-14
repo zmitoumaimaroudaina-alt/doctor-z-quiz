@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import type { Question } from "@/lib/queries";
 import { AiExplain } from "@/components/AiExplain";
 import { evaluateQuestionAnswer, getBundledExam, getBundledKey } from "@/lib/medicalData";
+import { getKeyOverride, getQuestionOverride } from "@/lib/questionOverrides";
 
 export const Route = createFileRoute("/_authenticated/erreurs/$attemptId")({
   head: () => pageMetadata("Correction de ma tentative", "Questions fausses et sans réponse de ta tentative."),
@@ -24,7 +25,26 @@ function Erreurs() {
       if (!attemptId.startsWith("local_exam_")) {
         try {
           const { data: remote } = await supabase.rpc("attempt_review", { _attempt: attemptId });
-          if (remote && remote.length > 0) return remote;
+          if (remote && remote.length > 0) {
+            return remote.map((row) => {
+              const qOv = getQuestionOverride(row.question_id);
+              const kOv = getKeyOverride(row.question_id);
+              const official = kOv?.correct ?? row.official ?? [];
+              const sel = (row.selected as string[] | null) ?? [];
+              const sortedSel = [...sel].map((s) => s.toUpperCase()).sort().join(",");
+              const sortedOff = [...official].map((s) => s.toUpperCase()).sort().join(",");
+              return {
+                ...row,
+                stem: qOv?.stem ?? row.stem,
+                case_text: qOv?.case_text !== undefined ? qOv.case_text : row.case_text,
+                options: qOv?.options ?? row.options,
+                official,
+                explanation: kOv?.explanation !== undefined ? kOv.explanation : row.explanation,
+                note: kOv?.note !== undefined ? kOv.note : row.note,
+                ok: kOv ? sortedSel.length > 0 && sortedSel === sortedOff : row.ok,
+              };
+            });
+          }
         } catch {
           // fallback below
         }

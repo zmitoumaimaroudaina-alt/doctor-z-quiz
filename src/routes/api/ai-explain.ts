@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { createHash } from "node:crypto";
 import { z } from "zod";
 
 const Body = z.object({
@@ -62,6 +63,7 @@ export const Route = createFileRoute("/api/ai-explain")({
           hasGeminiApiKey,
           streamMedicalExplanation,
         } = await import("@/lib/gemini.server");
+        const { readServerOverrides } = await import("@/lib/questionOverrides.server");
 
         const student = await authenticateStudentRequest(request);
         if (!student) {
@@ -74,7 +76,18 @@ export const Route = createFileRoute("/api/ai-explain")({
         let q: { stem: string; case_text: string | null; options: { key: string; text: string }[] } | null = null;
         let k: { correct: string[]; explanation: string | null; note: string | null } | null = null;
 
-        if (url && pub && /^[0-9a-f-]{36}$/i.test(questionId)) {
+        if (bodyQ && bodyK) {
+          q = {
+            stem: bodyQ.stem,
+            case_text: bodyQ.case_text ?? null,
+            options: bodyQ.options,
+          };
+          k = {
+            correct: bodyK.correct,
+            explanation: bodyK.explanation ?? null,
+            note: bodyK.note ?? null,
+          };
+        } else if (url && pub && /^[0-9a-f-]{36}$/i.test(questionId)) {
           const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
           const qRes = await supabaseAdmin
             .from("questions")
@@ -130,9 +143,37 @@ export const Route = createFileRoute("/api/ai-explain")({
 
         if (!q || !k) return new Response("Not found", { status: 404 });
 
+        // Merge authoritative server-side creator override if present (ensures creator edits ALWAYS win when client didn't pass them or was stale)
+        const serverOverrides = await readServerOverrides();
+        const ovQ = serverOverrides.questions[questionId];
+        const ovK = serverOverrides.keys[questionId];
+        if (ovQ) {
+          q = {
+            stem: ovQ.stem ?? q.stem,
+            case_text: ovQ.case_text !== undefined ? ovQ.case_text : q.case_text,
+            options: ovQ.options ?? q.options,
+          };
+        }
+        if (ovK && !bodyK) {
+          k = {
+            correct: ovK.correct && ovK.correct.length > 0 ? ovK.correct : k.correct,
+            explanation: ovK.explanation !== undefined ? ovK.explanation : k.explanation,
+            note: ovK.note !== undefined ? ovK.note : k.note,
+          };
+        } else if (ovK && bodyK && ovK.correct && ovK.correct.length > 0 && bodyK.correct.length === 0) {
+          k = {
+            correct: ovK.correct,
+            explanation: ovK.explanation !== undefined ? ovK.explanation : k.explanation,
+            note: ovK.note !== undefined ? ovK.note : k.note,
+          };
+        }
+
+        const normalizedCorrect = [...new Set(k.correct.map((c) => c.trim().toUpperCase()))].sort();
+        const normalizedSelected = [...new Set(selected.map((s) => s.trim().toUpperCase()))].sort();
+
         if (!hasGeminiApiKey()) {
-          const officialText = k.correct.length ? k.correct.join(", ") : "non disponible";
-          const selText = selected.length ? selected.join(", ") : "aucune réponse";
+          const officialText = normalizedCorrect.length ? normalizedCorrect.join(", ") : "non disponible";
+          const selText = normalizedSelected.length ? normalizedSelected.join(", ") : "aucune réponse";
           const parts = [
             `Réponse officielle : ${officialText} (ta réponse : ${selText}).`,
             k.explanation ? `Explication de la source : ${k.explanation}` : null,
@@ -144,9 +185,23 @@ export const Route = createFileRoute("/api/ai-explain")({
           return streamLocalSse(parts.join("\n\n"));
         }
 
-        const sortedSel = [...selected].sort().join(",") || "none";
         const isInitial = messages.length === 0;
-        const cacheKey = `${questionId}:${sortedSel}`;
+        const payloadHash = createHash("sha256")
+          .update(
+            JSON.stringify({
+              questionId,
+              selected: normalizedSelected,
+              stem: q.stem,
+              case_text: q.case_text,
+              options: q.options,
+              correct: normalizedCorrect,
+              explanation: k.explanation ?? "",
+              note: k.note ?? "",
+            }),
+          )
+          .digest("hex")
+          .slice(0, 24);
+        const cacheKey = `v2:${questionId}:${payloadHash}`;
         const dedupeKey = isInitial ? `init:${cacheKey}` : undefined;
 
         const quotaCheck = await consumeStudentQuota({
@@ -170,28 +225,60 @@ export const Route = createFileRoute("/api/ai-explain")({
           }
         }
 
-        const opts = q.options.map((o) => `${o.key}. ${o.text}`).join("\n");
-        const systemInstruction = `Tu es Dr Z-Bot, tuteur de médecine précis et rigoureux pour des étudiants de 3e année (Faculté de Médecine de Blida 1).
-RÈGLES ABSOLUES :
-- La RÉPONSE OFFICIELLE ci-dessous est définitive. Ne la modifie jamais, ne la contredis jamais, ne suggère jamais qu'elle serait fausse.
-- Explique clairement la physiopathologie ou le mécanisme médical qui justifie chaque item vrai et pourquoi les autres items (ou le choix de l'étudiant) sont faux, de façon structurée et concise (≤ 220 mots).
-- Ne réécris pas l'énoncé complet ni la liste brute des options.
-- Réponds en français médical précis, avec éventuellement une courte touche chaleureuse d'arabe dialectal algérien.
+        const annotatedOptions = q.options
+          .map((o) => {
+            const keyUpper = o.key.trim().toUpperCase();
+            const isTrue = normalizedCorrect.includes(keyUpper);
+            const isChosen = normalizedSelected.includes(keyUpper);
+            const verdictTag = isTrue
+              ? "[✅ VRAIE — RÉPONSE OFFICIELLE RETENUE]"
+              : "[❌ FAUSSE — OPTION EXCLUE]";
+            const studentTag = isChosen ? " [👉 CHOIX DE L'ÉTUDIANT]" : "";
+            return `${o.key}. ${o.text}  --> ${verdictTag}${studentTag}`;
+          })
+          .join("\n");
 
-${q.case_text ? `CAS CLINIQUE : ${q.case_text}\n` : ""}QUESTION : ${q.stem}
-OPTIONS :
-${opts}
-RÉPONSE DE L'ÉTUDIANT : ${selected.length ? selected.join(", ") : "aucune réponse"}
-RÉPONSE OFFICIELLE : ${k.correct.join(", ") || "non disponible"}
-EXPLICATION DE LA SOURCE : ${k.explanation ?? "aucune"}
-NOTE DE LA SOURCE : ${k.note ?? "aucune"}
-ORIGINE : Questions de la Faculté de Médecine de l’Université de Blida.
-Ne mentionne aucun nom de fichier ou de recueil.`;
+        const isCreatorModified = Boolean(ovK);
+        const systemInstruction = `Tu es Dr Z-Bot, tuteur de médecine précis et rigoureux à la Faculté de Médecine de l'Université Saad Dahleb – Blida 1.
+
+RÈGLES ABSOLUES ET NON NÉGOCIABLES :
+1. FIDÉLITÉ STRICTE AU CORRIGÉ OFFICIEL : La clé officielle ci-dessous (${normalizedCorrect.join(", ") || "non disponible"}${isCreatorModified ? " — validée/corrigée par le créateur du module" : " — clé officielle de l'examen"}) est 100% DÉFINITIVE et FAIT FOI.
+   - Ne contredis JAMAIS cette clé officielle.
+   - Ne dis JAMAIS qu'une option marquée [❌ FAUSSE] pourrait être vraie, ni qu'une option marquée [✅ VRAIE] est fausse ou discutable.
+   - Base toute ton explication physiopathologique et clinique sur la justification exacte de ces choix officiels (et sur l'explication/note de la source si fournie).
+2. EXPLICATION PRÉCISE ET STRUCTURÉE (≤ 320 mots) :
+   - Commence par confirmer clairement la réponse officielle [${normalizedCorrect.join(", ")}] et évaluer brièvement la réponse de l'étudiant [${normalizedSelected.join(", ") || "aucune"}].
+   - Justifie avec précision médicale POURQUOI chaque proposition [✅ VRAIE] est exacte dans ce contexte précis.
+   - Explique brièvement POURQUOI chaque proposition [❌ FAUSSE] est inexacte ou constitue un piège.
+   - Ne recopie pas l'énoncé en entier ; reste direct, pédagogique et rigoureux.
+3. LANGUE : Français médical précis (ou langue de la question de l'étudiant s'il écrit en arabe, tout en gardant les termes médicaux clairs).
+
+${q.case_text ? `CAS CLINIQUE :\n${q.case_text}\n\n` : ""}QUESTION :
+${q.stem}
+
+OPTIONS ANNOTÉES SELON LA CLÉ OFFICIELLE :
+${annotatedOptions}
+
+RÉPONSE DE L'ÉTUDIANT : ${normalizedSelected.length ? normalizedSelected.join(", ") : "aucune réponse"}
+RÉPONSE OFFICIELLE DÉFINITIVE : [${normalizedCorrect.join(", ") || "non disponible"}]
+EXPLICATION OFFICIELLE / DU CRÉATEUR : ${k.explanation?.trim() || "aucune"}
+NOTE PÉDAGOGIQUE : ${k.note?.trim() || "aucune"}
+ORIGINE : Questions de la Faculté de Médecine de l’Université de Blida (ne cite aucun nom de fichier interne).`;
+
+        const effectiveMessages =
+          messages.length > 0
+            ? messages
+            : [
+                {
+                  role: "user" as const,
+                  content: `Explique cette question en suivant strictement la réponse officielle [${normalizedCorrect.join(", ")}]. Justifie chaque option vraie et chaque option fausse.`,
+                },
+              ];
 
         try {
           const geminiStream = await streamMedicalExplanation({
             systemInstruction,
-            messages,
+            messages: effectiveMessages,
             signal: request.signal,
           });
 

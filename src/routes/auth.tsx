@@ -112,19 +112,26 @@ export function AuthPage() {
             });
 
       if (res.data?.session && res.data.user) {
-        // Save local account record & ensure durable profile preserves any prior local customizations
+        // Save local account record & ensure durable profile exists so participant appears in leaderboard immediately
+        const existingProfile = getSavedProfileByEmail(cleanEmail);
+        const resolvedName = existingProfile?.display_name || chosenName;
         saveAccount({
           id: res.data.user.id,
           email: cleanEmail,
           password,
-          display_name: getSavedProfileByEmail(cleanEmail)?.display_name || chosenName,
+          display_name: resolvedName,
           isCreator,
           created_at: new Date().toISOString(),
         });
+        if (existingProfile) {
+          saveProfileDurable(cleanEmail, { email: cleanEmail, isCreator: isCreator || existingProfile.isCreator });
+        } else {
+          saveProfileDurable(cleanEmail, buildDefaultProfile(cleanEmail, resolvedName, isCreator), resolvedName);
+        }
         setActiveSessionUser({
           id: res.data.user.id,
           email: cleanEmail,
-          user_metadata: { full_name: chosenName },
+          user_metadata: { full_name: resolvedName },
         });
         toast.success(mode === "in" ? "Connexion réussie !" : "Compte créé avec succès !");
         qc.removeQueries({ queryKey: ["me"] });

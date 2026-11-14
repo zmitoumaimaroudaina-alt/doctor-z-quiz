@@ -2,9 +2,12 @@ import { createClient } from "@supabase/supabase-js";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 
-export const AI_DAILY_EXPLAIN_LIMIT = 15;
-export const AI_DAILY_PDF_LIMIT = 3;
-const CREATOR_EMAIL = "doctorzmit@gmail.com";
+export const AI_DAILY_EXPLAIN_LIMIT = 60;
+export const AI_DAILY_PDF_LIMIT = 30;
+const CREATOR_EMAILS = new Set([
+  "doctorzmit@gmail.com",
+  "zmitoumaimaroudaina@gmail.com",
+]);
 
 export type AiQuotaKind = "explain" | "pdf";
 
@@ -224,7 +227,7 @@ export async function authenticateStudentRequest(
     return {
       userId: data.user.id,
       email,
-      isCreator: email === CREATOR_EMAIL,
+      isCreator: CREATOR_EMAILS.has(email),
     };
   }
 
@@ -240,7 +243,7 @@ export async function authenticateStudentRequest(
         return {
           userId: payload.sub,
           email,
-          isCreator: email === CREATOR_EMAIL,
+          isCreator: CREATOR_EMAILS.has(email),
         };
       }
     } catch {

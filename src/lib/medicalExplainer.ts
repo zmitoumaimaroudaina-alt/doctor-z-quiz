@@ -1,4 +1,5 @@
 import { getBundledKey, getBundledQuestion } from "./medicalData";
+import { getKeyOverride, getQuestionOverride } from "./questionOverrides";
 import type { Question } from "./queries";
 
 function deduceClinicalContext(stem: string): string {
@@ -37,65 +38,95 @@ export function generateClinicalExplanation(
   customQ?: Question,
   customOfficial?: { correct: string[]; explanation: string; note: string | null }
 ): string {
-  const q = customQ || getBundledQuestion(questionId);
-  const key = customOfficial || getBundledKey(questionId);
+  const baseQ = customQ || getBundledQuestion(questionId);
+  const qOv = getQuestionOverride(questionId);
+  const q = baseQ && qOv
+    ? {
+        ...baseQ,
+        ...(qOv.stem !== undefined ? { stem: qOv.stem } : {}),
+        ...(qOv.case_text !== undefined ? { case_text: qOv.case_text } : {}),
+        ...(qOv.options !== undefined ? { options: qOv.options } : {}),
+      }
+    : baseQ;
 
-  const officialAnswer = (key.correct || []).join(", ") || "A";
+  const baseKey = customOfficial || getBundledKey(questionId);
+  const kOv = getKeyOverride(questionId);
+  const key = kOv
+    ? {
+        correct: kOv.correct ?? baseKey.correct,
+        explanation: kOv.explanation !== undefined ? (kOv.explanation ?? "") : baseKey.explanation,
+        note: kOv.note !== undefined ? kOv.note : baseKey.note,
+      }
+    : baseKey;
+
+  const officialAnswer = (key.correct || []).join(", ") || "غير محددة";
   const clinicalDeduction = q?.stem ? deduceClinicalContext(q.stem) : "";
   const officialExplanation =
     key.explanation && key.explanation.trim().length > 5
       ? key.explanation
       : clinicalDeduction;
   const note = key.note ? `\n📌 **Remarque de cours :** ${key.note}` : "";
+  const stemPreview = q?.stem ? q.stem.trim() : `Question #${questionId}`;
+  const options = (q?.options as { key: string; text: string }[] | undefined) ?? [];
+  const correctOptionsText =
+    options
+      .filter((o) => key.correct.includes(o.key))
+      .map((o) => `• **${o.key}**: ${o.text}`)
+      .join("\n") || `Clé officielle : [${officialAnswer}]`;
 
   // Follow-up interaction
   if (userPrompt && userPrompt.trim().length > 0) {
     const p = userPrompt.toLowerCase();
-    if (p.includes("pourquoi") || p.includes("pourquoi pas") || p.includes("علاش")) {
-      return `🩺 **Dr Z-Bot (Réponse ciblée) :**
-Concernant ta question : "*${userPrompt}*"
+    const wrongOptionsText = options
+      .filter((o) => !key.correct.includes(o.key))
+      .map((o) => `• **${o.key}**: ${o.text} → distracteur inexact par rapport à l'énoncé.`)
+      .join("\n");
 
-Dans ce QCM, la clé officielle retenue par la commission pédagogique est **[${officialAnswer}]**.
-${officialExplanation}
+    if (p.includes("فخ") || p.includes("piège") || p.includes("piege") || p.includes("خطأ")) {
+      return `🩺 **Dr Z-Bot — Analyse des pièges pour :** *"${stemPreview.slice(0, 120)}${stemPreview.length > 120 ? "…" : ""}"*
 
-💡 **Point clé pour le jour J :**
-Dans les examens de notre faculté, une proposition contenant un terme absolu ("toujours", "dans 100% des cas", "exclut formellement") est très fréquemment fausse. Vérifie toujours les critères de certitude par rapport aux probabilités cliniques.
+🎯 **Réponse officielle retenue : [${officialAnswer}]**
+${correctOptionsText}
 
-Saha ftourek / bon courage pour tes révisions !`;
+⚠️ **Propositions pièges (fausses) dans ce QCM :**
+${wrongOptionsText || "Aucune autre option n'est retenue par le corrigé officiel."}
+
+💡 **Explication :** ${officialExplanation}${note}`;
     }
-    if (p.includes("différence") || p.includes("فرق")) {
-      return `🩺 **Dr Z-Bot (Distinction sémiologique) :**
-Excellente question sur le diagnostic différentiel !
-Le piège classique ici repose sur la distinction entre signe pathognomonique et signe d'orientation :
-- La proposition **[${officialAnswer}]** est la seule à répondre rigoureusement aux critères formels de l'examen.
-${officialExplanation}
 
-Garde toujours cette hiérarchie clinique en tête ! 💪`;
-    }
+    return `🩺 **Dr Z-Bot — Réponse à :** *"${userPrompt.trim()}"*
+
+📌 **Question étudiée :** ${stemPreview.slice(0, 160)}${stemPreview.length > 160 ? "…" : ""}
+🎯 **Réponse officielle : [${officialAnswer}]**
+${correctOptionsText}
+
+💡 **Analyse médicale :**
+${officialExplanation}${note}`;
   }
 
   // Option-by-option detailed breakdown
-  const options = q?.options as { key: string; text: string }[] | undefined;
-  const optionsAnalysis = (options || []).map((o) => {
-    const isCorrect = key.correct.includes(o.key);
-    const wasChosen = selected.includes(o.key);
+  const optionsAnalysis = options
+    .map((o) => {
+      const isCorrect = key.correct.includes(o.key);
+      const wasChosen = selected.includes(o.key);
 
-    let status = isCorrect ? "✅ [PROPOSITION VRAIE]" : "❌ [PROPOSITION FAUSSE]";
-    let comment = isCorrect
-      ? "Répond fidèlement aux données du cours officiel."
-      : "Piège ou proposition cliniquement inexacte.";
+      let status = isCorrect ? "✅ [PROPOSITION VRAIE]" : "❌ [PROPOSITION FAUSSE]";
+      let comment = isCorrect
+        ? `Confirmée par la clé officielle [${officialAnswer}] pour cette question.`
+        : "Ne correspond pas aux critères exacts demandés dans l'énoncé.";
 
-    if (wasChosen && isCorrect) {
-      status += " 👈 (Bravo, ton choix est exact !)";
-    } else if (wasChosen && !isCorrect) {
-      status += " 👈 (Attention, tu as coché ce piège !)";
-      comment = "Ce choix est un distracteur classique qui ne respecte pas les critères d'évaluation.";
-    } else if (!wasChosen && isCorrect) {
-      status += " ⚠️ (Attention, tu as manqué cette bonne réponse !)";
-    }
+      if (wasChosen && isCorrect) {
+        status += " 👈 (Bravo, ton choix est exact !)";
+      } else if (wasChosen && !isCorrect) {
+        status += " 👈 (Attention, tu as coché ce piège !)";
+        comment = `Piège fréquent : "${o.text.slice(0, 80)}${o.text.length > 80 ? "…" : ""}" est inexacte ici.`;
+      } else if (!wasChosen && isCorrect) {
+        status += " ⚠️ (Tu as manqué cette bonne réponse !)";
+      }
 
-    return `• **Option ${o.key} : "${o.text}"**\n  ↳ ${status}\n  ↳ *${comment}*`;
-  }).join("\n\n");
+      return `• **Option ${o.key} : "${o.text}"**\n  ↳ ${status}\n  ↳ *${comment}*`;
+    })
+    .join("\n\n");
 
   const isStudentCorrect =
     selected.length > 0 &&
@@ -106,29 +137,21 @@ Garde toujours cette hiérarchie clinique en tête ! 💪`;
   if (selected.length === 0) {
     evaluationHeader = "ℹ️ Tu n'as pas encore validé de réponse pour cette question. Voici l'analyse officielle détaillée :";
   } else if (isStudentCorrect) {
-    evaluationHeader = `🎉 **Excellent réflexe médical !** Tu as trouvé la réponse officielle exacte : **[${officialAnswer}]**. Ton raisonnement clinique est parfaitement aligné avec le cours.`;
+    evaluationHeader = `🎉 **Excellent réflexe médical !** Tu as trouvé la réponse officielle exacte : **[${officialAnswer}]**.`;
   } else {
-    evaluationHeader = `⚠️ **Erreur diagnostique / Piège d'examen :**\nTu as sélectionné **[${selected.join(", ")}]**, alors que la réponse officielle validée par la Faculté de Médecine de Blida 1 est **[${officialAnswer}]**.`;
+    evaluationHeader = `⚠️ **Correction :** Tu as sélectionné **[${selected.join(", ")}]**, alors que la réponse officielle est **[${officialAnswer}]**.`;
   }
 
-  return `Salam ! 🩺 **Dr Z-Bot · Explication Médicale Interactive**
-
+  return `🩺 **Dr Z-Bot · Analyse de la question :**
+> *${stemPreview}*
+${q?.case_text ? `\n📋 **Cas clinique :** ${q.case_text.slice(0, 220)}${q.case_text.length > 220 ? "…" : ""}\n` : ""}
 ${evaluationHeader}
 
----
+🎯 **Clé Officielle : [${officialAnswer}]**
 
-🎯 **Clé Officielle de la Faculté : [${officialAnswer}]**
-
-💡 **Raisonnement Clinique & Physiopathologique :**
+💡 **Raisonnement Médical :**
 ${officialExplanation}${note}
 
-📋 **Analyse détaillée de chaque proposition :**
-${optionsAnalysis || "Chaque proposition a été auditée selon le syllabus médical officiel."}
-
----
-
-🧠 **La Perle du Dr. Z (Memo Pratique) :**
-*"À la Faculté de Médecine de Blida 1, la rigueur terminologique sauve des vies et garantit vos points. Révisez toujours le mécanisme sous-jacent avant de trancher !"*
-
-✨ *ركز مليح، الطب يحتاج دقة وتركيز والتوفيق حليفك دائماً إن شاء الله !*`;
+📋 **Analyse des propositions :**
+${optionsAnalysis || "Vérifie chaque proposition par rapport au cours officiel."}`;
 }
