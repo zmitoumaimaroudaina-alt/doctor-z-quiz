@@ -38,63 +38,50 @@ service cloud.firestore {
       return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
     }
 
-    // Dhikr Anti-Cheat Helpers
-    function getDhikr(data, k) {
-      return ('dhikrCounts' in data && data.dhikrCounts is map && k in data.dhikrCounts && data.dhikrCounts[k] is int)
-        ? data.dhikrCounts[k]
-        : 0;
-    }
-
-    function isDhikrUnchanged(k) {
-      return getDhikr(incoming(), k) == getDhikr(existing(), k);
-    }
-
-    function isDhikrStepped(k) {
-      let prev = getDhikr(existing(), k);
-      let next = getDhikr(incoming(), k);
-      let prevHearts = ('hearts' in existing() && existing().hearts is int) ? existing().hearts : 0;
-      return prev >= 0 && prev <= 9 && (
-        (prev < 9 && next == prev + 1 && incoming().hearts == prevHearts) ||
-        (prev == 9 && next == 0 && prevHearts < 5 && incoming().hearts == prevHearts + 1)
-      );
-    }
-
-    function isOnlyDhikrStepped(k) {
-      return isDhikrStepped(k)
-        && (k == 'd0' || isDhikrUnchanged('d0'))
-        && (k == 'd1' || isDhikrUnchanged('d1'))
-        && (k == 'd2' || isDhikrUnchanged('d2'))
-        && (k == 'd3' || isDhikrUnchanged('d3'))
-        && (k == 'd4' || isDhikrUnchanged('d4'))
-        && (k == 'd5' || isDhikrUnchanged('d5'))
-        && (k == 'd6' || isDhikrUnchanged('d6'))
-        && (k == 'd7' || isDhikrUnchanged('d7'));
-    }
-
+    // Dhikr Anti-Cheat Helpers (O(1) MapDiff validation)
     function isValidDhikrCountsMap(d) {
       return d is map && d.keys().hasOnly(['d0', 'd1', 'd2', 'd3', 'd4', 'd5', 'd6', 'd7']);
     }
 
+    function isValidDhikrKeyStep(k) {
+      let oldMap = ('dhikrCounts' in resource.data && resource.data.dhikrCounts is map)
+        ? resource.data.dhikrCounts
+        : {};
+      let newMap = request.resource.data.dhikrCounts;
+      let prevVal = (k in oldMap && oldMap[k] is number) ? oldMap[k] : 0;
+      let nextVal = (k in newMap && newMap[k] is number) ? newMap[k] : 0;
+      let prevHearts = ('hearts' in resource.data && resource.data.hearts is number)
+        ? resource.data.hearts
+        : 0;
+      let nextHearts = request.resource.data.hearts;
+      return prevVal >= 0 && prevVal <= 9 && (
+        (prevVal < 9 && nextVal == prevVal + 1 && nextHearts == prevHearts) ||
+        (prevVal == 9 && nextVal == 0 && prevHearts < 5 && nextHearts == prevHearts + 1)
+      );
+    }
+
     function isValidDhikrStep() {
-      return 'dhikrCounts' in incoming()
-        && isValidDhikrCountsMap(incoming().dhikrCounts)
-        && 'hearts' in incoming()
-        && incoming().hearts is int
-        && incoming().hearts >= 0
-        && incoming().hearts <= 5
-        && 'lastDhikrAt' in incoming()
-        && incoming().lastDhikrAt == request.time
+      let oldMap = ('dhikrCounts' in resource.data && resource.data.dhikrCounts is map)
+        ? resource.data.dhikrCounts
+        : {};
+      let newMap = request.resource.data.dhikrCounts;
+      let diffKeys = newMap.diff(oldMap).affectedKeys();
+      return 'dhikrCounts' in request.resource.data
+        && isValidDhikrCountsMap(newMap)
+        && 'hearts' in request.resource.data
+        && request.resource.data.hearts is number
+        && request.resource.data.hearts >= 0
+        && request.resource.data.hearts <= 5
+        && diffKeys.size() == 1
         && (
-          !('lastDhikrAt' in existing())
-          || existing().lastDhikrAt == null
-          || !(existing().lastDhikrAt is timestamp)
-          || request.time > existing().lastDhikrAt
-        )
-        && (
-          isOnlyDhikrStepped('d0') || isOnlyDhikrStepped('d1') ||
-          isOnlyDhikrStepped('d2') || isOnlyDhikrStepped('d3') ||
-          isOnlyDhikrStepped('d4') || isOnlyDhikrStepped('d5') ||
-          isOnlyDhikrStepped('d6') || isOnlyDhikrStepped('d7')
+          ('d0' in diffKeys && isValidDhikrKeyStep('d0')) ||
+          ('d1' in diffKeys && isValidDhikrKeyStep('d1')) ||
+          ('d2' in diffKeys && isValidDhikrKeyStep('d2')) ||
+          ('d3' in diffKeys && isValidDhikrKeyStep('d3')) ||
+          ('d4' in diffKeys && isValidDhikrKeyStep('d4')) ||
+          ('d5' in diffKeys && isValidDhikrKeyStep('d5')) ||
+          ('d6' in diffKeys && isValidDhikrKeyStep('d6')) ||
+          ('d7' in diffKeys && isValidDhikrKeyStep('d7'))
         );
     }
 
@@ -105,7 +92,7 @@ service cloud.firestore {
         && data.email is string && data.email.size() >= 3 && data.email.size() <= 200
         && data.score is number && data.score >= 0
         && (!('xp' in data) || (data.xp is number && data.xp >= 0))
-        && (!('hearts' in data) || (data.hearts is int && data.hearts >= 0 && data.hearts <= 999))
+        && (!('hearts' in data) || (data.hearts is number && data.hearts >= 0 && data.hearts <= 999))
         && (!('photoURL' in data) || data.photoURL == null || (data.photoURL is string && data.photoURL.size() <= 1000))
         && (!('avatar' in data) || data.avatar == null || data.avatar is map)
         && (!('pet' in data) || data.pet == null || (data.pet is string && data.pet.size() <= 50))
@@ -199,7 +186,7 @@ service cloud.firestore {
             && existing().hearts > 0
             && incoming().hearts == existing().hearts - 1
           ) ||
-          // Action E: Owner Dhikr heart renewal with server timestamp progression + max 5 hearts anti-cheat
+          // Action E: Owner Dhikr heart renewal (O(1) single-key step + max 5 hearts anti-cheat)
           (
             isOwner(uid)
             && incoming().diff(existing()).affectedKeys().hasOnly(['dhikrCounts', 'hearts', 'lastDhikrAt'])

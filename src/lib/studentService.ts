@@ -289,31 +289,35 @@ export async function performDhikrStep(
       throw new Error("MAX_HEARTS_REACHED");
     }
 
-    // Sanitize dhikrCounts so only valid keys d0..d7 with integers 0..9 are written back
-    const rawCounts = (data.dhikrCounts || {}) as Record<string, unknown>;
-    const cleanCounts: DhikrCountsMap = {};
-    for (const item of ADHKAR_LIST) {
-      const val = Number(rawCounts[item.key] ?? 0);
-      if (Number.isFinite(val) && val > 0) {
-        cleanCounts[item.key] = Math.max(0, Math.min(9, Math.floor(val)));
-      }
-    }
+    // Check if existing dhikrCounts map already contains only valid d0..d7 keys
+    const rawExisting = data.dhikrCounts;
+    const isExistingValidMap =
+      rawExisting != null &&
+      typeof rawExisting === "object" &&
+      !Array.isArray(rawExisting) &&
+      Object.keys(rawExisting).every((k) => ADHKAR_LIST.some((item) => item.key === k));
 
-    const prevVal = Math.max(0, Math.min(9, Math.floor(Number(cleanCounts[dhikrKey] ?? 0))));
+    const prevRaw = isExistingValidMap
+      ? (rawExisting as Record<string, unknown>)[dhikrKey]
+      : undefined;
+    const prevVal = Math.max(0, Math.min(9, Math.floor(Number(prevRaw ?? 0) || 0)));
     const completedTen = prevVal >= 9;
     const nextVal = completedTen ? 0 : prevVal + 1;
     const nextHearts = completedTen ? Math.min(MAX_HEARTS_CAP, currentHearts + 1) : currentHearts;
 
-    const updatedCounts: DhikrCountsMap = {
-      ...cleanCounts,
-      [dhikrKey]: nextVal,
-    };
-
-    await updateDoc(docRef, {
-      dhikrCounts: updatedCounts,
-      hearts: nextHearts,
-      lastDhikrAt: serverTimestamp(),
-    });
+    if (isExistingValidMap) {
+      await updateDoc(docRef, {
+        [`dhikrCounts.${dhikrKey}`]: nextVal,
+        hearts: nextHearts,
+        lastDhikrAt: serverTimestamp(),
+      });
+    } else {
+      await updateDoc(docRef, {
+        dhikrCounts: { [dhikrKey]: nextVal },
+        hearts: nextHearts,
+        lastDhikrAt: serverTimestamp(),
+      });
+    }
 
     return {
       newCount: nextVal,
