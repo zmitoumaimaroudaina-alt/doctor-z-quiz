@@ -1,23 +1,14 @@
 import { pageMetadata } from "@/lib/metadata";
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { collection, deleteDoc, doc, onSnapshot, orderBy, query } from "firebase/firestore";
+import { db, logFirestoreError, OperationType } from "@/lib/firebase";
 import { AppShell, PageTitle } from "@/components/AppShell";
 import { CreatorQuestionEditor } from "@/components/CreatorQuestionEditor";
 import { useMe } from "@/hooks/useMe";
-import { deleteStudent } from "@/lib/account.functions";
-import { getAccountsMap, getProfilesMap, normalizeEmail } from "@/lib/profileStore";
-import {
-  addHeartsToUser,
-  formatHeartCountdown,
-  getHeartStatus,
-  renderHeartsVisual,
-  resolveHeartKey,
-  restoreHeartsForUser,
-} from "@/lib/heartsStore";
+import { renderHeartsVisual } from "@/lib/heartsStore";
+import { adminSetStudentHearts, INITIAL_HEARTS, MAX_HEARTS_CAP } from "@/lib/studentService";
 import { play } from "@/lib/sound";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -44,7 +35,7 @@ function Admin() {
       <PageTitle
         title="👑 Panneau Creator"
         ar="لوحة تحكم المصمم"
-        sub="إدارة القلوب ❤️ والطلاب والبحث في الأسئلة وتصحيح الحل الرسمي يدوياً."
+        sub="إدارة القلوب ❤️ والطلاب الحقيقيين والبحث في الأسئلة وتصحيح الحل الرسمي يدوياً."
       />
       <div className="mb-4 flex flex-wrap gap-2">
         {(
@@ -77,161 +68,122 @@ function Admin() {
 
 type AdminStudentRow = {
   id: string;
-  email: string | null;
-  display_name: string | null;
+  email: string;
+  display_name: string;
   xp: number;
-  coins: number;
-  streak: number;
-  isCreator?: boolean;
+  score: number;
+  hearts: number;
 };
 
 function Students() {
-  const qc = useQueryClient();
-  const del = useServerFn(deleteStudent);
+  const [rows, setRows] = useState<AdminStudentRow[]>([]);
   const [targetEmail, setTargetEmail] = useState("");
-  const [tick, setTick] = useState(0);
 
-  const { data } = useQuery({
-    queryKey: ["admin-students", tick],
-    queryFn: async (): Promise<AdminStudentRow[]> => {
-      const merged = new Map<string, AdminStudentRow>();
-
-      // 1. Load local profiles & accounts
-      const profilesMap = getProfilesMap();
-      const accountsMap = getAccountsMap();
-      for (const [emailKey, p] of Object.entries(profilesMap)) {
-        if (p.isCreator || emailKey === "doctorzmit@gmail.com") continue;
-        merged.set(emailKey, {
-          id: accountsMap[emailKey]?.id || emailKey,
-          email: emailKey,
-          display_name: p.display_name,
-          xp: p.xp ?? 0,
-          coins: p.coins ?? 0,
-          streak: p.streak ?? 0,
-          isCreator: p.isCreator,
-        });
-      }
-      for (const [emailKey, acc] of Object.entries(accountsMap)) {
-        if (acc.isCreator || emailKey === "doctorzmit@gmail.com") continue;
-        if (!merged.has(emailKey)) {
-          merged.set(emailKey, {
-            id: acc.id,
-            email: emailKey,
-            display_name: acc.display_name,
-            xp: 150,
-            coins: 60,
-            streak: 3,
+  useEffect(() => {
+    const q = query(collection(db, "students"), orderBy("score", "desc"));
+    const unsub = onSnapshot(
+      q,
+      (snap) => {
+        const list: AdminStudentRow[] = [];
+        snap.forEach((d) => {
+          const data = d.data() as {
+            migrated?: boolean;
+            email?: unknown;
+            uid?: unknown;
+            name?: unknown;
+            xp?: unknown;
+            score?: unknown;
+            hearts?: unknown;
+          };
+          if (data.migrated === true) return;
+          const email = String(data.email || "").toLowerCase();
+          if (email === "doctorzmit@gmail.com") return;
+          if (!data.uid || !data.name) return;
+          list.push({
+            id: d.id,
+            email,
+            display_name: String(data.name),
+            xp: Number(data.xp ?? 0),
+            score: Number(data.score ?? 0),
+            hearts: typeof data.hearts === "number" ? data.hearts : INITIAL_HEARTS,
           });
-        }
-      }
-
-      // 2. Load Supabase profiles if connected
-      try {
-        const remote = (
-          await supabase
-            .from("profiles")
-            .select("id, display_name, xp, coins, streak, created_at")
-            .order("created_at", { ascending: false })
-        ).data;
-        for (const r of remote ?? []) {
-          const existingById = [...merged.values()].find((x) => x.id === r.id);
-          if (!existingById) {
-            merged.set(r.id, {
-              id: r.id,
-              email: null,
-              display_name: r.display_name,
-              xp: r.xp,
-              coins: r.coins,
-              streak: r.streak,
-            });
-          }
-        }
-      } catch {
-        // offline fallback already loaded
-      }
-
-      return [...merged.values()];
-    },
-  });
+        });
+        setRows(list);
+      },
+      (error) => {
+        logFirestoreError(error, OperationType.LIST, "students");
+      },
+    );
+    return () => unsub();
+  }, []);
 
   async function giveHearts(student: AdminStudentRow, amount: number, resetOnly = false) {
-    const key = resolveHeartKey(student.email, student.id);
-    if (resetOnly) {
-      restoreHeartsForUser(key);
-      if (student.email && student.id !== student.email) restoreHeartsForUser(student.id);
-    } else {
-      addHeartsToUser(key, amount);
-      if (student.email && student.id !== student.email) addHeartsToUser(student.id, amount);
-    }
-
+    const nextHearts = resetOnly
+      ? Math.max(INITIAL_HEARTS, student.hearts)
+      : Math.min(MAX_HEARTS_CAP, student.hearts + amount);
     try {
-      await supabase.from("exam_hearts").delete().eq("user_id", student.id);
+      await adminSetStudentHearts(student.id, nextHearts);
+      play("reward");
+      toast.success(
+        resetOnly
+          ? `تمت تعبئة قلوب ${student.display_name} (${nextHearts} ❤️)`
+          : `تمت إضافة قلوب لـ ${student.display_name} (الرصيد: ${nextHearts} ❤️)`,
+      );
     } catch {
-      // ignore offline
+      toast.error("تعذر تحديث القلوب.");
     }
-
-    play("reward");
-    toast.success(
-      resetOnly
-        ? `تمت تعبئة قلوب ${student.display_name || student.email} (❤️❤️)`
-        : `تمت إضافة +${amount} ❤️ إلى ${student.display_name || student.email}`,
-    );
-    setTick((t) => t + 1);
   }
 
   async function giveHeartsToAll(amount: number) {
-    const list = data ?? [];
-    for (const s of list) {
-      const key = resolveHeartKey(s.email, s.id);
-      addHeartsToUser(key, amount);
-      if (s.email && s.id !== s.email) addHeartsToUser(s.id, amount);
-      try {
-        await supabase.from("exam_hearts").delete().eq("user_id", s.id);
-      } catch {
-        // ignore
+    try {
+      for (const s of rows) {
+        const next = Math.min(MAX_HEARTS_CAP, s.hearts + amount);
+        await adminSetStudentHearts(s.id, next);
       }
+      play("reward");
+      toast.success(`تمت إضافة +${amount} ❤️ لجميع الطلاب (${rows.length}) بنجاح!`);
+    } catch {
+      toast.error("تعذر تحديث بعض القلوب.");
     }
-    play("reward");
-    toast.success(`تمت إضافة +${amount} ❤️ لجميع الطلاب (${list.length}) بنجاح!`);
-    setTick((t) => t + 1);
   }
 
-  function giveHeartsByEmail(e: React.FormEvent) {
+  async function giveHeartsByEmail(e: React.FormEvent) {
     e.preventDefault();
-    const clean = normalizeEmail(targetEmail);
+    const clean = targetEmail.trim().toLowerCase();
     if (!clean) {
       toast.error("أدخل البريد الإلكتروني للطالب");
       return;
     }
-    addHeartsToUser(clean, 2);
-    play("reward");
-    toast.success(`تمت إضافة +2 ❤️❤️ للحساب ${clean}`);
+    const found = rows.find((r) => r.email === clean);
+    if (!found) {
+      toast.error("لم يتم العثور على طالب نشط بهذا البريد الإلكتروني.");
+      return;
+    }
+    await giveHearts(found, 2);
     setTargetEmail("");
-    setTick((t) => t + 1);
   }
 
   return (
     <div className="space-y-4">
-      {/* Creator Quick Heart Gift Controls */}
       <div className="card-game border-2 border-primary/30 bg-primary/5 p-4 space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
-            <h2 className="font-display text-base font-bold">❤️ إضافة القلوب للطلاب</h2>
+            <h2 className="font-display text-base font-bold">❤️ إضافة القلوب للطلاب (Firestore)</h2>
             <p className="ar text-xs text-muted-foreground">
-              أضف قلوباً (+1 أو +2 أو +5) لأي طالب أو للجميع دفعة واحدة
+              أضف قلوباً لأي طالب حقيقي مسجّل في قاعدة البيانات (الحد الأقصى 5 قلوب)
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
-              onClick={() => giveHeartsToAll(1)}
+              onClick={() => void giveHeartsToAll(1)}
               className="rounded-xl bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground shadow-sm hover:brightness-105"
             >
               +1 ❤️ للجميع
             </button>
             <button
               type="button"
-              onClick={() => giveHeartsToAll(2)}
+              onClick={() => void giveHeartsToAll(2)}
               className="rounded-xl bg-hero px-3 py-1.5 text-xs font-bold text-primary-foreground shadow-sm hover:brightness-105"
             >
               +2 ❤️❤️ للجميع
@@ -239,7 +191,7 @@ function Students() {
           </div>
         </div>
 
-        <form onSubmit={giveHeartsByEmail} className="flex flex-wrap gap-2">
+        <form onSubmit={(e) => void giveHeartsByEmail(e)} className="flex flex-wrap gap-2">
           <input
             type="email"
             value={targetEmail}
@@ -257,76 +209,66 @@ function Students() {
       </div>
 
       <div className="card-game divide-y">
-        {data?.map((s) => {
-          const hs = getHeartStatus(resolveHeartKey(s.email, s.id), false);
-          return (
-            <div key={s.id} className="flex flex-wrap items-center gap-3 p-3.5">
-              <div className="flex-1 min-w-[180px]">
-                <div className="font-semibold">{s.display_name ?? "(sans nom)"}</div>
-                {s.email && <div className="text-xs text-muted-foreground">{s.email}</div>}
-                <div className="mt-0.5 text-xs text-muted-foreground">
-                  {s.xp} XP · 🪙 {s.coins} · 🔥 {s.streak}
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 rounded-xl bg-muted px-2.5 py-1 text-xs font-semibold">
-                <span>{renderHeartsVisual(hs.hearts)}</span>
-                <span className="text-muted-foreground">({hs.hearts})</span>
-                {hs.secondsToNext > 0 && (
-                  <span className="font-mono text-[10px] text-amber-700">
-                    ⏳ {formatHeartCountdown(hs.secondsToNext)}
-                  </span>
-                )}
-              </div>
-
-              <div className="flex flex-wrap gap-1.5">
-                <button
-                  onClick={() => giveHearts(s, 1)}
-                  className="rounded-lg border border-primary/40 bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary hover:bg-primary/20"
-                >
-                  +1 ❤️
-                </button>
-                <button
-                  onClick={() => giveHearts(s, 2)}
-                  className="rounded-lg border border-primary/40 bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary hover:bg-primary/20"
-                >
-                  +2 ❤️❤️
-                </button>
-                <button
-                  onClick={() => giveHearts(s, 5)}
-                  className="rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-800 hover:bg-amber-100"
-                >
-                  +5 ❤️
-                </button>
-                <button
-                  onClick={() => giveHearts(s, 2, true)}
-                  className="rounded-lg border px-2.5 py-1 text-xs font-medium hover:bg-muted"
-                >
-                  تعبئة 2/2
-                </button>
-                <button
-                  onClick={async () => {
-                    if (!confirm("Supprimer définitivement cet étudiant ?")) return;
-                    try {
-                      await del({ data: { userId: s.id } });
-                      toast.success("Supprimé");
-                      qc.invalidateQueries({ queryKey: ["admin-students"] });
-                    } catch (e) {
-                      toast.error((e as Error).message);
-                    }
-                  }}
-                  className="rounded-lg bg-destructive/10 px-2 py-1 text-xs text-destructive"
-                >
-                  Supprimer
-                </button>
+        {rows.map((s) => (
+          <div key={s.id} className="flex flex-wrap items-center gap-3 p-3.5">
+            <div className="flex-1 min-w-[180px]">
+              <div className="font-semibold">{s.display_name}</div>
+              {s.email && <div className="text-xs text-muted-foreground">{s.email}</div>}
+              <div className="mt-0.5 text-xs text-muted-foreground">
+                {s.score} نقطة · {s.xp} XP
               </div>
             </div>
-          );
-        })}
-        {data && !data.length && (
+
+            <div className="flex items-center gap-2 rounded-xl bg-muted px-2.5 py-1 text-xs font-semibold">
+              <span>{renderHeartsVisual(s.hearts)}</span>
+              <span className="text-muted-foreground">
+                ({s.hearts}/{MAX_HEARTS_CAP})
+              </span>
+            </div>
+
+            <div className="flex flex-wrap gap-1.5">
+              <button
+                type="button"
+                onClick={() => void giveHearts(s, 1)}
+                className="rounded-lg border border-primary/40 bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary hover:bg-primary/20"
+              >
+                +1 ❤️
+              </button>
+              <button
+                type="button"
+                onClick={() => void giveHearts(s, 2)}
+                className="rounded-lg border border-primary/40 bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary hover:bg-primary/20"
+              >
+                +2 ❤️❤️
+              </button>
+              <button
+                type="button"
+                onClick={() => void giveHearts(s, 2, true)}
+                className="rounded-lg border px-2.5 py-1 text-xs font-medium hover:bg-muted"
+              >
+                تعبئة 2/2
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  if (!confirm("Supprimer définitivement cet étudiant de Firestore ?")) return;
+                  try {
+                    await deleteDoc(doc(db, "students", s.id));
+                    toast.success("تم حذف الطالب من لوحة النتائج.");
+                  } catch (e) {
+                    toast.error((e as Error).message);
+                  }
+                }}
+                className="rounded-lg bg-destructive/10 px-2 py-1 text-xs text-destructive"
+              >
+                Supprimer
+              </button>
+            </div>
+          </div>
+        ))}
+        {!rows.length && (
           <div className="p-6 text-center text-sm text-muted-foreground">
-            لا يوجد طلاب مسجلون بعد في القائمة المحلية أو السيرفر. يمكنك إضافة قلوب مباشرة عبر
-            البريد الإلكتروني أعلاه.
+            لا يوجد طلاب مسجلون في Firestore بعد.
           </div>
         )}
       </div>

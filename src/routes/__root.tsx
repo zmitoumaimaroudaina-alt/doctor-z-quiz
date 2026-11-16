@@ -9,8 +9,12 @@ import {
   type ErrorComponentProps,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { auth } from "@/lib/firebase";
+import { isLegacyPasswordOnlyUser, LEGACY_MIGRATION_MESSAGE } from "@/lib/studentService";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -111,7 +115,24 @@ function RootComponent() {
       if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
       else queryClient.clear();
     });
-    return () => data.subscription.unsubscribe();
+    const unsubFb = onAuthStateChanged(auth, async (u) => {
+      if (u && isLegacyPasswordOnlyUser(u)) {
+        try {
+          await signOut(auth);
+        } catch {
+          // ignore
+        }
+        queryClient.clear();
+        toast.error(LEGACY_MIGRATION_MESSAGE);
+        if (typeof window !== "undefined" && !window.location.pathname.startsWith("/auth")) {
+          window.location.href = "/auth?reason=legacy_migrated";
+        }
+      }
+    });
+    return () => {
+      data.subscription.unsubscribe();
+      unsubFb();
+    };
   }, [router, queryClient]);
   return (
     <QueryClientProvider client={queryClient}>

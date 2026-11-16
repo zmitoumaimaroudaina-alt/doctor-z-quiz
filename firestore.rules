@@ -1,27 +1,287 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Global Safety Net
     match /{document=**} {
       allow read, write: if false;
     }
 
-    match /students/{uid} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null;
-      allow update, delete: if request.auth != null && (
-        request.auth.uid == uid ||
-        request.auth.token.email in ['doctorzmit@gmail.com', 'zmitoumaimaroudaina@gmail.com']
+    // Core Identity & Auth Helpers
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isGoogleAuth() {
+      return isSignedIn()
+        && request.auth.token.firebase.sign_in_provider == 'google.com'
+        && request.auth.token.email_verified == true;
+    }
+
+    function isOwner(uid) {
+      return isGoogleAuth() && request.auth.uid == uid;
+    }
+
+    function isCreatorAdmin() {
+      return isGoogleAuth()
+        && request.auth.token.email in ['doctorzmit@gmail.com', 'zmitoumaimaroudaina@gmail.com'];
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Dhikr Anti-Cheat Helpers
+    function getDhikr(data, k) {
+      return ('dhikrCounts' in data && data.dhikrCounts is map && k in data.dhikrCounts && data.dhikrCounts[k] is int)
+        ? data.dhikrCounts[k]
+        : 0;
+    }
+
+    function isDhikrUnchanged(k) {
+      return getDhikr(incoming(), k) == getDhikr(existing(), k);
+    }
+
+    function isDhikrStepped(k) {
+      let prev = getDhikr(existing(), k);
+      let next = getDhikr(incoming(), k);
+      let prevHearts = ('hearts' in existing() && existing().hearts is int) ? existing().hearts : 0;
+      return prev >= 0 && prev <= 9 && (
+        (prev < 9 && next == prev + 1 && incoming().hearts == prevHearts) ||
+        (prev == 9 && next == 0 && prevHearts < 5 && incoming().hearts == prevHearts + 1)
       );
     }
 
+    function isOnlyDhikrStepped(k) {
+      return isDhikrStepped(k)
+        && (k == 'd0' || isDhikrUnchanged('d0'))
+        && (k == 'd1' || isDhikrUnchanged('d1'))
+        && (k == 'd2' || isDhikrUnchanged('d2'))
+        && (k == 'd3' || isDhikrUnchanged('d3'))
+        && (k == 'd4' || isDhikrUnchanged('d4'))
+        && (k == 'd5' || isDhikrUnchanged('d5'))
+        && (k == 'd6' || isDhikrUnchanged('d6'))
+        && (k == 'd7' || isDhikrUnchanged('d7'));
+    }
+
+    function isValidDhikrCountsMap(d) {
+      return d is map && d.keys().hasOnly(['d0', 'd1', 'd2', 'd3', 'd4', 'd5', 'd6', 'd7']);
+    }
+
+    function isValidDhikrStep() {
+      return 'dhikrCounts' in incoming()
+        && isValidDhikrCountsMap(incoming().dhikrCounts)
+        && 'hearts' in incoming()
+        && incoming().hearts is int
+        && incoming().hearts >= 0
+        && incoming().hearts <= 5
+        && 'lastDhikrAt' in incoming()
+        && incoming().lastDhikrAt == request.time
+        && (
+          !('lastDhikrAt' in existing())
+          || existing().lastDhikrAt == null
+          || request.time >= existing().lastDhikrAt + duration.value(500, 'ms')
+        )
+        && (
+          isOnlyDhikrStepped('d0') || isOnlyDhikrStepped('d1') ||
+          isOnlyDhikrStepped('d2') || isOnlyDhikrStepped('d3') ||
+          isOnlyDhikrStepped('d4') || isOnlyDhikrStepped('d5') ||
+          isOnlyDhikrStepped('d6') || isOnlyDhikrStepped('d7')
+        );
+    }
+
+    // Validation Blueprint: Student
+    function isValidStudentBase(data) {
+      return data.uid is string && data.uid.size() >= 1 && data.uid.size() <= 128
+        && data.name is string && data.name.size() >= 1 && data.name.size() <= 120
+        && data.email is string && data.email.size() >= 3 && data.email.size() <= 200
+        && data.score is number && data.score >= 0
+        && (!('xp' in data) || (data.xp is number && data.xp >= 0))
+        && (!('hearts' in data) || (data.hearts is int && data.hearts >= 0 && data.hearts <= 999))
+        && (!('photoURL' in data) || data.photoURL == null || (data.photoURL is string && data.photoURL.size() <= 1000))
+        && (!('avatar' in data) || data.avatar == null || data.avatar is map)
+        && (!('pet' in data) || data.pet == null || (data.pet is string && data.pet.size() <= 50))
+        && (!('bubble' in data) || data.bubble == null || (data.bubble is string && data.bubble.size() <= 100))
+        && (!('dhikrCounts' in data) || data.dhikrCounts == null || isValidDhikrCountsMap(data.dhikrCounts))
+        && (!('migrated' in data) || data.migrated is bool)
+        && (!('migratedToUid' in data) || data.migratedToUid == null || (data.migratedToUid is string && data.migratedToUid.size() <= 128))
+        && (!('migratedFromUid' in data) || data.migratedFromUid == null || (data.migratedFromUid is string && data.migratedFromUid.size() <= 128));
+    }
+
+    function isValidStudentCreate(uid) {
+      let data = incoming();
+      let isFresh = data.score == 0
+        && (!('xp' in data) || data.xp == 0)
+        && data.hearts == 2
+        && (!('migratedFromUid' in data) || data.migratedFromUid == null);
+      let isValidMigrationCreate = 'migratedFromUid' in data
+        && data.migratedFromUid is string
+        && data.migratedFromUid.size() >= 1
+        && data.migratedFromUid != uid
+        && exists(/databases/$(database)/documents/students/$(data.migratedFromUid))
+        && get(/databases/$(database)/documents/students/$(data.migratedFromUid)).data.email.lower() == request.auth.token.email.lower()
+        && get(/databases/$(database)/documents/students/$(data.migratedFromUid)).data.migrated != true
+        && data.hearts >= 0 && data.hearts <= 5
+        && data.score >= 0;
+
+      return data.keys().hasAll(['uid', 'name', 'email', 'score', 'hearts', 'createdAt', 'lastLogin'])
+        && data.keys().hasOnly([
+          'uid', 'name', 'email', 'photoURL', 'avatar', 'pet', 'bubble',
+          'score', 'xp', 'hearts', 'dhikrCounts', 'lastDhikrAt',
+          'migrated', 'migratedToUid', 'migratedFromUid', 'createdAt', 'lastLogin'
+        ])
+        && isValidStudentBase(data)
+        && data.uid == request.auth.uid
+        && data.email.lower() == request.auth.token.email.lower()
+        && data.createdAt == request.time
+        && data.lastLogin == request.time
+        && (!('migrated' in data) || data.migrated == false)
+        && (isFresh || isValidMigrationCreate);
+    }
+
+    match /students/{uid} {
+      allow read: if isGoogleAuth();
+
+      allow create: if isGoogleAuth()
+        && request.auth.uid == uid
+        && isValidId(uid)
+        && isValidStudentCreate(uid);
+
+      allow update: if isGoogleAuth()
+        && isValidStudentBase(incoming())
+        && incoming().uid == existing().uid
+        && incoming().email == existing().email
+        && (!('createdAt' in existing()) || incoming().createdAt == existing().createdAt)
+        && (
+          // Tier 1: Creator Admin management (e.g., granting hearts or fixing student records)
+          (
+            isCreatorAdmin()
+            && incoming().diff(existing()).affectedKeys().hasOnly(['hearts', 'name', 'score', 'xp', 'migrated'])
+          ) ||
+          // Action A: Owner login/profile/avatar/bubble update (no score/hearts tampering)
+          (
+            isOwner(uid)
+            && incoming().diff(existing()).affectedKeys().hasOnly([
+              'name', 'photoURL', 'avatar', 'pet', 'bubble', 'lastLogin', 'migrated'
+            ])
+          ) ||
+          // Action B: One-time backfill of hearts for pre-existing Google accounts lacking hearts field
+          (
+            isOwner(uid)
+            && !('hearts' in existing())
+            && incoming().hearts == 2
+            && incoming().diff(existing()).affectedKeys().hasOnly([
+              'hearts', 'dhikrCounts', 'lastLogin', 'photoURL', 'migrated'
+            ])
+          ) ||
+          // Action C: Owner quiz completion score/xp increment
+          (
+            isOwner(uid)
+            && incoming().diff(existing()).affectedKeys().hasOnly(['score', 'xp'])
+            && incoming().score >= existing().score
+            && (incoming().score - existing().score) <= 200
+            && (!('xp' in existing()) || incoming().xp >= existing().xp)
+          ) ||
+          // Action D: Owner consumes 1 heart when starting an exam/course attempt
+          (
+            isOwner(uid)
+            && incoming().diff(existing()).affectedKeys().hasOnly(['hearts'])
+            && 'hearts' in existing()
+            && existing().hearts is int
+            && existing().hearts > 0
+            && incoming().hearts == existing().hearts - 1
+          ) ||
+          // Action E: Owner Dhikr heart renewal with 0.5s cooldown + max 5 hearts anti-cheat
+          (
+            isOwner(uid)
+            && incoming().diff(existing()).affectedKeys().hasOnly(['dhikrCounts', 'hearts', 'lastDhikrAt'])
+            && isValidDhikrStep()
+          ) ||
+          // Action F: Self-migration of legacy email/password student record with matching verified email
+          (
+            existing().email.lower() == request.auth.token.email.lower()
+            && existing().migrated != true
+            && incoming().diff(existing()).affectedKeys().hasOnly(['migrated', 'migratedToUid'])
+            && incoming().migrated == true
+            && incoming().migratedToUid == request.auth.uid
+          )
+        );
+
+      allow delete: if isOwner(uid) || isCreatorAdmin();
+    }
+
+    // Validation Blueprint: Tomato Hits (Real-time immutable throw log)
+    function isValidTomatoHit(data) {
+      return data.keys().hasAll(['fromUid', 'fromName', 'toUid', 'toName', 'createdAt', 'expiresAt'])
+        && data.keys().hasOnly(['fromUid', 'fromName', 'toUid', 'toName', 'createdAt', 'expiresAt'])
+        && data.fromUid is string && data.fromUid == request.auth.uid
+        && data.fromName is string && data.fromName.size() >= 1 && data.fromName.size() <= 120
+        && data.toUid is string && data.toUid.size() >= 1 && data.toUid.size() <= 128
+        && data.toUid != request.auth.uid
+        && data.toName is string && data.toName.size() >= 1 && data.toName.size() <= 120
+        && data.createdAt == request.time
+        && data.expiresAt is timestamp;
+    }
+
+    match /tomato_hits/{hitId} {
+      allow read: if isGoogleAuth();
+      allow create: if isGoogleAuth() && isValidId(hitId) && isValidTomatoHit(incoming());
+      allow update, delete: if false;
+    }
+
+    // Validation Blueprint: Discussion Messages
+    function isValidMessage(data) {
+      return data.keys().hasAll(['sender', 'senderId', 'body', 'kind', 'likes', 'tomatoes', 'claps', 'ideas'])
+        && data.keys().hasOnly([
+          'id', 'sender', 'senderId', 'photoURL', 'avatar', 'pet', 'module',
+          'isCreator', 'body', 'kind', 'createdAt', 'created_at',
+          'likes', 'tomatoes', 'claps', 'ideas', 'reactionsUsers'
+        ])
+        && data.sender is string && data.sender.size() >= 1 && data.sender.size() <= 120
+        && data.senderId is string && data.senderId.size() >= 1 && data.senderId.size() <= 128
+        && (!('photoURL' in data) || data.photoURL == null || (data.photoURL is string && data.photoURL.size() <= 1000))
+        && (!('avatar' in data) || data.avatar == null || data.avatar is map)
+        && (!('pet' in data) || data.pet == null || (data.pet is string && data.pet.size() <= 50))
+        && (!('module' in data) || data.module == null || (data.module is string && data.module.size() <= 100))
+        && (!('isCreator' in data) || data.isCreator is bool)
+        && data.body is string && data.body.size() >= 1 && data.body.size() <= 1000
+        && data.kind in ['chat', 'feedback', 'tip', 'question']
+        && data.likes is int && data.likes >= 0
+        && data.tomatoes is int && data.tomatoes >= 0
+        && data.claps is int && data.claps >= 0
+        && data.ideas is int && data.ideas >= 0
+        && (!('reactionsUsers' in data) || data.reactionsUsers is map);
+    }
+
     match /messages/{messageId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null;
-      allow update: if request.auth != null;
-      allow delete: if request.auth != null && (
-        resource.data.senderId == request.auth.uid ||
-        request.auth.token.email in ['doctorzmit@gmail.com', 'zmitoumaimaroudaina@gmail.com']
-      );
+      allow read: if isGoogleAuth();
+
+      allow create: if isGoogleAuth()
+        && isValidId(messageId)
+        && isValidMessage(incoming())
+        && incoming().senderId == request.auth.uid
+        && incoming().createdAt == request.time;
+
+      allow update: if isGoogleAuth()
+        && isValidMessage(incoming())
+        && incoming().senderId == existing().senderId
+        && (!('createdAt' in existing()) || incoming().createdAt == existing().createdAt)
+        && (
+          (existing().senderId == request.auth.uid
+            && incoming().diff(existing()).affectedKeys().hasOnly(['body', 'kind', 'module']))
+          ||
+          (incoming().diff(existing()).affectedKeys().hasOnly(['likes', 'tomatoes', 'claps', 'ideas', 'reactionsUsers']))
+        );
+
+      allow delete: if isGoogleAuth()
+        && (existing().senderId == request.auth.uid || isCreatorAdmin());
     }
   }
 }

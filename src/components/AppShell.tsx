@@ -6,12 +6,7 @@ import { levelFromXp } from "@/lib/game";
 import { play } from "@/lib/sound";
 import { clearCurrentSession } from "@/lib/profileStore";
 import { syncOverridesFromServer } from "@/lib/questionOverrides";
-import {
-  formatHeartCountdown,
-  renderHeartsVisual,
-  resolveHeartKey,
-  useHearts,
-} from "@/lib/heartsStore";
+import { renderHeartsVisual, useHearts } from "@/lib/heartsStore";
 
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
@@ -21,6 +16,7 @@ const NAV = [
   { to: "/examens", icon: "📝", label: "QCM Examens" },
   { to: "/cours", icon: "📚", label: "QCM par Cours" },
   { to: "/mes-erreurs", icon: "🔁", label: "QCM أخطائي السابقة", ar: true },
+  { to: "/renew-hearts", icon: "❤️", label: "تجديد القلوب", ar: true },
   { to: "/leaderboard", icon: "🏆", label: "Leaderboard" },
   { to: "/missions", icon: "🎯", label: "Missions" },
   { to: "/mes-cours", icon: "📄", label: "Mes cours PDF" },
@@ -112,23 +108,20 @@ export function AppShell({ children, wide = false }: { children: ReactNode; wide
           </div>
           {me && (
             <div className="flex items-center gap-2">
-              <div
+              <Link
+                to="/renew-hearts"
                 title={
                   hearts.unlimited
                     ? "قلوب غير محدودة للمصمم"
-                    : hearts.secondsToNext > 0
-                      ? `يتجدد قلب خلال ${formatHeartCountdown(hearts.secondsToNext)}`
-                      : "قلوب المحاولات (2 كل ساعتين)"
+                    : `رصيد القلوب (${hearts.hearts}/5) — اضغط لتجديد القلوب بالأذكار`
                 }
-                className="flex items-center gap-1.5 rounded-full bg-card px-2.5 py-1 text-xs font-semibold shadow-sm border border-border/60"
+                className="flex items-center gap-1.5 rounded-full bg-card px-2.5 py-1 text-xs font-semibold shadow-sm border border-border/60 hover:bg-primary/5 transition"
               >
                 <span>{renderHeartsVisual(hearts.hearts, hearts.unlimited)}</span>
-                {!hearts.unlimited && hearts.secondsToNext > 0 && (
-                  <span className="font-mono text-[10px] text-amber-700">
-                    {formatHeartCountdown(hearts.secondsToNext)}
-                  </span>
+                {!hearts.unlimited && hearts.hearts <= 0 && (
+                  <span className="ar text-[10px] font-bold text-destructive">جدّد الآن</span>
                 )}
-              </div>
+              </Link>
               <button
                 onClick={() => nav({ to: "/profile" })}
                 className="flex items-center gap-3 rounded-full bg-card px-2 py-1 shadow-sm"

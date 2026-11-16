@@ -1,82 +1,164 @@
+import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { auth, db, handleFirestoreError, OperationType } from "@/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { onAuthStateChanged, signOut, type User } from "firebase/auth";
+import { doc, onSnapshot } from "firebase/firestore";
+import { toast } from "sonner";
+import { auth, db, logFirestoreError, OperationType } from "@/lib/firebase";
 import type { AvatarConfig } from "@/components/Avatar";
+import {
+  INITIAL_HEARTS,
+  isGoogleAuthUser,
+  isLegacyPasswordOnlyUser,
+  LEGACY_MIGRATION_MESSAGE,
+  type DhikrCountsMap,
+} from "@/lib/studentService";
 
 export type Me = {
   id: string;
   email: string | null;
   display_name: string | null;
+  photoURL: string | null;
   avatar: AvatarConfig | null;
   pet: string | null;
   bubble: string | null;
   xp: number;
   score: number;
+  coins: number;
+  streak: number;
+  hearts: number;
+  dhikrCounts: DhikrCountsMap;
+  lastDhikrAtMs: number | null;
   sound_on: boolean;
   onboarded: boolean;
   isCreator: boolean;
 };
 
+type StudentRawDoc = {
+  name?: unknown;
+  photoURL?: unknown;
+  avatar?: unknown;
+  pet?: unknown;
+  bubble?: unknown;
+  xp?: unknown;
+  score?: unknown;
+  hearts?: unknown;
+  dhikrCounts?: unknown;
+  lastDhikrAt?: { toMillis?: () => number } | null;
+};
+
+function mapUserAndDoc(currentUser: User, data?: StudentRawDoc): Me {
+  const uid = currentUser.uid;
+  const email = (currentUser.email || "").toLowerCase();
+  const isDoctorZ = email === "doctorzmit@gmail.com";
+  const xp = Number(data?.xp ?? 0);
+  const score = Number(data?.score ?? 0);
+  const heartsRaw = data?.hearts;
+  const hearts =
+    typeof heartsRaw === "number" && Number.isFinite(heartsRaw)
+      ? Math.max(0, Math.floor(heartsRaw))
+      : INITIAL_HEARTS;
+
+  const lastDhikrObj = data?.lastDhikrAt;
+  const lastDhikrAtMs =
+    lastDhikrObj && typeof lastDhikrObj.toMillis === "function" ? lastDhikrObj.toMillis() : null;
+
+  return {
+    id: uid,
+    email: currentUser.email || null,
+    display_name:
+      (typeof data?.name === "string" && data.name) ||
+      currentUser.displayName ||
+      email.split("@")[0] ||
+      "طالب طب",
+    photoURL: (typeof data?.photoURL === "string" && data.photoURL) || currentUser.photoURL || null,
+    avatar: (data?.avatar as AvatarConfig | null | undefined) ?? null,
+    pet: (typeof data?.pet === "string" && data.pet) || null,
+    bubble: (typeof data?.bubble === "string" && data.bubble) || null,
+    xp,
+    score,
+    coins: Math.floor(xp / 10),
+    streak: 1,
+    hearts: isDoctorZ ? 999 : hearts,
+    dhikrCounts: (data?.dhikrCounts as DhikrCountsMap | undefined) || {},
+    lastDhikrAtMs,
+    sound_on: true,
+    onboarded: data?.avatar != null && typeof data.avatar === "object",
+    isCreator: isDoctorZ,
+  };
+}
+
 export function useMe() {
-  return useQuery({
-    queryKey: ["me", auth.currentUser?.uid],
-    queryFn: async (): Promise<Me | null> => {
-      let currentUser = auth.currentUser;
-      if (!currentUser) {
-        await new Promise((resolve) => {
-          const unsub = auth.onAuthStateChanged((u) => {
-            unsub();
-            resolve(u);
-          });
-        });
-        currentUser = auth.currentUser;
-      }
+  const qc = useQueryClient();
+  const [authUser, setAuthUser] = useState<User | null>(() => auth.currentUser);
+  const [authReady, setAuthReady] = useState<boolean>(() => auth.currentUser !== null);
 
-      if (!currentUser) return null;
-
-      const uid = currentUser.uid;
-      const email = currentUser.email || "";
-      const isDoctorZ = email === "doctorzmit@gmail.com";
-
-      try {
-        const docRef = doc(db, "students", uid);
-        const snap = await getDoc(docRef);
-        if (snap.exists()) {
-          const data = snap.data();
-          return {
-            id: uid,
-            email,
-            display_name: data.name || currentUser.displayName || email.split("@")[0] || "Étudiant",
-            avatar: data.avatar ?? null,
-            pet: data.pet ?? null,
-            bubble: data.bubble ?? null,
-            xp: Number(data.xp ?? 0),
-            score: Number(data.score ?? 0),
-            sound_on: true,
-            onboarded: data.avatar != null,
-            isCreator: isDoctorZ,
-          };
+  useEffect(() => {
+    const unsubAuth = onAuthStateChanged(auth, async (u) => {
+      if (u && isLegacyPasswordOnlyUser(u)) {
+        try {
+          await signOut(auth);
+        } catch {
+          // ignore
         }
-      } catch (error) {
-        handleFirestoreError(error, OperationType.GET, `students/${uid}`);
+        toast.error(LEGACY_MIGRATION_MESSAGE);
+        setAuthUser(null);
+        setAuthReady(true);
+        qc.setQueryData(["me"], null);
+        if (typeof window !== "undefined" && !window.location.pathname.startsWith("/auth")) {
+          window.location.href = "/auth?reason=legacy_migrated";
+        }
+        return;
       }
 
-      return {
-        id: uid,
-        email,
-        display_name: currentUser.displayName || email.split("@")[0] || "Étudiant",
-        avatar: null,
-        pet: null,
-        bubble: null,
-        xp: 0,
-        score: 0,
-        sound_on: true,
-        onboarded: false,
-        isCreator: isDoctorZ,
-      };
+      if (u && !isGoogleAuthUser(u)) {
+        setAuthUser(null);
+        setAuthReady(true);
+        qc.setQueryData(["me"], null);
+        return;
+      }
+
+      setAuthUser(u);
+      setAuthReady(true);
+      if (!u) {
+        qc.setQueryData(["me"], null);
+      }
+    });
+    return () => unsubAuth();
+  }, [qc]);
+
+  useEffect(() => {
+    if (!authUser || !isGoogleAuthUser(authUser)) return;
+    const docRef = doc(db, "students", authUser.uid);
+    const unsubDoc = onSnapshot(
+      docRef,
+      (snap) => {
+        const mapped = mapUserAndDoc(authUser, snap.exists() ? snap.data() : undefined);
+        qc.setQueryData(["me"], mapped);
+      },
+      (error) => {
+        logFirestoreError(error, OperationType.GET, `students/${authUser.uid}`);
+      },
+    );
+    return () => unsubDoc();
+  }, [authUser, qc]);
+
+  const queryRes = useQuery<Me | null>({
+    queryKey: ["me"],
+    enabled: authReady,
+    queryFn: async () => {
+      const currentUser = auth.currentUser;
+      if (!currentUser || !isGoogleAuthUser(currentUser)) return null;
+      const existing = qc.getQueryData<Me | null>(["me"]);
+      if (existing && existing.id === currentUser.uid) return existing;
+      return mapUserAndDoc(currentUser);
     },
-    staleTime: 5000,
+    staleTime: Infinity,
   });
+
+  return {
+    ...queryRes,
+    isLoading: !authReady || queryRes.isLoading,
+  };
 }
 
 export function useRefreshMe() {

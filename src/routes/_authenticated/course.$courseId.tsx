@@ -1,20 +1,14 @@
 import { pageMetadata } from "@/lib/metadata";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell, PageTitle } from "@/components/AppShell";
 import { Practice } from "@/components/Practice";
 import type { Question } from "@/lib/queries";
 import { useMe } from "@/hooks/useMe";
-import {
-  consumeHeart,
-  formatHeartCountdown,
-  renderHeartsVisual,
-  resolveHeartKey,
-  useHearts,
-} from "@/lib/heartsStore";
+import { consumeHeart, renderHeartsVisual, useHearts } from "@/lib/heartsStore";
 import { play } from "@/lib/sound";
 
 export const Route = createFileRoute("/_authenticated/course/$courseId")({
@@ -25,11 +19,23 @@ export const Route = createFileRoute("/_authenticated/course/$courseId")({
 
 function Course() {
   const { courseId } = Route.useParams();
+  const nav = useNavigate();
   const { data: me } = useMe();
   const [started, setStarted] = useState(false);
+  const [busy, setBusy] = useState(false);
 
-  const heartKey = resolveHeartKey(me?.email, me?.id);
   const heartStatus = useHearts(me?.email, me?.id, !!me?.isCreator);
+
+  // Auto-redirect to /renew-hearts if student enters with 0 hearts before starting
+  useEffect(() => {
+    if (!started && me && !me.isCreator && !heartStatus.canPlay) {
+      toast.info("💔 نفدت قلوبك! تم نقلك إلى صفحة تجديد القلوب بالأذكار.");
+      nav({
+        to: "/renew-hearts",
+        search: { returnTo: `/course/${courseId}` } as never,
+      });
+    }
+  }, [started, me, heartStatus.canPlay, courseId, nav]);
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["course", courseId],
@@ -67,16 +73,26 @@ function Course() {
     },
   });
 
-  function startCourse() {
+  async function startCourse() {
+    if (!me) return;
     if (!heartStatus.canPlay) {
-      toast.error(
-        `لا توجد قلوب متبقية! يتجدد قلب بعد ${formatHeartCountdown(heartStatus.secondsToNext)}`,
-      );
+      toast.error("💔 نفدت قلوبك! انتقل لتجديد القلوب بالأذكار.");
+      nav({
+        to: "/renew-hearts",
+        search: { returnTo: `/course/${courseId}` } as never,
+      });
       return;
     }
-    const res = consumeHeart(heartKey, !!me?.isCreator);
+
+    setBusy(true);
+    const res = await consumeHeart(me.id, !!me.isCreator);
+    setBusy(false);
     if (!res.ok) {
-      toast.error("نفدت القلوب! انتظر ساعتين لتجدد قلب.");
+      toast.error("💔 نفدت قلوبك! تم نقلك لتجديد القلوب.");
+      nav({
+        to: "/renew-hearts",
+        search: { returnTo: `/course/${courseId}` } as never,
+      });
       return;
     }
     play("submit");
@@ -123,33 +139,32 @@ function Course() {
             </div>
           </div>
 
-          {!heartStatus.unlimited && heartStatus.secondsToNext > 0 && (
-            <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 text-center text-xs font-semibold text-amber-900">
-              ⏳ يتجدد القلب التالي تلقائياً خلال:{" "}
-              <span className="font-mono text-sm">
-                {formatHeartCountdown(heartStatus.secondsToNext)}
-              </span>{" "}
-              (كل ساعتين +1 ❤️)
-            </div>
-          )}
-
           <p className="ar text-sm text-muted-foreground">
-            ❤️ لديك محاولتان (قلبان) لكل التمارين بالمواد أو الاختبارات، ويتجدد كل قلب كل ساعتين
-            تلقائياً.
+            ❤️ لديك قلبان (محاولتان) عند البدء، وعند نفاد القلوب يمكنك تجديدها فوراً من صفحة الأذكار
+            (حتى 5 قلوب).
           </p>
 
           {!heartStatus.canPlay ? (
-            <div className="rounded-xl bg-destructive/10 border border-destructive/30 p-4 text-center text-sm font-medium text-destructive">
-              🔒 نفدت قلوبك (🤍🤍). يتجدد قلب جديد بعد{" "}
-              <b className="font-mono">{formatHeartCountdown(heartStatus.secondsToNext)}</b>
-            </div>
+            <button
+              type="button"
+              onClick={() =>
+                nav({
+                  to: "/renew-hearts",
+                  search: { returnTo: `/course/${courseId}` } as never,
+                })
+              }
+              className="w-full rounded-xl bg-hero py-3 text-base font-bold text-primary-foreground shadow-pop"
+            >
+              🤲 تجديد القلوب بالأذكار
+            </button>
           ) : (
             <button
               type="button"
-              onClick={startCourse}
-              className="w-full rounded-xl bg-hero py-3 text-lg font-semibold text-primary-foreground shadow-pop transition active:scale-95"
+              disabled={busy}
+              onClick={() => void startCourse()}
+              className="w-full rounded-xl bg-hero py-3 text-lg font-semibold text-primary-foreground shadow-pop transition active:scale-95 disabled:opacity-60"
             >
-              Commencer les QCM · ابدأ التمرين (-1 ❤️)
+              {busy ? "جاري البدء..." : "Commencer les QCM · ابدأ التمرين (-1 ❤️)"}
             </button>
           )}
         </div>
@@ -160,16 +175,23 @@ function Course() {
             questions={qs}
             challengeId={courseId}
             challengeTitle={c.title ?? ""}
-            onRequestNewAttempt={() => {
+            onRequestNewAttempt={async () => {
+              if (!me) return false;
               if (!heartStatus.canPlay) {
-                toast.error(
-                  `نفدت القلوب! يتجدد قلب بعد ${formatHeartCountdown(heartStatus.secondsToNext)}`,
-                );
+                toast.error("💔 نفدت قلوبك! تم نقلك لتجديد القلوب.");
+                nav({
+                  to: "/renew-hearts",
+                  search: { returnTo: `/course/${courseId}` } as never,
+                });
                 return false;
               }
-              const res = consumeHeart(heartKey, !!me?.isCreator);
+              const res = await consumeHeart(me.id, !!me.isCreator);
               if (!res.ok) {
-                toast.error("نفدت القلوب! انتظر ساعتين لتجدد قلب.");
+                toast.error("💔 نفدت قلوبك! تم نقلك لتجديد القلوب.");
+                nav({
+                  to: "/renew-hearts",
+                  search: { returnTo: `/course/${courseId}` } as never,
+                });
                 return false;
               }
               return true;

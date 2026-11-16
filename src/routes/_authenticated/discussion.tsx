@@ -8,8 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Avatar, type AvatarConfig } from "@/components/Avatar";
 import { pageMetadata } from "@/lib/metadata";
 import { play } from "@/lib/sound";
-import { isUserTomatoHit, getUserTomatoHoursLeft } from "@/lib/game";
 import { useMe } from "@/hooks/useMe";
+import { useTomatoHits } from "@/hooks/useTomatoHits";
+import { isGoogleAuthUser } from "@/lib/studentService";
 import {
   collection,
   query,
@@ -17,11 +18,11 @@ import {
   onSnapshot,
   doc,
   setDoc,
-  updateDoc,
-  increment,
+  runTransaction,
   serverTimestamp,
+  limit,
 } from "firebase/firestore";
-import { db, handleFirestoreError, OperationType } from "@/lib/firebase";
+import { auth, db, logFirestoreError, OperationType } from "@/lib/firebase";
 
 export const Route = createFileRoute("/_authenticated/discussion")({
   head: () =>
@@ -35,14 +36,16 @@ export const Route = createFileRoute("/_authenticated/discussion")({
 export type ReactionUser = {
   id: string;
   name: string;
-  avatar?: AvatarConfig;
+  photoURL?: string | null;
+  avatar?: AvatarConfig | null;
 };
 
 export type Message = {
   id: string;
   sender: string;
-  senderId?: string;
-  avatar?: AvatarConfig;
+  senderId?: string | undefined;
+  photoURL?: string | null;
+  avatar?: AvatarConfig | null;
   pet?: string | null;
   module?: string;
   isCreator?: boolean;
@@ -61,88 +64,6 @@ export type Message = {
   };
 };
 
-const DEFAULT_MESSAGES: Message[] = [
-  {
-    id: "init-1",
-    sender: "Dr. Z (Creator) 👑",
-    senderId: "creator-z",
-    isCreator: true,
-    avatar: {
-      gender: "m",
-      skin: 1,
-      eyes: 2,
-      nose: 0,
-      mouth: 2,
-      hair: 9,
-      hairColor: 0,
-      hijab: 0,
-      outfit: 0,
-      accessory: 1,
-      glasses: 1,
-      beard: 1,
-    },
-    pet: "lion",
-    module: "Médecine Générale",
-    body: "مرحباً بجميع أطباء المستقبل في كلية الطب بجامعة سعد دحلب (البليدة 1) ! 🩺\nهذا الفضاء مخصص لكم لمشاركة الملاحظات، مناقشة أسئلة الامتحانات السابقة وتبادل النصائح الدراسية. تم ربط كل تفاعل بالأفاتار الشخصي لصاحبه !",
-    kind: "chat",
-    created_at: new Date(Date.now() - 3600000 * 24).toISOString(),
-    likes: 24,
-    tomatoes: 0,
-    claps: 18,
-    ideas: 12,
-    reactionsUsers: {
-      likes: [
-        { id: "user-1", name: "Amine K.", avatar: { gender: "m", skin: 1, outfit: 0, hair: 0 } },
-      ],
-      claps: [
-        {
-          id: "user-2",
-          name: "Sara B.",
-          avatar: { gender: "f", skin: 1, hijab: 1, hijabStyle: 0, outfit: 0 },
-        },
-      ],
-    },
-  },
-  {
-    id: "init-2",
-    sender: "Amine K. (Major Promo)",
-    senderId: "user-1",
-    isCreator: false,
-    avatar: { gender: "m", skin: 1, outfit: 0, hair: 0, accessory: 1 },
-    pet: "lion",
-    module: "Sémiologie Médicale",
-    body: "في مادة السيميولوجيا (Sémiologie)، ركزوا مليح على متلازمة الارتشاح الرئوي (Syndrome de condensation pulmonaire) وعلامات الفحص السريري (Vibrations vocales et Matité)، ديما يتعاودو في أسئلة QCM !",
-    kind: "tip",
-    created_at: new Date(Date.now() - 3600000 * 8).toISOString(),
-    likes: 15,
-    tomatoes: 0,
-    claps: 9,
-    ideas: 14,
-    reactionsUsers: {
-      ideas: [
-        { id: "creator-z", name: "Dr. Z", avatar: { gender: "m", skin: 1, hair: 9, outfit: 0 } },
-      ],
-    },
-  },
-  {
-    id: "init-3",
-    sender: "Sara B. (3ème Année)",
-    senderId: "user-2",
-    isCreator: false,
-    avatar: { gender: "f", skin: 1, hijab: 1, hijabStyle: 0, outfit: 0, accessory: 1 },
-    pet: "cat",
-    module: "Biochimie Clinique",
-    body: "امتحان الكيمياء الحيوية (Biochimie) كان فيه تركيز كبير على مسار تحلل السكر وتنظيم الأنسولين، أنصح بحل الأسئلة المكررة هنا في التطبيق مع الشرح بالذكاء الاصطناعي قبل موعد الامتحان.",
-    kind: "feedback",
-    created_at: new Date(Date.now() - 3600000 * 3).toISOString(),
-    likes: 8,
-    tomatoes: 0,
-    claps: 6,
-    ideas: 5,
-    reactionsUsers: {},
-  },
-];
-
 const MODULES = [
   "عام (Général)",
   "Cardiologie",
@@ -159,71 +80,99 @@ const MODULES = [
 
 export function Discussion() {
   const { data: me } = useMe();
+  const { statsByUid, flyingTargetUid } = useTomatoHits(me?.id);
   const [messages, setMessages] = useState<Message[]>([]);
   const [body, setBody] = useState("");
+  const [sending, setSending] = useState(false);
   const [kind, setKind] = useState<"chat" | "feedback" | "tip" | "question">("chat");
   const [selectedModule, setSelectedModule] = useState<string>("عام (Général)");
   const [filter, setFilter] = useState<"all" | "chat" | "feedback" | "tip" | "question">("all");
   const [search, setSearch] = useState("");
-  const [userReactions, setUserReactions] = useState<Record<string, string[]>>({});
 
-  // Load messages from Firestore in real-time
   useEffect(() => {
-    const q = query(collection(db, "messages"), orderBy("createdAt", "desc"));
+    const user = auth.currentUser;
+    if (!user || !isGoogleAuthUser(user)) return;
+
+    const q = query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(150));
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        if (!snapshot.empty) {
-          const list: Message[] = [];
-          snapshot.forEach((d) => {
-            const data = d.data();
-            list.push({
-              id: d.id,
-              sender: data.sender || "Étudiant",
-              senderId: data.senderId,
-              avatar: data.avatar,
-              pet: data.pet || null,
-              module: data.module || "عام (Général)",
-              isCreator: !!data.isCreator,
-              body: data.body || "",
-              kind: data.kind || "chat",
-              created_at: data.created_at || new Date().toISOString(),
-              likes: Number(data.likes || 0),
-              tomatoes: Number(data.tomatoes || 0),
-              claps: Number(data.claps || 0),
-              ideas: Number(data.ideas || 0),
-              reactionsUsers: data.reactionsUsers || {},
-            });
+        const list: Message[] = [];
+        snapshot.forEach((d) => {
+          const data = d.data() as {
+            createdAt?: { toDate?: () => Date } | null;
+            created_at?: unknown;
+            sender?: unknown;
+            senderId?: unknown;
+            photoURL?: unknown;
+            avatar?: unknown;
+            pet?: unknown;
+            module?: unknown;
+            isCreator?: unknown;
+            body?: unknown;
+            kind?: unknown;
+            likes?: unknown;
+            tomatoes?: unknown;
+            claps?: unknown;
+            ideas?: unknown;
+            reactionsUsers?: unknown;
+          };
+          let createdAtIso = new Date().toISOString();
+          if (typeof data.createdAt?.toDate === "function") {
+            createdAtIso = data.createdAt.toDate().toISOString();
+          } else if (typeof data.created_at === "string" && data.created_at) {
+            createdAtIso = data.created_at;
+          }
+
+          list.push({
+            id: d.id,
+            sender: String(data.sender || "طالب طب"),
+            senderId: typeof data.senderId === "string" ? data.senderId : undefined,
+            photoURL: typeof data.photoURL === "string" ? data.photoURL : null,
+            avatar: (data.avatar as AvatarConfig | null) ?? null,
+            pet: typeof data.pet === "string" ? data.pet : null,
+            module: typeof data.module === "string" ? data.module : "عام (Général)",
+            isCreator: !!data.isCreator,
+            body: String(data.body || ""),
+            kind: (data.kind as Message["kind"]) || "chat",
+            created_at: createdAtIso,
+            likes: Number(data.likes || 0),
+            tomatoes: Number(data.tomatoes || 0),
+            claps: Number(data.claps || 0),
+            ideas: Number(data.ideas || 0),
+            reactionsUsers: (data.reactionsUsers as Message["reactionsUsers"]) || {},
           });
-          setMessages(list);
-        } else {
-          setMessages(DEFAULT_MESSAGES);
-        }
+        });
+        setMessages(list);
       },
       (error) => {
-        console.error("Failed to fetch discussion messages from Firestore:", error);
-        handleFirestoreError(error, OperationType.GET, "messages");
+        logFirestoreError(error, OperationType.LIST, "messages");
+        toast.error("تعذر تحميل الرسائل المباشرة. تحقق من الاتصال.");
       },
     );
     return () => unsubscribe();
-  }, []);
+  }, [me?.id]);
 
   async function handleSend() {
     const text = body.trim();
-    if (!text) return;
+    if (!text || !me || sending) return;
 
+    setSending(true);
     play("submit");
 
-    const senderName = me?.display_name || (me?.isCreator ? "Doctor Z 👑" : "طالب طب (Blida)");
-    const newMsgId = `msg-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+    const senderName = (
+      me.display_name || (me.isCreator ? "Doctor Z 👑" : "طالب طب (Blida)")
+    ).slice(0, 120);
+    const newMsgId = `msg_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     const newMsgData = {
       id: newMsgId,
       sender: senderName,
-      senderId: me?.id || "me",
-      avatar: (me?.avatar as AvatarConfig) || { gender: "m", skin: 1, outfit: 0, accessory: 1 },
-      pet: me?.pet || null,
+      senderId: me.id,
+      photoURL: me.photoURL || null,
+      avatar: me.avatar ?? null,
+      pet: me.pet || null,
       module: selectedModule,
-      isCreator: !!me?.isCreator,
+      isCreator: !!me.isCreator,
       body: text,
       kind,
       createdAt: serverTimestamp(),
@@ -235,70 +184,70 @@ export function Discussion() {
       reactionsUsers: {
         likes: [
           {
-            id: me?.id || "me",
+            id: me.id,
             name: senderName,
-            avatar: me?.avatar as AvatarConfig,
+            photoURL: me.photoURL || null,
+            avatar: me.avatar ?? null,
           },
         ],
       },
     };
 
-    setBody("");
     try {
       await setDoc(doc(db, "messages", newMsgId), newMsgData);
-      toast.success("تم إرسال مشاركتك وتثبيت أفاتارك الشخصي بنجاح ! ✨");
+      setBody("");
+      toast.success("تم نشر مشاركتك فوراً للجميع! ✨");
     } catch (error) {
-      console.error("Failed to send message to Firestore:", error);
-      handleFirestoreError(error, OperationType.WRITE, `messages/${newMsgId}`);
+      logFirestoreError(error, OperationType.CREATE, `messages/${newMsgId}`);
       toast.error("فشل إرسال الرسالة، تحقق من اتصالك.");
+    } finally {
+      setSending(false);
     }
   }
 
   async function handleReaction(msgId: string, type: "likes" | "tomatoes" | "claps" | "ideas") {
-    const already = userReactions[msgId]?.includes(type);
+    if (!me) return;
 
     if (type === "tomatoes") play("hit");
     else play("click");
 
     const currentUser: ReactionUser = {
-      id: me?.id || "me",
-      name: me?.display_name || "Moi",
-      avatar: me?.avatar as AvatarConfig,
+      id: me.id,
+      name: me.display_name || "طالب",
+      photoURL: me.photoURL || null,
+      avatar: me.avatar ?? null,
     };
 
-    const delta = already ? -1 : 1;
-    const targetMsg = messages.find((m) => m.id === msgId);
-    const currentReactionsUsers = targetMsg?.reactionsUsers || {};
-    const list = currentReactionsUsers[type] || [];
-
-    let updatedList = [...list];
-    if (already) {
-      updatedList = updatedList.filter((u) => u.id !== currentUser.id);
-    } else {
-      if (!updatedList.some((u) => u.id === currentUser.id)) {
-        updatedList.push(currentUser);
-      }
-    }
-
-    const newReactionsUsers = {
-      ...currentReactionsUsers,
-      [type]: updatedList,
-    };
-
-    setUserReactions((prev) => {
-      const cur = prev[msgId] || [];
-      const next = already ? cur.filter((x) => x !== type) : [...cur, type];
-      return { ...prev, [msgId]: next };
-    });
-
+    const msgRef = doc(db, "messages", msgId);
     try {
-      await updateDoc(doc(db, "messages", msgId), {
-        [type]: increment(delta),
-        reactionsUsers: newReactionsUsers,
+      await runTransaction(db, async (tx) => {
+        const snap = await tx.get(msgRef);
+        if (!snap.exists()) return;
+        const data = snap.data() as Record<string, unknown>;
+        const reactionsUsers = {
+          ...((data["reactionsUsers"] as Record<string, ReactionUser[]> | undefined) || {}),
+        };
+        const existingList: ReactionUser[] = Array.isArray(reactionsUsers[type])
+          ? [...reactionsUsers[type]]
+          : [];
+        const already = existingList.some((u) => u.id === currentUser.id);
+
+        const nextList = already
+          ? existingList.filter((u) => u.id !== currentUser.id)
+          : [...existingList, currentUser];
+        reactionsUsers[type] = nextList;
+
+        const currentCount = Math.max(0, Number(data[type] ?? 0));
+        const nextCount = already ? Math.max(0, currentCount - 1) : currentCount + 1;
+
+        tx.update(msgRef, {
+          [type]: nextCount,
+          reactionsUsers,
+        });
       });
     } catch (e) {
-      console.error("Failed to update reaction in Firestore:", e);
-      handleFirestoreError(e, OperationType.UPDATE, `messages/${msgId}`);
+      logFirestoreError(e, OperationType.UPDATE, `messages/${msgId}`);
+      toast.error("تعذر حفظ التفاعل.");
     }
   }
 
@@ -318,17 +267,24 @@ export function Discussion() {
     <AppShell wide>
       <PageTitle
         title="💬 Discussion & Conseils Médicaux"
-        ar="الدردشة والنصائح الطبية المنظمة"
-        sub="فضاء تفاعلي منظم بين طلبة كلية الطب بالبليدة 1 — كل تفاعل ومشاركة تظهر بأفاتار صاحبها الخاص."
+        ar="الدردشة والنصائح الطبية المباشرة"
+        sub="فضاء تفاعلي فوري بين طلبة كلية الطب بالبليدة 1 — كل رسالة وتفاعل يظهر لحظياً للجميع بصورة وصوت وأفاتار صاحبه."
       />
 
       {/* Top Banner & Composer */}
       <div className="grid gap-6 md:grid-cols-3">
-        {/* Composer Card with My Avatar */}
         <div className="card-game md:col-span-2 space-y-3.5 p-5 shadow-sm border border-border/80">
           <div className="flex items-center gap-3 border-b border-border/40 pb-3">
             <div className="relative">
-              <Avatar config={me?.avatar as AvatarConfig} pet={me?.pet} size={52} mood="happy" />
+              <Avatar
+                config={me?.avatar}
+                photoURL={me?.photoURL}
+                pet={me?.pet}
+                size={52}
+                tomato={!!(me?.id && statsByUid[me.id]?.isHit)}
+                tomatoHoursLeft={me?.id ? statsByUid[me.id]?.hoursLeft : undefined}
+                mood="happy"
+              />
             </div>
             <div>
               <div className="text-sm font-bold text-foreground flex items-center gap-2">
@@ -340,7 +296,7 @@ export function Discussion() {
                 )}
               </div>
               <div className="text-xs text-muted-foreground">
-                مشاركتك ستُنشر بأفاتارك الطبي المخصص
+                مشاركتك ستظهر لحظياً لجميع الطلبة المسجلين
               </div>
             </div>
           </div>
@@ -373,7 +329,6 @@ export function Discussion() {
               </div>
             </div>
 
-            {/* Module Selector */}
             <div className="flex items-center gap-1.5">
               <span className="text-xs text-muted-foreground font-semibold">المادة :</span>
               <select
@@ -401,11 +356,11 @@ export function Discussion() {
           <div className="flex items-center justify-between pt-1">
             <span className="text-[11px] text-muted-foreground">{1000 - body.length} حرف متبقٍ</span>
             <Button
-              disabled={!body.trim()}
+              disabled={!body.trim() || sending}
               onClick={() => void handleSend()}
               className="rounded-xl px-5 text-sm font-semibold shadow-pop hover:brightness-105 active:scale-95 transition-all"
             >
-              نشر المشاركة بأفاتاري ➤
+              {sending ? "جاري النشر..." : "نشر المشاركة ➤"}
             </Button>
           </div>
         </div>
@@ -420,7 +375,7 @@ export function Discussion() {
             <p className="flex items-start gap-2">
               <span className="text-primary font-bold">✓</span>
               <span>
-                <b>الأفاتار الشخصي:</b> كل رسالة أو تفاعل يعرض ملامح الأفاتار الذي صممته بنفسك.
+                <b>بث لحظي مباشر:</b> جميع الرسائل والتفاعلات تصل فوراً لكل الزملاء عبر Firestore.
               </span>
             </p>
             <p className="flex items-start gap-2">
@@ -432,7 +387,7 @@ export function Discussion() {
             <p className="flex items-start gap-2">
               <span className="text-primary font-bold">✓</span>
               <span>
-                <b>الذكاء الاصطناعي:</b> يمكنك توجيه سؤال لـ Dr Z-Bot وسيقدم لك توجيهاً سريعاً.
+                <b>تأثير الطماطم الحي:</b> يظهر أثر الطماطم والعداد على صورة أي مشارك تلقائياً.
               </span>
             </p>
           </div>
@@ -472,7 +427,6 @@ export function Discussion() {
           ))}
         </div>
 
-        {/* Search Input */}
         <div className="w-full sm:w-64">
           <Input
             value={search}
@@ -483,13 +437,21 @@ export function Discussion() {
         </div>
       </div>
 
-      {/* Messages List with Rich Avatars & Interactive Reactions */}
+      {/* Messages List */}
       <div className="mt-6 space-y-4">
         {filtered.map((m) => {
-          const isMine = m.senderId === me?.id || m.sender === me?.display_name;
-          const msgAvatar = isMine ? (me?.avatar as AvatarConfig) : (m.avatar as AvatarConfig);
-          const isHit = isUserTomatoHit(m.senderId || m.id);
-          const tomatoHours = getUserTomatoHoursLeft(m.senderId || m.id);
+          const isMine = m.senderId === me?.id;
+          const msgAvatar = isMine ? me?.avatar : m.avatar;
+          const msgPhoto = isMine ? me?.photoURL : m.photoURL;
+          const tomatoState = m.senderId ? statsByUid[m.senderId] : undefined;
+          const isHit = !!tomatoState?.isHit;
+          const tomatoHours = tomatoState?.hoursLeft ?? 0;
+          const isFlyingHere = !!(m.senderId && flyingTargetUid === m.senderId);
+
+          const hasLiked = !!m.reactionsUsers?.likes?.some((u) => u.id === me?.id);
+          const hasClapped = !!m.reactionsUsers?.claps?.some((u) => u.id === me?.id);
+          const hasIdea = !!m.reactionsUsers?.ideas?.some((u) => u.id === me?.id);
+          const hasTomato = !!m.reactionsUsers?.tomatoes?.some((u) => u.id === me?.id);
 
           return (
             <div
@@ -502,21 +464,26 @@ export function Discussion() {
                     : "border-border/70"
               }`}
             >
-              {/* Message Header with Full Avatar */}
               <div className="flex items-start justify-between gap-3 border-b border-border/40 pb-3">
                 <div className="flex items-center gap-3">
                   <div className="relative shrink-0">
                     <Avatar
                       config={msgAvatar}
+                      photoURL={msgPhoto}
                       pet={m.pet}
                       size={54}
                       tomato={isHit}
                       tomatoHoursLeft={tomatoHours}
                       mood={m.isCreator ? "veryHappy" : "happy"}
                     />
+                    {isFlyingHere && (
+                      <span className="animate-tomato absolute left-1/4 top-1/4 text-2xl z-20">
+                        🍅
+                      </span>
+                    )}
                   </div>
                   <div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <span className="font-bold text-foreground text-sm">{m.sender}</span>
                       {m.isCreator && (
                         <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold text-primary">
@@ -526,6 +493,11 @@ export function Discussion() {
                       {isMine && (
                         <span className="rounded-full bg-blue-100 text-blue-700 px-2 py-0.5 text-[10px] font-semibold">
                           أنت (Moi)
+                        </span>
+                      )}
+                      {(tomatoState?.count ?? 0) > 0 && (
+                        <span className="rounded-full bg-tomato/15 px-2 py-0.5 text-[10px] font-bold text-tomato">
+                          🍅 {tomatoState?.count}
                         </span>
                       )}
                     </div>
@@ -556,19 +528,17 @@ export function Discussion() {
                 </span>
               </div>
 
-              {/* Message Content */}
               <p className="mt-3.5 whitespace-pre-wrap text-sm leading-relaxed text-foreground/90 font-medium">
                 {m.body}
               </p>
 
-              {/* Interactive Reaction Buttons with Avatar Stack */}
               <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-border/40 pt-3">
                 <div className="flex flex-wrap items-center gap-2">
                   <button
                     type="button"
-                    onClick={() => handleReaction(m.id, "likes")}
+                    onClick={() => void handleReaction(m.id, "likes")}
                     className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition-all ${
-                      userReactions[m.id]?.includes("likes")
+                      hasLiked
                         ? "bg-red-100 text-red-600 ring-1 ring-red-300 scale-105"
                         : "bg-muted/60 text-muted-foreground hover:bg-muted"
                     }`}
@@ -579,9 +549,9 @@ export function Discussion() {
 
                   <button
                     type="button"
-                    onClick={() => handleReaction(m.id, "claps")}
+                    onClick={() => void handleReaction(m.id, "claps")}
                     className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition-all ${
-                      userReactions[m.id]?.includes("claps")
+                      hasClapped
                         ? "bg-amber-100 text-amber-700 ring-1 ring-amber-300 scale-105"
                         : "bg-muted/60 text-muted-foreground hover:bg-muted"
                     }`}
@@ -592,9 +562,9 @@ export function Discussion() {
 
                   <button
                     type="button"
-                    onClick={() => handleReaction(m.id, "ideas")}
+                    onClick={() => void handleReaction(m.id, "ideas")}
                     className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition-all ${
-                      userReactions[m.id]?.includes("ideas")
+                      hasIdea
                         ? "bg-yellow-100 text-yellow-800 ring-1 ring-yellow-300 scale-105"
                         : "bg-muted/60 text-muted-foreground hover:bg-muted"
                     }`}
@@ -605,20 +575,19 @@ export function Discussion() {
 
                   <button
                     type="button"
-                    onClick={() => handleReaction(m.id, "tomatoes")}
+                    onClick={() => void handleReaction(m.id, "tomatoes")}
                     className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition-all ${
-                      userReactions[m.id]?.includes("tomatoes")
+                      hasTomato
                         ? "bg-tomato/20 text-tomato ring-1 ring-tomato/40 scale-105"
                         : "bg-muted/60 text-muted-foreground hover:bg-muted"
                     }`}
-                    title="رمي طماطم للمرح 🍅"
+                    title="رمي طماطم على الرسالة 🍅"
                   >
                     <span>🍅</span>
                     <span>{m.tomatoes || 0}</span>
                   </button>
                 </div>
 
-                {/* Who Reacted Avatar Avatars Preview */}
                 {m.reactionsUsers &&
                   Object.values(m.reactionsUsers).some((arr) => arr && arr.length > 0) && (
                     <div className="flex items-center gap-1.5">
@@ -641,7 +610,7 @@ export function Discussion() {
                               className="inline-block rounded-full ring-2 ring-card bg-card p-0.5 shadow-xs"
                               title={u.name}
                             >
-                              <Avatar config={u.avatar} size={22} />
+                              <Avatar config={u.avatar} photoURL={u.photoURL} size={22} />
                             </div>
                           ))}
                       </div>
@@ -654,9 +623,9 @@ export function Discussion() {
 
         {!filtered.length && (
           <div className="card-game p-10 text-center text-muted-foreground space-y-2">
-            <span className="text-3xl block">🔍</span>
-            <p className="font-semibold">لا توجد مشاركات مطابقة لهذا التصنيف أو البحث.</p>
-            <p className="text-xs">كن أول من يشارك نصيحة أو سؤال لزملائك في الكلية !</p>
+            <span className="text-3xl block">💬</span>
+            <p className="font-semibold">لا توجد مشاركات بعد أو لا توجد نتائج مطابقة للبحث.</p>
+            <p className="text-xs">كن أول من يشارك نصيحة أو سؤالاً لزملائك في الكلية!</p>
           </div>
         )}
       </div>

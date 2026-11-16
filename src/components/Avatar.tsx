@@ -221,6 +221,7 @@ function Mouth({ v, mood }: { v: number; mood: Mood }) {
 
 export function Avatar({
   config,
+  photoURL,
   mood: moodIn = "neutral",
   size = 140,
   pet,
@@ -228,14 +229,70 @@ export function Avatar({
   tomatoHoursLeft,
   className = "",
 }: {
-  config?: AvatarConfig | undefined;
-  mood?: Mood;
-  size?: number;
-  pet?: string | null;
-  tomato?: boolean;
-  tomatoHoursLeft?: number;
-  className?: string;
+  config?: AvatarConfig | null | undefined;
+  photoURL?: string | null | undefined;
+  mood?: Mood | undefined;
+  size?: number | undefined;
+  pet?: string | null | undefined;
+  tomato?: boolean | undefined;
+  tomatoHoursLeft?: number | undefined;
+  className?: string | undefined;
 }) {
+  if (!config && photoURL) {
+    return (
+      <div
+        className={`relative inline-flex items-center justify-center ${className}`}
+        style={{ width: size, height: size }}
+        title={tomato ? `🍅 ملطخ بالطماطم (متبقي ${tomatoHoursLeft ?? 12} ساعة)` : undefined}
+      >
+        <img
+          src={photoURL}
+          alt="Profile"
+          referrerPolicy="no-referrer"
+          className={`h-full w-full rounded-full object-cover border-2 ${
+            tomato ? "border-tomato ring-2 ring-tomato/50" : "border-primary/30"
+          }`}
+        />
+        {tomato && (
+          <svg
+            viewBox="0 0 200 200"
+            className="pointer-events-none absolute inset-0 h-full w-full animate-pop"
+            aria-hidden="true"
+          >
+            <path
+              d="M66 58 q24 -22 46 0 q26 -10 30 18 q16 20 -8 32 q-6 24 -34 14 q-26 12 -34 -14 q-22 -16 -6 -34 q-2 -20 8 -16z"
+              fill="#dc2626"
+              opacity="0.88"
+            />
+            <path
+              d="M78 102 q-4 28 -2 54 M124 106 q6 22 0 44 M98 118 q-2 22 2 44"
+              stroke="#dc2626"
+              strokeWidth="7"
+              strokeLinecap="round"
+              opacity="0.9"
+            />
+            <ellipse cx="88" cy="76" rx="3" ry="5" fill="#fef08a" />
+            <ellipse cx="114" cy="94" rx="3" ry="5" fill="#fef08a" />
+          </svg>
+        )}
+        {pet && (
+          <span
+            className="absolute -bottom-1 -right-1 text-[length:var(--pet)] drop-shadow"
+            style={{ ["--pet" as string]: `${Math.round(size * 0.28)}px` }}
+          >
+            {petEmoji(pet)}
+          </span>
+        )}
+        {tomato && size >= 44 && (
+          <div className="absolute -top-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-tomato px-2 py-0.5 text-[9px] font-bold text-white shadow-md animate-pop flex items-center gap-1 border border-white/40">
+            <span>🍅</span>
+            <span>{tomatoHoursLeft ?? 12}س</span>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   let mood = moodIn;
   const c = { ...DEFAULT, ...(config ?? {}) };
   const skin = SKINS[c.skin] ?? SKINS[2];

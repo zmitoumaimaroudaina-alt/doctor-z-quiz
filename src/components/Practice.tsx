@@ -37,7 +37,7 @@ export function Practice({
   challengeTitle,
 }: {
   questions: Question[];
-  onRequestNewAttempt?: () => boolean;
+  onRequestNewAttempt?: () => boolean | Promise<boolean>;
   challengeId?: string;
   challengeTitle?: string;
 }) {
@@ -270,9 +270,10 @@ export function Practice({
     }
   }
 
-  function restart(list: Question[], requireHeart = false) {
-    if (requireHeart && onRequestNewAttempt && !onRequestNewAttempt()) {
-      return;
+  async function restart(list: Question[], requireHeart = false) {
+    if (requireHeart && onRequestNewAttempt) {
+      const ok = await onRequestNewAttempt();
+      if (!ok) return;
     }
     setActive(list);
     setI(0);
@@ -328,13 +329,13 @@ export function Practice({
         <div className="flex flex-wrap gap-3 pt-3">
           {summary.errors.length > 0 && (
             <Button
-              onClick={() => restart(active.filter((q) => summary.errors.includes(q.id)))}
+              onClick={() => void restart(active.filter((q) => summary.errors.includes(q.id)))}
               className="bg-destructive text-destructive-foreground font-semibold"
             >
               🔁 Rejouer mes erreurs ({summary.errors.length})
             </Button>
           )}
-          <Button variant="outline" onClick={() => restart([...questions], true)}>
+          <Button variant="outline" onClick={() => void restart([...questions], true)}>
             🔄 Nouvelle tentative complète
           </Button>
         </div>
