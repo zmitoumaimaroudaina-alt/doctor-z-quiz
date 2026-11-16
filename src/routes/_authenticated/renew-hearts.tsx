@@ -1,6 +1,6 @@
 import { pageMetadata } from "@/lib/metadata";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { AppShell, PageTitle } from "@/components/AppShell";
 import { useMe } from "@/hooks/useMe";
@@ -24,14 +24,32 @@ export const Route = createFileRoute("/_authenticated/renew-hearts")({
   component: RenewHeartsPage,
 });
 
+type PendingMap = Partial<Record<DhikrKey, number>>;
+
+function sleep(ms: number) {
+  return new Promise<void>((resolve) => setTimeout(resolve, ms));
+}
+
 function RenewHeartsPage() {
   const { data: me } = useMe();
   const nav = useNavigate();
-  const [busyKey, setBusyKey] = useState<DhikrKey | null>(null);
-  const [cooldownUntil, setCooldownUntil] = useState<number>(0);
+  const [pendingByKey, setPendingByKey] = useState<PendingMap>({});
   const [celebrateHeart, setCelebrateHeart] = useState(false);
   const [completedFlashKey, setCompletedFlashKey] = useState<DhikrKey | null>(null);
+  const [pulseKey, setPulseKey] = useState<DhikrKey | null>(null);
   const [returnTo, setReturnTo] = useState<string>("/examens");
+
+  const queueRef = useRef<DhikrKey[]>([]);
+  const processingRef = useRef(false);
+  const lastCommitAtRef = useRef<number>(0);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -54,53 +72,136 @@ function RenewHeartsPage() {
   const currentHearts = me.isCreator ? MAX_HEARTS_CAP : Math.max(0, me.hearts);
   const isAtCap = !me.isCreator && currentHearts >= MAX_HEARTS_CAP;
 
-  async function handleTasbih(key: DhikrKey) {
+  // Calculate total hearts already committed + expected from queued taps
+  const pendingPotentialHearts = ADHKAR_LIST.reduce((acc, item) => {
+    const confirmed = Math.max(0, Math.min(9, Number(me.dhikrCounts?.[item.key] ?? 0)));
+    const pending = pendingByKey[item.key] ?? 0;
+    return acc + Math.floor((confirmed + pending) / DHIKR_TARGET);
+  }, 0);
+  const optimisticHearts = Math.min(MAX_HEARTS_CAP, currentHearts + pendingPotentialHearts);
+
+  function decrementPending(key: DhikrKey) {
+    if (!mountedRef.current) return;
+    setPendingByKey((prev) => {
+      const cur = prev[key] ?? 0;
+      if (cur <= 1) {
+        const next = { ...prev };
+        delete next[key];
+        return next;
+      }
+      return { ...prev, [key]: cur - 1 };
+    });
+  }
+
+  async function processQueue(uid: string) {
+    if (processingRef.current) return;
+    processingRef.current = true;
+
+    try {
+      while (queueRef.current.length > 0 && mountedRef.current) {
+        const nextKey = queueRef.current.shift();
+        if (!nextKey) break;
+
+        // Smooth monotonic pacing to guarantee server rule >= 120ms passes cleanly
+        const now = typeof performance !== "undefined" ? performance.now() : Date.now();
+        const minGap = DHIKR_COOLDOWN_MS + 25;
+        const sinceLast = now - lastCommitAtRef.current;
+        if (lastCommitAtRef.current > 0 && sinceLast < minGap) {
+          await sleep(minGap - sinceLast);
+        }
+
+        let succeeded = false;
+        let lastErr: unknown = null;
+
+        for (let attempt = 0; attempt < 2 && !succeeded; attempt++) {
+          try {
+            const res = await performDhikrStep(uid, nextKey);
+            lastCommitAtRef.current =
+              typeof performance !== "undefined" ? performance.now() : Date.now();
+            decrementPending(nextKey);
+            succeeded = true;
+
+            if (res.completedTen && mountedRef.current) {
+              setCompletedFlashKey(nextKey);
+              setTimeout(() => {
+                if (mountedRef.current) setCompletedFlashKey(null);
+              }, 900);
+            }
+            if (res.earnedHeart && mountedRef.current) {
+              play("reward");
+              setCelebrateHeart(true);
+              toast.success("ما شاء الله! حصلت على +1 ❤️ جديد في رصيدك!");
+              setTimeout(() => {
+                if (mountedRef.current) setCelebrateHeart(false);
+              }, 1800);
+            }
+          } catch (err: unknown) {
+            lastErr = err;
+            const msg = err instanceof Error ? err.message : String(err);
+            if (msg.includes("MAX_HEARTS_REACHED")) {
+              queueRef.current = [];
+              if (mountedRef.current) {
+                setPendingByKey({});
+                toast.info(`وصلت إلى الحد الأقصى (${MAX_HEARTS_CAP} قلوب) ❤️`);
+              }
+              succeeded = true;
+              break;
+            }
+            // Retry once smoothly after brief wait in case of transient transaction contention or tight burst
+            if (attempt === 0) {
+              await sleep(200);
+            }
+          }
+        }
+
+        if (!succeeded) {
+          decrementPending(nextKey);
+          console.error("Failed to record dhikr step:", lastErr);
+          const msg = lastErr instanceof Error ? lastErr.message : String(lastErr);
+          if (msg.includes("STUDENT_NOT_FOUND")) {
+            queueRef.current = [];
+            setPendingByKey({});
+            toast.error("يرجى إعادة تسجيل الدخول لتفعيل ملفك.");
+            break;
+          } else {
+            toast.error("تعذر تسجيل التسبيحة، تحقق من الاتصال وحاول مجدداً.");
+          }
+        }
+      }
+    } finally {
+      processingRef.current = false;
+    }
+  }
+
+  function handleTasbih(key: DhikrKey) {
     if (!me) return;
     if (me.isCreator) {
       toast.info("حساب المصمم يملك قلوباً غير محدودة ❤️");
       return;
     }
-    if (currentHearts >= MAX_HEARTS_CAP) {
+    if (currentHearts >= MAX_HEARTS_CAP || optimisticHearts >= MAX_HEARTS_CAP) {
       toast.info(`وصلت إلى الحد الأقصى للقلوب (${MAX_HEARTS_CAP}/${MAX_HEARTS_CAP}) ❤️`);
       return;
     }
 
-    const now = Date.now();
-    if (now < cooldownUntil) {
-      toast.warning("⏳ انتظر نصف ثانية بين كل تسبيحة والأخرى");
+    // Limit deep backlog only if user taps way faster than network
+    if (queueRef.current.length >= 10) {
       return;
     }
 
-    setBusyKey(key);
-    setCooldownUntil(now + DHIKR_COOLDOWN_MS);
+    play("click");
+    setPulseKey(key);
+    setTimeout(() => {
+      if (mountedRef.current) setPulseKey((cur) => (cur === key ? null : cur));
+    }, 150);
 
-    try {
-      const res = await performDhikrStep(me.id, key);
-      if (res.completedTen) {
-        setCompletedFlashKey(key);
-        setTimeout(() => setCompletedFlashKey(null), 900);
-      }
-      if (res.earnedHeart) {
-        play("reward");
-        setCelebrateHeart(true);
-        toast.success("ما شاء الله! حصلت على +1 ❤️ جديد في رصيدك!");
-        setTimeout(() => setCelebrateHeart(false), 1800);
-      } else {
-        play("click");
-      }
-    } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : String(error);
-      if (msg.includes("MAX_HEARTS_REACHED")) {
-        toast.info(`وصلت إلى الحد الأقصى (${MAX_HEARTS_CAP} قلوب)`);
-      } else if (msg.includes("COOLDOWN_ACTIVE") || msg.includes("permission")) {
-        toast.warning("⏳ تمهّل قليلاً (الحد الأدنى 0.5 ثانية بين التسبيحات)");
-      } else {
-        console.error("Failed to record dhikr step:", error);
-        toast.error("تعذر تسجيل التسبيحة، تحقق من الاتصال.");
-      }
-    } finally {
-      setTimeout(() => setBusyKey(null), 220);
-    }
+    queueRef.current.push(key);
+    setPendingByKey((prev) => ({
+      ...prev,
+      [key]: (prev[key] ?? 0) + 1,
+    }));
+
+    void processQueue(me.id);
   }
 
   function handleBackToQuiz() {
@@ -167,10 +268,21 @@ function RenewHeartsPage() {
         {/* 8 Adhkar Grid */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {ADHKAR_LIST.map((item) => {
-            const rawCount = Number(me.dhikrCounts?.[item.key] ?? 0);
-            const displayCount = completedFlashKey === item.key ? DHIKR_TARGET : rawCount;
+            const confirmedCount = Math.max(
+              0,
+              Math.min(9, Number(me.dhikrCounts?.[item.key] ?? 0)),
+            );
+            const pendingCount = pendingByKey[item.key] ?? 0;
+            const totalOptimistic = confirmedCount + pendingCount;
+            const wrappedCount = totalOptimistic % DHIKR_TARGET;
+            const justCompletedOptimistically = pendingCount > 0 && wrappedCount === 0;
+            const displayCount =
+              completedFlashKey === item.key || justCompletedOptimistically
+                ? DHIKR_TARGET
+                : wrappedCount;
             const pct = Math.min(100, Math.round((displayCount / DHIKR_TARGET) * 100));
-            const isFlashing = completedFlashKey === item.key;
+            const isFlashing = completedFlashKey === item.key || justCompletedOptimistically;
+            const isPulsing = pulseKey === item.key;
 
             return (
               <div
@@ -196,7 +308,7 @@ function RenewHeartsPage() {
                   {/* Progress Bar */}
                   <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-muted">
                     <div
-                      className={`h-full rounded-full transition-all duration-300 ${
+                      className={`h-full rounded-full transition-all duration-200 ${
                         isFlashing ? "bg-success" : "bg-hero"
                       }`}
                       style={{ width: `${pct}%` }}
@@ -206,17 +318,13 @@ function RenewHeartsPage() {
 
                 <button
                   type="button"
-                  disabled={busyKey !== null || isAtCap}
-                  onClick={() => void handleTasbih(item.key)}
-                  className="mt-4 w-full rounded-xl bg-primary py-2.5 text-sm font-bold text-primary-foreground shadow-sm hover:brightness-105 active:scale-95 transition-all disabled:opacity-50"
+                  disabled={isAtCap}
+                  onClick={() => handleTasbih(item.key)}
+                  className={`mt-4 w-full rounded-xl bg-primary py-2.5 text-sm font-bold text-primary-foreground shadow-sm hover:brightness-105 active:scale-95 transition-all disabled:opacity-50 ${
+                    isPulsing ? "scale-95 brightness-110" : ""
+                  }`}
                 >
-                  {isFlashing
-                    ? "✨ +1 ❤️ تم!"
-                    : isAtCap
-                      ? "الرصيد ممتلئ (5/5)"
-                      : busyKey === item.key
-                        ? "..."
-                        : "سبّح"}
+                  {isFlashing ? "✨ +1 ❤️ تم!" : isAtCap ? "الرصيد ممتلئ (5/5)" : "سبّح"}
                 </button>
               </div>
             );
@@ -224,8 +332,8 @@ function RenewHeartsPage() {
         </div>
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
-          🛡️ لحماية النزاهة: يُحتسب كل تسبيح والحد الأقصى للقلوب مباشرة في قاعدة البيانات بفاصل لا
-          يقل عن 0.5 ثانية بين النقرات.
+          🛡️ لحماية النزاهة: يُحتسب كل تسبيح والحد الأقصى للقلوب مباشرة في قاعدة البيانات بحماية
+          تلقائية سريعة وسلسة.
         </p>
       </div>
     </AppShell>

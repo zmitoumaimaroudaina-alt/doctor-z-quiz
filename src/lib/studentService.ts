@@ -22,7 +22,7 @@ export const LEGACY_MIGRATION_MESSAGE =
 export const INITIAL_HEARTS = 2;
 export const MAX_HEARTS_CAP = 5;
 export const DHIKR_TARGET = 10;
-export const DHIKR_COOLDOWN_MS = 500;
+export const DHIKR_COOLDOWN_MS = 150;
 
 export const ADHKAR_LIST = [
   { key: "d0", text: "سبحان الله", sub: "التسبيح" },
@@ -272,26 +272,31 @@ export async function performDhikrStep(
         throw new Error("STUDENT_NOT_FOUND");
       }
       const data = snap.data() as Partial<StudentProfile>;
-      const currentHearts = typeof data.hearts === "number" ? data.hearts : 0;
+      const currentHearts =
+        typeof data.hearts === "number" && Number.isFinite(data.hearts)
+          ? Math.max(0, Math.floor(data.hearts))
+          : 0;
       if (currentHearts >= MAX_HEARTS_CAP) {
         throw new Error("MAX_HEARTS_REACHED");
       }
 
-      if (data.lastDhikrAt && typeof data.lastDhikrAt.toMillis === "function") {
-        const elapsed = Date.now() - data.lastDhikrAt.toMillis();
-        if (elapsed < DHIKR_COOLDOWN_MS) {
-          throw new Error("COOLDOWN_ACTIVE");
+      // Sanitize dhikrCounts so only valid keys d0..d7 with integers 0..9 are written back
+      const rawCounts = (data.dhikrCounts || {}) as Record<string, unknown>;
+      const cleanCounts: DhikrCountsMap = {};
+      for (const item of ADHKAR_LIST) {
+        const val = Number(rawCounts[item.key] ?? 0);
+        if (Number.isFinite(val) && val > 0) {
+          cleanCounts[item.key] = Math.max(0, Math.min(9, Math.floor(val)));
         }
       }
 
-      const prevCounts: DhikrCountsMap = { ...(data.dhikrCounts || {}) };
-      const prevVal = Math.max(0, Math.min(9, Number(prevCounts[dhikrKey] ?? 0)));
+      const prevVal = Math.max(0, Math.min(9, Math.floor(Number(cleanCounts[dhikrKey] ?? 0))));
       const completedTen = prevVal >= 9;
       const nextVal = completedTen ? 0 : prevVal + 1;
       const nextHearts = completedTen ? Math.min(MAX_HEARTS_CAP, currentHearts + 1) : currentHearts;
 
       const updatedCounts: DhikrCountsMap = {
-        ...prevCounts,
+        ...cleanCounts,
         [dhikrKey]: nextVal,
       };
 
@@ -311,9 +316,7 @@ export async function performDhikrStep(
   } catch (error) {
     if (
       error instanceof Error &&
-      (error.message === "MAX_HEARTS_REACHED" ||
-        error.message === "COOLDOWN_ACTIVE" ||
-        error.message === "STUDENT_NOT_FOUND")
+      (error.message === "MAX_HEARTS_REACHED" || error.message === "STUDENT_NOT_FOUND")
     ) {
       throw error;
     }

@@ -87,7 +87,7 @@ service cloud.firestore {
         && (
           !('lastDhikrAt' in existing())
           || existing().lastDhikrAt == null
-          || request.time >= existing().lastDhikrAt + duration.value(500, 'ms')
+          || request.time >= existing().lastDhikrAt + duration.value(120, 'ms')
         )
         && (
           isOnlyDhikrStepped('d0') || isOnlyDhikrStepped('d1') ||
@@ -198,7 +198,7 @@ service cloud.firestore {
             && existing().hearts > 0
             && incoming().hearts == existing().hearts - 1
           ) ||
-          // Action E: Owner Dhikr heart renewal with 0.5s cooldown + max 5 hearts anti-cheat
+          // Action E: Owner Dhikr heart renewal with 0.12s cooldown + max 5 hearts anti-cheat
           (
             isOwner(uid)
             && incoming().diff(existing()).affectedKeys().hasOnly(['dhikrCounts', 'hearts', 'lastDhikrAt'])
