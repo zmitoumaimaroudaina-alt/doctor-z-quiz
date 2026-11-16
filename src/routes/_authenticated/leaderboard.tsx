@@ -99,9 +99,15 @@ function Leaderboard() {
   }, [me?.id]);
 
   const mine = rows.find((r) => r.uid === me?.id);
+  const myRank = mine?.rnk ?? null;
+  const canThrowTomato = Boolean(me?.isCreator || (myRank !== null && myRank <= 5));
 
   async function throwAt(targetId: string, targetName: string) {
     if (!me) return;
+    if (!canThrowTomato) {
+      toast.error("عذراً! رمي الطماطم متاح فقط للـ 5 الأوائل في النقاط والمصمم 👑");
+      return;
+    }
     if (targetId === me.id) {
       toast.error("لا يمكنك رمي الطماطم على نفسك 😅");
       return;
@@ -113,7 +119,13 @@ function Leaderboard() {
     setLocalFlying(targetId);
 
     try {
-      await throwTomatoHit(me.id, me.display_name || "طالب", targetId, targetName);
+      await throwTomatoHit(
+        me.id,
+        me.display_name || "طالب",
+        targetId,
+        targetName,
+        Boolean(me.isCreator),
+      );
       setTimeout(() => {
         setLocalFlying((curr) => (curr === targetId ? null : curr));
         play("hit");
@@ -121,8 +133,13 @@ function Leaderboard() {
       }, 500);
     } catch (error) {
       setLocalFlying(null);
-      console.error("Failed to throw tomato:", error);
-      toast.error("تعذر إرسال ضربة الطماطم. حاول مجدداً.");
+      const msg = error instanceof Error ? error.message : String(error);
+      if (msg.includes("NOT_TOP5_OR_CREATOR")) {
+        toast.error("عذراً! رمي الطماطم متاح فقط للـ 5 الأوائل في النقاط والمصمم 👑");
+      } else {
+        console.error("Failed to throw tomato:", error);
+        toast.error("تعذر إرسال ضربة الطماطم. حاول مجدداً.");
+      }
     } finally {
       setTimeout(() => setThrowingId(null), 1000);
     }
@@ -151,9 +168,22 @@ function Leaderboard() {
       />
 
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <div className="rounded-full bg-hero px-4 py-2 text-xs sm:text-sm font-bold text-primary-foreground shadow-pop">
             🏆 الترتيب العام ({rows.length} مشارك مسجّل)
+          </div>
+          <div
+            className={`rounded-full border px-3.5 py-2 text-xs font-bold ${
+              canThrowTomato
+                ? "border-tomato/40 bg-tomato/10 text-tomato"
+                : "border-border bg-muted/60 text-muted-foreground"
+            }`}
+          >
+            {canThrowTomato
+              ? me?.isCreator
+                ? "🍅 صلاحية رمي الطماطم: المصمم 👑"
+                : `🍅 صلاحية رمي الطماطم مفعّلة (المركز #${myRank} ضمن الـ 5 الأوائل)`
+              : `🔒 رمي الطماطم للـ 5 الأوائل والمصمم فقط${myRank ? ` (مركزك: #${myRank})` : ""}`}
           </div>
         </div>
       </div>
@@ -207,16 +237,21 @@ function Leaderboard() {
                 <span>🍅</span>
                 <span>{tomatoCount}</span>
               </div>
-              {!isMe && (
-                <button
-                  type="button"
-                  disabled={throwingId !== null}
-                  onClick={() => void throwAt(r.uid, r.name)}
-                  className="mt-2 rounded-lg bg-tomato/15 px-2.5 py-1 text-xs font-bold text-tomato hover:bg-tomato/25 transition-colors disabled:opacity-50"
-                >
-                  🍅 ارمي طماطم
-                </button>
-              )}
+              {!isMe &&
+                (canThrowTomato ? (
+                  <button
+                    type="button"
+                    disabled={throwingId !== null}
+                    onClick={() => void throwAt(r.uid, r.name)}
+                    className="mt-2 rounded-lg bg-tomato/15 px-2.5 py-1 text-xs font-bold text-tomato hover:bg-tomato/25 transition-colors disabled:opacity-50"
+                  >
+                    🍅 ارمي طماطم
+                  </button>
+                ) : (
+                  <span className="mt-2 rounded-lg bg-muted px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
+                    🔒 للـ 5 الأوائل
+                  </span>
+                ))}
             </div>
           );
         })}
@@ -318,15 +353,24 @@ function Leaderboard() {
                     </td>
                     <td className="px-4 py-3 text-right">
                       {!isMe ? (
-                        <button
-                          type="button"
-                          disabled={throwingId !== null}
-                          onClick={() => void throwAt(r.uid, r.name)}
-                          aria-label="Lancer une tomate"
-                          className="rounded-lg bg-tomato/15 px-2.5 py-1 text-xs font-bold text-tomato hover:bg-tomato/25 transition disabled:opacity-50"
-                        >
-                          🍅 ارمي
-                        </button>
+                        canThrowTomato ? (
+                          <button
+                            type="button"
+                            disabled={throwingId !== null}
+                            onClick={() => void throwAt(r.uid, r.name)}
+                            aria-label="Lancer une tomate"
+                            className="rounded-lg bg-tomato/15 px-2.5 py-1 text-xs font-bold text-tomato hover:bg-tomato/25 transition disabled:opacity-50"
+                          >
+                            🍅 ارمي
+                          </button>
+                        ) : (
+                          <span
+                            title="متاح فقط لأصحاب المراكز الـ 5 الأولى والمصمم"
+                            className="inline-block rounded-lg bg-muted px-2.5 py-1 text-[11px] font-semibold text-muted-foreground"
+                          >
+                            🔒 للـ 5 الأوائل
+                          </span>
+                        )
                       ) : (
                         <span className="text-xs text-muted-foreground">—</span>
                       )}

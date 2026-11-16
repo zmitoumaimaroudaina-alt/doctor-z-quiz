@@ -1,9 +1,10 @@
 import { pageMetadata } from "@/lib/metadata";
+import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { AppShell, PageTitle } from "@/components/AppShell";
-import { useMe } from "@/hooks/useMe";
+import { useMe, type Me } from "@/hooks/useMe";
 import { renderHeartsVisual } from "@/lib/heartsStore";
 import {
   ADHKAR_LIST,
@@ -32,6 +33,7 @@ function sleep(ms: number) {
 
 function RenewHeartsPage() {
   const { data: me } = useMe();
+  const qc = useQueryClient();
   const nav = useNavigate();
   const [pendingByKey, setPendingByKey] = useState<PendingMap>({});
   const [celebrateHeart, setCelebrateHeart] = useState(false);
@@ -72,7 +74,6 @@ function RenewHeartsPage() {
   const currentHearts = me.isCreator ? MAX_HEARTS_CAP : Math.max(0, me.hearts);
   const isAtCap = !me.isCreator && currentHearts >= MAX_HEARTS_CAP;
 
-  // Calculate total hearts already committed + expected from queued taps
   const pendingPotentialHearts = ADHKAR_LIST.reduce((acc, item) => {
     const confirmed = Math.max(0, Math.min(9, Number(me.dhikrCounts?.[item.key] ?? 0)));
     const pending = pendingByKey[item.key] ?? 0;
@@ -102,9 +103,9 @@ function RenewHeartsPage() {
         const nextKey = queueRef.current.shift();
         if (!nextKey) break;
 
-        // Smooth monotonic pacing to guarantee server rule >= 120ms passes cleanly
+        // Space consecutive Firestore transactions comfortably above the 50ms server rule
         const now = typeof performance !== "undefined" ? performance.now() : Date.now();
-        const minGap = DHIKR_COOLDOWN_MS + 25;
+        const minGap = DHIKR_COOLDOWN_MS + 20;
         const sinceLast = now - lastCommitAtRef.current;
         if (lastCommitAtRef.current > 0 && sinceLast < minGap) {
           await sleep(minGap - sinceLast);
@@ -112,12 +113,27 @@ function RenewHeartsPage() {
 
         let succeeded = false;
         let lastErr: unknown = null;
+        const retryDelays = [140, 260, 420];
 
-        for (let attempt = 0; attempt < 2 && !succeeded; attempt++) {
+        for (let attempt = 0; attempt <= retryDelays.length && !succeeded; attempt++) {
           try {
             const res = await performDhikrStep(uid, nextKey);
             lastCommitAtRef.current =
               typeof performance !== "undefined" ? performance.now() : Date.now();
+
+            // Synchronously update React Query cache with the authoritative transaction result
+            // BEFORE/WITH decrementPending so the displayed count NEVER drops backwards.
+            qc.setQueryData<Me | null>(["me"], (prev) => {
+              if (!prev || prev.id !== uid) return prev;
+              return {
+                ...prev,
+                hearts: prev.isCreator ? prev.hearts : res.newHearts,
+                dhikrCounts: {
+                  ...prev.dhikrCounts,
+                  [nextKey]: res.newCount,
+                },
+              };
+            });
             decrementPending(nextKey);
             succeeded = true;
 
@@ -147,9 +163,12 @@ function RenewHeartsPage() {
               succeeded = true;
               break;
             }
-            // Retry once smoothly after brief wait in case of transient transaction contention or tight burst
-            if (attempt === 0) {
-              await sleep(200);
+            if (msg.includes("STUDENT_NOT_FOUND")) {
+              break;
+            }
+            const delay = retryDelays[attempt];
+            if (delay !== undefined) {
+              await sleep(delay);
             }
           }
         }
@@ -184,8 +203,7 @@ function RenewHeartsPage() {
       return;
     }
 
-    // Limit deep backlog only if user taps way faster than network
-    if (queueRef.current.length >= 10) {
+    if (queueRef.current.length >= 15) {
       return;
     }
 

@@ -4,6 +4,8 @@ import {
   getDoc,
   getDocs,
   increment,
+  limit,
+  orderBy,
   query,
   runTransaction,
   serverTimestamp,
@@ -22,7 +24,7 @@ export const LEGACY_MIGRATION_MESSAGE =
 export const INITIAL_HEARTS = 2;
 export const MAX_HEARTS_CAP = 5;
 export const DHIKR_TARGET = 10;
-export const DHIKR_COOLDOWN_MS = 150;
+export const DHIKR_COOLDOWN_MS = 100;
 
 export const ADHKAR_LIST = [
   { key: "d0", text: "سبحان الله", sub: "التسبيح" },
@@ -324,14 +326,51 @@ export async function performDhikrStep(
   }
 }
 
+export async function isEligibleTomatoThrower(uid: string, isCreator = false): Promise<boolean> {
+  if (isCreator) return true;
+  if (!uid) return false;
+  try {
+    const topQuery = query(collection(db, "students"), orderBy("score", "desc"), limit(25));
+    const snap = await getDocs(topQuery);
+    const activeTop5Uids: string[] = [];
+    snap.forEach((docSnap) => {
+      if (activeTop5Uids.length >= 5) return;
+      const d = docSnap.data() as {
+        migrated?: boolean;
+        uid?: unknown;
+        name?: unknown;
+        avatar?: unknown;
+        photoURL?: unknown;
+      };
+      if (d.migrated === true) return;
+      const docUid = typeof d.uid === "string" ? d.uid.trim() : "";
+      const name = typeof d.name === "string" ? d.name.trim() : "";
+      const hasVisual =
+        (d.avatar != null && typeof d.avatar === "object") ||
+        (typeof d.photoURL === "string" && d.photoURL.trim().length > 0);
+      if (!docUid || !name || !hasVisual) return;
+      activeTop5Uids.push(docSnap.id);
+    });
+    return activeTop5Uids.includes(uid);
+  } catch (error) {
+    logFirestoreError(error, OperationType.LIST, "students");
+    return false;
+  }
+}
+
 export async function throwTomatoHit(
   fromUid: string,
   fromName: string,
   toUid: string,
   toName: string,
+  isCreator = false,
 ): Promise<void> {
   if (!fromUid || !toUid || fromUid === toUid) {
     throw new Error("NO_SELF");
+  }
+  const allowed = await isEligibleTomatoThrower(fromUid, isCreator);
+  if (!allowed) {
+    throw new Error("NOT_TOP5_OR_CREATOR");
   }
   const hitId = `hit_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   const hitRef = doc(db, "tomato_hits", hitId);
