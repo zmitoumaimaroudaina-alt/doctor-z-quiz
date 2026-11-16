@@ -2,6 +2,7 @@ import {
   collection,
   doc,
   getDoc,
+  getDocFromServer,
   getDocs,
   increment,
   limit,
@@ -268,53 +269,58 @@ export async function performDhikrStep(
 ): Promise<{ newCount: number; newHearts: number; earnedHeart: boolean; completedTen: boolean }> {
   const docRef = doc(db, "students", uid);
   try {
-    return await runTransaction(db, async (tx) => {
-      const snap = await tx.get(docRef);
-      if (!snap.exists()) {
-        throw new Error("STUDENT_NOT_FOUND");
+    let snap;
+    try {
+      snap = await getDocFromServer(docRef);
+    } catch {
+      snap = await getDoc(docRef);
+    }
+
+    if (!snap.exists()) {
+      throw new Error("STUDENT_NOT_FOUND");
+    }
+
+    const data = snap.data() as Partial<StudentProfile>;
+    const currentHearts =
+      typeof data.hearts === "number" && Number.isFinite(data.hearts)
+        ? Math.max(0, Math.floor(data.hearts))
+        : 0;
+    if (currentHearts >= MAX_HEARTS_CAP) {
+      throw new Error("MAX_HEARTS_REACHED");
+    }
+
+    // Sanitize dhikrCounts so only valid keys d0..d7 with integers 0..9 are written back
+    const rawCounts = (data.dhikrCounts || {}) as Record<string, unknown>;
+    const cleanCounts: DhikrCountsMap = {};
+    for (const item of ADHKAR_LIST) {
+      const val = Number(rawCounts[item.key] ?? 0);
+      if (Number.isFinite(val) && val > 0) {
+        cleanCounts[item.key] = Math.max(0, Math.min(9, Math.floor(val)));
       }
-      const data = snap.data() as Partial<StudentProfile>;
-      const currentHearts =
-        typeof data.hearts === "number" && Number.isFinite(data.hearts)
-          ? Math.max(0, Math.floor(data.hearts))
-          : 0;
-      if (currentHearts >= MAX_HEARTS_CAP) {
-        throw new Error("MAX_HEARTS_REACHED");
-      }
+    }
 
-      // Sanitize dhikrCounts so only valid keys d0..d7 with integers 0..9 are written back
-      const rawCounts = (data.dhikrCounts || {}) as Record<string, unknown>;
-      const cleanCounts: DhikrCountsMap = {};
-      for (const item of ADHKAR_LIST) {
-        const val = Number(rawCounts[item.key] ?? 0);
-        if (Number.isFinite(val) && val > 0) {
-          cleanCounts[item.key] = Math.max(0, Math.min(9, Math.floor(val)));
-        }
-      }
+    const prevVal = Math.max(0, Math.min(9, Math.floor(Number(cleanCounts[dhikrKey] ?? 0))));
+    const completedTen = prevVal >= 9;
+    const nextVal = completedTen ? 0 : prevVal + 1;
+    const nextHearts = completedTen ? Math.min(MAX_HEARTS_CAP, currentHearts + 1) : currentHearts;
 
-      const prevVal = Math.max(0, Math.min(9, Math.floor(Number(cleanCounts[dhikrKey] ?? 0))));
-      const completedTen = prevVal >= 9;
-      const nextVal = completedTen ? 0 : prevVal + 1;
-      const nextHearts = completedTen ? Math.min(MAX_HEARTS_CAP, currentHearts + 1) : currentHearts;
+    const updatedCounts: DhikrCountsMap = {
+      ...cleanCounts,
+      [dhikrKey]: nextVal,
+    };
 
-      const updatedCounts: DhikrCountsMap = {
-        ...cleanCounts,
-        [dhikrKey]: nextVal,
-      };
-
-      tx.update(docRef, {
-        dhikrCounts: updatedCounts,
-        hearts: nextHearts,
-        lastDhikrAt: serverTimestamp(),
-      });
-
-      return {
-        newCount: nextVal,
-        newHearts: nextHearts,
-        earnedHeart: completedTen && nextHearts > currentHearts,
-        completedTen,
-      };
+    await updateDoc(docRef, {
+      dhikrCounts: updatedCounts,
+      hearts: nextHearts,
+      lastDhikrAt: serverTimestamp(),
     });
+
+    return {
+      newCount: nextVal,
+      newHearts: nextHearts,
+      earnedHeart: completedTen && nextHearts > currentHearts,
+      completedTen,
+    };
   } catch (error) {
     if (
       error instanceof Error &&

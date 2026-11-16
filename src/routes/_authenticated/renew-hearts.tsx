@@ -176,14 +176,23 @@ function RenewHeartsPage() {
         if (!succeeded) {
           decrementPending(nextKey);
           console.error("Failed to record dhikr step:", lastErr);
-          const msg = lastErr instanceof Error ? lastErr.message : String(lastErr);
-          if (msg.includes("STUDENT_NOT_FOUND")) {
+          const rawMsg = lastErr instanceof Error ? lastErr.message : String(lastErr);
+          let detail = rawMsg;
+          try {
+            const parsed = JSON.parse(rawMsg) as { error?: string };
+            if (parsed.error) detail = parsed.error;
+          } catch {
+            // keep rawMsg
+          }
+          if (detail.includes("STUDENT_NOT_FOUND")) {
             queueRef.current = [];
             setPendingByKey({});
             toast.error("يرجى إعادة تسجيل الدخول لتفعيل ملفك.");
             break;
+          } else if (detail.toLowerCase().includes("permission")) {
+            toast.error("تعذر حفظ التسبيحة بسبب صلاحيات القاعدة. حدّث الصفحة وأعد المحاولة.");
           } else {
-            toast.error("تعذر تسجيل التسبيحة، تحقق من الاتصال وحاول مجدداً.");
+            toast.error("تعذر تسجيل التسبيحة: " + detail.slice(0, 80));
           }
         }
       }
