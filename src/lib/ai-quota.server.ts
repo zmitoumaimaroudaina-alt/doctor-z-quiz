@@ -1,6 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
+import { createVerify } from "node:crypto";
 import { promises as fs } from "node:fs";
 import path from "node:path";
+import firebaseConfig from "../../firebase-applet-config.json";
 
 export const AI_DAILY_EXPLAIN_LIMIT = 60;
 export const AI_DAILY_PDF_LIMIT = 30;
@@ -208,6 +210,128 @@ export interface AuthenticatedStudent {
   isCreator: boolean;
 }
 
+const FIREBASE_CERTS_URL =
+  "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com";
+let cachedCerts: { certs: Record<string, string>; expiresAtMs: number } | null = null;
+
+async function getFirebasePublicCerts(forceRefresh = false): Promise<Record<string, string>> {
+  const now = Date.now();
+  if (!forceRefresh && cachedCerts && now < cachedCerts.expiresAtMs) {
+    return cachedCerts.certs;
+  }
+
+  const res = await fetch(FIREBASE_CERTS_URL);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch Firebase certs (${res.status})`);
+  }
+  const certs = (await res.json()) as Record<string, string>;
+  const cacheControl = res.headers.get("cache-control") ?? "";
+  const maxAgeMatch = cacheControl.match(/max-age=(\d+)/i);
+  const maxAgeSec = maxAgeMatch ? Number(maxAgeMatch[1]) : 3600;
+  cachedCerts = {
+    certs,
+    expiresAtMs: now + Math.max(60, maxAgeSec) * 1000,
+  };
+  return certs;
+}
+
+function decodeJwtPart<T>(b64Url: string): T | null {
+  try {
+    const json = Buffer.from(b64Url, "base64url").toString("utf8");
+    return JSON.parse(json) as T;
+  } catch {
+    return null;
+  }
+}
+
+async function verifyFirebaseIdToken(token: string): Promise<AuthenticatedStudent | null> {
+  const parts = token.split(".");
+  if (parts.length !== 3) return null;
+
+  const [headerB64, payloadB64, sigB64] = parts;
+  if (!headerB64 || !payloadB64 || !sigB64) return null;
+
+  const header = decodeJwtPart<{ alg?: string; kid?: string }>(headerB64);
+  const payload = decodeJwtPart<{
+    aud?: string;
+    iss?: string;
+    sub?: string;
+    exp?: number;
+    iat?: number;
+    email?: string;
+    email_verified?: boolean;
+    firebase?: { sign_in_provider?: string };
+  }>(payloadB64);
+
+  if (!header || !payload) return null;
+  if (header.alg !== "RS256" || !header.kid) return null;
+
+  const projectId = firebaseConfig.projectId;
+  const nowSec = Math.floor(Date.now() / 1000);
+  if (payload.aud !== projectId) return null;
+  if (payload.iss !== `https://securetoken.google.com/${projectId}`) return null;
+  if (!payload.sub || typeof payload.sub !== "string") return null;
+  if (typeof payload.exp !== "number" || payload.exp <= nowSec - 60) return null;
+  if (typeof payload.iat !== "number" || payload.iat > nowSec + 120) return null;
+
+  try {
+    let certs = await getFirebasePublicCerts(false);
+    let certPem = certs[header.kid];
+    if (!certPem) {
+      certs = await getFirebasePublicCerts(true);
+      certPem = certs[header.kid];
+    }
+    if (certPem) {
+      const verifier = createVerify("RSA-SHA256");
+      verifier.update(`${headerB64}.${payloadB64}`);
+      verifier.end();
+      const sigBytes = Buffer.from(sigB64, "base64url");
+      if (!verifier.verify(certPem, sigBytes)) {
+        return null;
+      }
+      const email = (payload.email ?? "").toLowerCase();
+      return {
+        userId: payload.sub,
+        email,
+        isCreator: CREATOR_EMAILS.has(email),
+      };
+    }
+  } catch {
+    // Fallback to Identity Toolkit REST lookup below
+  }
+
+  if (firebaseConfig.apiKey) {
+    try {
+      const lookupRes = await fetch(
+        `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${encodeURIComponent(firebaseConfig.apiKey)}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ idToken: token }),
+        },
+      );
+      if (lookupRes.ok) {
+        const lookupData = (await lookupRes.json()) as {
+          users?: Array<{ localId?: string; email?: string }>;
+        };
+        const u = lookupData.users?.[0];
+        if (u?.localId) {
+          const email = (u.email ?? "").toLowerCase();
+          return {
+            userId: u.localId,
+            email,
+            isCreator: CREATOR_EMAILS.has(email),
+          };
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  return null;
+}
+
 export async function authenticateStudentRequest(
   request: Request,
 ): Promise<AuthenticatedStudent | null> {
@@ -217,6 +341,13 @@ export async function authenticateStudentRequest(
     .trim();
   if (!token) return null;
 
+  // 1. Verify Firebase ID Token (primary Google Auth flow)
+  const firebaseStudent = await verifyFirebaseIdToken(token);
+  if (firebaseStudent) {
+    return firebaseStudent;
+  }
+
+  // 2. Legacy Supabase fallback if configured
   const url = process.env["SUPABASE_URL"];
   const pub = process.env["SUPABASE_PUBLISHABLE_KEY"];
   if (url && pub) {
